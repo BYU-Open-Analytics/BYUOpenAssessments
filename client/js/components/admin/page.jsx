@@ -35,7 +35,7 @@ class Page extends React.Component {
       <IconButton
         className="github-icon-button"
         iconClassName="muidocs-icon-custom-github"
-        href="https://github.com/atomicjolt/canvas_starter_app"
+        href="https://github.com/atomicjolt/byu_open_assessments"
         linkButton={true} />
     );
 

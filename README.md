@@ -68,13 +68,13 @@ If you need to run services individually or just don't like Foreman you can run 
 
   `ngrok_webpack: ngrok --subdomain cs_assets --log stdout 8080`
 
-  `ngrok_rails: ngrok --subdomain canvasstarterapp --log stdout 3000`
+  `ngrok_rails: ngrok --subdomain byuopenassessments --log stdout 3000`
 
 
 ### Modify application name
-Change the name of the application to a name that you prefer. Open application.rb and change CanvasStarterApp to the
-name you choose. Do a global search and replace for canvas_starter_app and change it to the name you choose. Do a global
-search and replace for canvasstarterapp.
+Change the name of the application to a name that you prefer. Open application.rb and change BYUOpenAssessments to the
+name you choose. Do a global search and replace for byu_open_assessments and change it to the name you choose. Do a global
+search and replace for byuopenassessments.
 
 ### Secrets file
 Run:

@@ -2,7 +2,7 @@
 
 # Meant to be run from root directory of project
 # ./bin/bootstrap
-DROPBOX_FOLDER=aj-dev/OpenAssessments
+DROPBOX_FOLDER=~/DropboxConfig
 
 # All config files for project
 files=("bin/deploy" "config/secrets.yml" "config/database.yml")
@@ -13,5 +13,5 @@ do
   then
     rm $file
   fi
-  ln -s "$HOME/Dropbox/$DROPBOX_FOLDER/$file" $file
+  ln -s "$DROPBOX_FOLDER/$file" $file
 done
