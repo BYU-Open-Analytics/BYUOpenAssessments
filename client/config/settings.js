@@ -28,7 +28,7 @@ module.exports = {
   applicationUrl: 'http://www.openassessments.com',
 
   // Dev urls
-  devAssetsUrl: devAssetsUrl || 'http://localhost:' + hotPort,
+  devAssetsUrl: devAssetsUrl || 'http://192.168.56.102:' + hotPort,
 
   ports: {
     hotPort: hotPort
