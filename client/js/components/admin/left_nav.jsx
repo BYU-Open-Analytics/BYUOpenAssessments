@@ -2,16 +2,19 @@
 
 import React                from "react";
 import UserStore            from "../../stores/user";
+import AccountsStore        from "../../stores/accounts";
 import BaseComponent        from "../base_component";
 import Router               from "react-router";
-import { LeftNav }          from "material-ui";
+import Defines              from "../defines";
+import AccountSelection     from './account_selection';
+import { LeftNav, IconButton, FontIcon, FlatButton }          from "material-ui";
 
 class LeftNavigation extends BaseComponent {
 
-  constructor() {
-    super();
+  constructor(props, context) {
+    super(props, context);
 
-    this.stores = [UserStore];
+    this.stores = [UserStore, AccountsStore];
     this.state = this.getState();
 
     this._bind("_getSelectedIndex", "toggle", "_onLeftNavChange");
@@ -26,8 +29,13 @@ class LeftNavigation extends BaseComponent {
     ];
 
     if(loggedIn){
-      menuItems.push({ route: 'dashboard', text: 'Dashboard' });
-      menuItems.push({ route: 'logout', text: 'Logout' });
+      if(AccountsStore.currentId()) {
+        var id = AccountsStore.currentId();
+        menuItems.push({ route: 'account', accountId: id, text:<div><i style={this.getStyles().iconStyle} className="material-icons">dashboard</i>Dashboard</div>  });
+        menuItems.push({ route: 'users', accountId: id, text: <div><i style={this.getStyles().iconStyle} className="material-icons">account_circle</i>Users</div> });
+      }
+      menuItems.push({ route: '', text: <div><i style={this.getStyles().iconStyle} className="material-icons">done</i>Assessments</div> });
+      menuItems.push({ route: 'logout', text: <div><i style={this.getStyles().iconStyle} className="material-icons">exit_to_app</i>Logout</div> });
     } else {
       menuItems.push({ route: 'login', text: 'Sign In' });
     }
@@ -51,13 +59,26 @@ class LeftNavigation extends BaseComponent {
   }
 
   _onLeftNavChange(e, key, payload) {
-    this.context.router.transitionTo(payload.route);
+    var id = payload.accountId ? {accountId: payload.accountId} : null;
+    this.context.router.transitionTo(payload.route, id);
+
   }
 
   getStyles() {
     return {
-      logoStyle: {
-        marginTop: '20px'
+      headerStyle: {
+        backgroundColor: Defines.colors.grey,
+        cursor: "pointer",
+        fontSize: "24px",
+        color: Defines.colors.white,
+        paddingTop: "8px",
+        marginBottom: "-6px",
+        textColor: Defines.colors.white
+      },
+      iconStyle: {
+        marginRight: "34px",
+        verticalAlign: "middle",
+        color: Defines.colors.darkGrey
       }
     };
   }
@@ -66,7 +87,10 @@ class LeftNavigation extends BaseComponent {
 
     var styles = this.getStyles();
 
-    var header = <div style={styles.logoStyle} className="logo">Home</div>;
+    var header = 
+      <div style={styles.headerStyle}>
+        <AccountSelection />
+      </div>;
 
     return (
       <LeftNav
@@ -83,7 +107,8 @@ class LeftNavigation extends BaseComponent {
 }
 
 LeftNavigation.contextTypes = {
-  router: React.PropTypes.func.isRequired
+  router: React.PropTypes.func.isRequired,
+  muiTheme: React.PropTypes.object
 };
 
 module.exports = LeftNavigation;
