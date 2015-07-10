@@ -68,6 +68,7 @@ gem 'groupdate' # for grouping the chart data by date
 # Monitoring
 gem 'newrelic_rpm'
 gem 'health_check'
+gem 'rack-ssl-enforcer'
 
 group :development do
   gem 'spring'
@@ -89,6 +90,7 @@ group :development do
 end
 
 group :development, :test do
+  gem 'dotenv-rails'
   gem 'byebug'
   gem 'factory_girl_rails'
   gem 'faker'
