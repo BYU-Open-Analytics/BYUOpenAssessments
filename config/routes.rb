@@ -57,10 +57,12 @@ Rails.application.routes.draw do
   match 'oembed' => 'oembed#endpoint', :via => [:get, :post]
 
   namespace :api do
+    resources :user_assessments
     resources :assessments
     resources :assessment_results
     resources :item_results
     resources :grades
+    resources :assessment_settings
   end
 
   match '/proxy' => 'default#proxy', via: [:get, :post]

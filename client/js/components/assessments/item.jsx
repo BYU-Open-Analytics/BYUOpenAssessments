@@ -9,42 +9,206 @@ import UniversalInput     from "./universal_input";
 export default class Item extends BaseComponent{
   constructor(){
     super();
-    this._bind("getButtons", "confidenceLevelClicked");
+    this._bind("getConfidenceLevels", "confidenceLevelClicked", "getPreviousButton", "getNextButton", "getStyles");
   }
 
   nextButtonClicked(){
+    this.setState({unAnsweredQuestions: null})
     AssessmentActions.nextQuestion();
   }
 
   previousButtonClicked(){
+    this.setState({unAnsweredQuestions: null})
     AssessmentActions.previousQuestion();
   }
 
   confidenceLevelClicked(e){
     e.preventDefault()
-    console.log(e.target.value)
     AssessmentActions.selectConfidenceLevel(e.target.value);
+    AssessmentActions.nextQuestion(); 
   }
 
-  getStyles(){
-    return { 
-      margin: {
-       marginLeft: "5px"
-      }
+  submitButtonClicked(e){
+    e.preventDefault()
+
+    var complete = this.checkCompletion();
+    if(complete === true){
+      AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
+    }
+    else {
+      this.setState({unAnsweredQuestions: complete});
     }
   }
 
-  getButtons(level, styles, confidence){
+  checkCompletion(){
+    var questionsNotAnswered = [];
+    for (var i = 0; i < this.props.studentAnswers.length; i++) {
+      if(this.props.studentAnswers[i] == null || this.props.studentAnswers[i].length == 0){
+        questionsNotAnswered.push(i+1);
+      }
+    };
+    if(questionsNotAnswered.length > 0){
+      return questionsNotAnswered;
+    }
+    return true;
+  }
+
+  getStyles(theme){
+    var navMargin = "-50px 20px 0 0";
+    if(this.props.settings.confidenceLevels)
+      navMargin = "-75px 20px 0 0";
+    return {
+      assessmentContainer:{
+        marginTop: "70px",
+        boxShadow: theme.assessmentContainerBoxShadow, 
+        borderRadius: theme.assessmentContainerBorderRadius
+      },
+      header: {
+        backgroundColor: theme.headerBackgroundColor
+      },
+      fullQuestion:{
+        backgroundColor: theme.fullQuestionBackgroundColor
+      },
+      questionText: {
+        fontSize: theme.questionTextFontSize,
+        fontWeight: theme.questionTextFontWeight,
+        padding: theme.questionTextPadding,
+      },
+      nextButton: {
+        backgroundColor: theme.nextButtonBackgroundColor
+      },
+      previousButton: {
+        backgroundColor: theme.previousButtonBackgroundColor
+      },
+      maybeButton: {
+        width: theme.maybeWidth,
+        backgroundColor: theme.maybeBackgroundColor,
+        color: theme.maybeColor,
+      },
+      probablyButton: {
+        width: theme.probablyWidth,
+        backgroundColor: theme.probablyBackgroundColor,
+        color: theme.probablyColor,
+      },
+      definitelyButton: {
+        width: theme.definitelyWidth,
+        backgroundColor: theme.definitelyBackgroundColor,
+        color: theme.definitelyColor,
+      },
+      confidenceWrapper: {
+
+        border: theme.confidenceWrapperBorder,
+        borderRadius: theme.confidenceWrapperBorderRadius,
+        width: theme.confidenceWrapperWidth,
+        height: theme.confidenceWrapperHeight,
+        padding: theme.confidenceWrapperPadding,
+        margin: theme.confidenceWrapperMargin,
+        backgroundColor: theme.confidenceWrapperBackgroundColor,
+      },
+      margin: {
+       marginLeft: "5px"
+      },
+      navButtons: {
+        margin: navMargin
+      },
+      submitButtonDiv: {
+        marginLeft: theme.confidenceWrapperMargin
+      },
+      warning: {
+        margin: theme.confidenceWrapperMargin,
+        border: "1px solid transparent",
+        borderRadius: "4px",
+        backgroundColor: theme.maybeBackgroundColor,
+        color: theme.maybeColor,
+        padding: "8px 8px !important"
+      },
+      footer: {
+        borderTop: "1px solid gray",
+        borderBottom: "5px solid " + theme.footerBackgroundColor,
+        position: "absolute",
+        left: "0px",
+        bottom: "1px",
+        marginTop: "20px",
+        width: "100%",
+        height: theme.footerHeight,
+        backgroundColor: theme.footerBackgroundColor,
+      },
+      footerPrev: {
+        height: theme.footerHeight,
+        width: "100px",
+        float: "left",
+      },
+      footerNext: {
+        height: theme.footerHeight,
+        width: "100px",
+        float: "right"
+      }
+    }
+  }
+  getFooterNav(theme, styles){
+    if(theme.shouldShowFooter){
+      return  <div style={styles.footer}>
+                <button style={styles.footerPrev} onClick={()=>{this.previousButtonClicked()}}>
+                <i className="glyphicon glyphicon-chevron-left"></i>
+                Previous
+                </button>
+                <button style={styles.footerNext} onClick={()=>{this.nextButtonClicked()}}>
+                Next
+                <i className="glyphicon glyphicon-chevron-right"></i>
+                </button>
+              </div>
+    }
+
+    return "";
+  }
+
+  getWarning(state, questionCount, questionIndex, styles){
+    if(state && state.unAnsweredQuestions && state.unAnsweredQuestions.length > 0 && questionIndex + 1 == questionCount){
+      return <div style={styles.warning}>You left questions ({state.unAnsweredQuestions.join()}) blank. Please answer all questions then come back and submit.</div>
+    }
+
+    return "";
+  }
+
+  getConfidenceLevels(level, styles){
     if(level){
-      return    (<div className="lower_level"><input type="button" className="btn btn-check-answer" value="Maybe?" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
-                <input type="button" style={styles.margin} className="btn btn-check-answer" value="Probably." onClick={(e) => { this.confidenceLevelClicked(e) }}/>
-                <input type="button" style={styles.margin} className="btn btn-check-answer" value="Definitely!" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
+      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to go to the next question.</b></div>;
+      return    (<div className="confidence_wrapper" style={styles.confidenceWrapper}>
+                  {levelMessage}
+                  <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
+                  <input type="button" style={{...styles.margin, ...styles.probablyButton}} className="btn btn-check-answer" value="Pretty Sure" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
+                  <input type="button" style={{...styles.margin, ...styles.definitelyButton}} className="btn btn-check-answer" value="Very Sure" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
                 </div>
                 );
     } else {
       return <div className="lower_level"><input type="button" className="btn btn-check-answer" value="Check Answer" onClick={() => { AssessmentActions.checkAnswer()}}/></div>
     }
   }
+
+  getNextButton(styles){
+    var nextButton = "";
+    var nextButtonClassName = "btn btn-next-item " + ((this.props.currentIndex < this.props.questionCount - 1) ? "" : "disabled");
+    if(!this.context.theme.shouldShowNextPrevious && this.props.confidenceLevels){
+      return nextButton;
+    }
+    nextButton =(<button className={nextButtonClassName} style={styles.nextButton} onClick={() => { this.nextButtonClicked() }}>
+                    <span>Next</span> <i className="glyphicon glyphicon-chevron-right"></i>
+                  </button>);
+    return nextButton;
+  }
+
+  getPreviousButton(styles){
+    var previousButton = "";
+    var prevButtonClassName = "btn btn-prev-item " + ((this.props.currentIndex > 0) ? "" : "disabled");
+    if(!this.context.theme.shouldShowNextPrevious  && this.props.confidenceLevels){
+      return previousButton;
+    }
+    previousButton =(<button className={prevButtonClassName} style={styles.previousButton} onClick={() => { this.previousButtonClicked() }}>
+                    <i className="glyphicon glyphicon-chevron-left"></i><span>Previous</span> 
+                  </button>);
+    return previousButton;
+  }
+
 
   getResult(index){
     var result;
@@ -68,41 +232,38 @@ export default class Item extends BaseComponent{
     return result;
   }
 
+
   render() {
-    console.log(this.props.question.confidenceLevel)
-    var styles = this.getStyles()
+    var styles = this.getStyles(this.context.theme);
+    var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
     var result = this.getResult(this.props.messageIndex);
-    var buttons = this.getButtons(this.props.confidenceLevels, styles);
-    var prevButtonClassName = "btn btn-prev-item " + ((this.props.currentIndex > 0) ? "" : "disabled");
-    var nextButtonClassName = "btn btn-next-item " + ((this.props.currentIndex < this.props.questionCount - 1) ? "" : "disabled");
+    var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
+    var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit</button> : "";
+    var footer = this.getFooterNav(this.context.theme, styles);
     
     // Get the confidence Level
-    var level = <div className="check_answer_result"><p>{"Select a confidence level to continue."}</p></div>;
-    var nextButton = "";
     
-    if (this.props.confidenceLevels && this.props.question.confidenceLevel){
-      level = <div className="check_answer_result"><p>{'You chose "' + this.props.question.confidenceLevel + '" as your confidence level'}</p></div>;
-      nextButton =(<button className={nextButtonClassName} onClick={() => { this.nextButtonClicked() }}>
-                    <span>Next</span> <i className="glyphicon glyphicon-chevron-right"></i>
-                  </button>)
-    } else if(!this.props.confidenceLevels){
-      nextButton =(<button className={nextButtonClassName} onClick={() => { this.nextButtonClicked() }}>
-                    <span>Next</span> <i className="glyphicon glyphicon-chevron-right"></i>
-                  </button>)
-      console.log(!this.props.confidencelevels)
-      level = "";
+    var nextButton = this.getNextButton(styles);
+    var previousButton = this.getPreviousButton(styles);
+
+    //Check if we need to display the counter in the top right
+    var counter = "";
+
+    if(this.context.theme.shouldShowCounter){
+      counter = <span className="counter">{this.props.currentIndex + 1} of {this.props.questionCount}</span>
     }
+
     return (
-      <div className="assessment_container">
+      <div className="assessment_container" style={styles.assessmentContainer}>
         <div className="question">
-          <div className="header">
-            <span className="counter">{this.props.currentIndex + 1} of {this.props.questionCount}</span>
+          <div className="header" style={styles.header}>
+            {counter}
             <p>{this.props.question.title}</p>
           </div>
           <form className="edit_item">
-            <div className="full_question">
+            <div className="full_question" style={styles.fullQuestion}>
               <div className="inner_question">
-                <div className="question_text">
+                <div className="question_text" style={styles.questionText}>
                   <div
                     dangerouslySetInnerHTML={{
                   __html: this.props.question.material
@@ -112,17 +273,19 @@ export default class Item extends BaseComponent{
                 <UniversalInput item={this.props.question} />
               </div>
               {result}
-              {level}
               {buttons}
+              {unAnsweredWarning}
+              <div style={styles.submitButtonDiv}>
+                {submitButton}
+              </div>
             </div>
           </form>
-          <div className="nav_buttons">
-            <button className={prevButtonClassName} onClick={() => { this.previousButtonClicked() }}>
-              <i className="glyphicon glyphicon-chevron-left"></i> <span>Previous</span>
-            </button>
+          <div className="nav_buttons" style={styles.navButtons}>
+            {previousButton}
             {nextButton}
           </div>
         </div>
+        {footer}
       </div>
     );
   }
@@ -136,3 +299,7 @@ Item.propTypes = {
   messageIndex     : React.PropTypes.number.isRequired,
   confidenceLevels : React.PropTypes.bool.isRequired
 };
+
+Item.contextTypes = {
+  theme: React.PropTypes.object
+}
