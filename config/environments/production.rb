@@ -42,7 +42,7 @@ Rails.application.configure do
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true
-  config.middleware.use Rack::SslEnforcer, except: '/health_check'
+  # config.middleware.use Rack::SslEnforcer, except: '/health_check'
 
   # Set to :debug to see everything in the log.
   config.log_level = :info

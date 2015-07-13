@@ -8,7 +8,7 @@ module WebpackHelper
 
         "#{bundle}_web_pack_bundle.js"
       else
-        "#{Rails.application.secrets.assets_url}/assets/#{bundle}_web_pack_bundle.js"
+        "#{Rails.application.secrets.assets_url}assets/#{bundle}_web_pack_bundle.js"
       end
 
     "<script src='#{src}' type='text/javascript'></script>".html_safe

@@ -1,6 +1,6 @@
 <% if @embed_code.present? -%>
   <div class="container">
-    <h1><%= link_to 'Assessments', assessments_path %> &gt; <%= @assessment.present? ? @assessment.title : @eid || @src_url %></h1>
+    <h1><%= link_to 'BYU Assessments', assessments_path %> &gt; <%= @assessment.present? ? @assessment.title : @eid || @src_url %></h1>
     <div class="assessment">
       <%= @embed_code.html_safe %>
     </div>
