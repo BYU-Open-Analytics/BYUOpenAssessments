@@ -22,6 +22,11 @@ export default {
       }
     }
 
+    //Make the url secure so quizzes will load on https connections
+    if (window.location.protocol == "https:") {
+     	settings.srcUrl = settings.srcUrl.replace(/^http.?:/i,"https:")
+    }
+
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_LOAD_PENDING });
     Api.get(Constants.ASSESSMENT_LOADED, settings.srcUrl);
   },
