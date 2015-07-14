@@ -1,8 +1,5 @@
-class Api::GradesController < ApplicationController
-  skip_before_filter :verify_authenticity_token
-  before_filter :skip_trackable
-  respond_to :json
-
+class Api::GradesController < Api::ApiController
+  
   def create
 
     # store lis stuff in session
@@ -121,7 +118,6 @@ class Api::GradesController < ApplicationController
     success = res.success?
       
     # Ping analytics server
-
     respond_to do |format|
       format.json { render json: graded_assessment }
     end

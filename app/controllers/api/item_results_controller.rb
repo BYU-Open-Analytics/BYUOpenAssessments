@@ -1,6 +1,4 @@
-class Api::ItemResultsController < ApplicationController
-  skip_before_filter :verify_authenticity_token
-  before_filter :skip_trackable
+class Api::ItemResultsController < Api::ApiController
   respond_to :json, :csv, :xml
 
   def index

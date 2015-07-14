@@ -1,8 +1,4 @@
-class Api::AssessmentResultsController < ApplicationController
-
-  skip_before_filter :verify_authenticity_token
-  before_filter :skip_trackable
-  respond_to :json
+class Api::AssessmentResultsController < Api::ApiController
 
   # TODO Might have to cheat and make this a index or show so we can use a GET request to record the data. This will avoid cross origin issues.
   def create

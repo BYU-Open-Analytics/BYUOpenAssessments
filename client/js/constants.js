@@ -21,10 +21,12 @@ export default {
   ASSESSMENT_VIEWED: "assessment_viewed",
   ASSESSMENT_SUBMITTED: "assessment_submitted",
   ANSWER_SELECTED: "answer_selected",
+  ASSESSMENT_GRADED: "assessment_graded",
   CLEAR_SELECTED_ANSWERS: "clear_selected_answers",
   EDX_LOAD_SECTION: "edx_load_section",
   EDX_LOAD_ITEM: "edx_load_item",
   EDX_LOAD_ASSESSMENT: "edx_load_assessment",
+  QUESTION_SELECTED: "question_selected",
 
   ADD_MESSAGE: "add_message",
   REMOVE_MESSAGE: "remove_message",
@@ -62,6 +64,6 @@ export default {
   NAV_CHANGED: "nav_changed",
 
   CLEAR_STORE: "clear_store",
-
-  LEVEL_SELECTED: "level_selected" 
+  LEVEL_SELECTED: "level_selected", 
+  CREATED_USER: "created_user"
 };

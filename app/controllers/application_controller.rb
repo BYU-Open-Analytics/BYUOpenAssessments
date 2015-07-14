@@ -11,7 +11,10 @@ class ApplicationController < ActionController::Base
   protected
 
     rescue_from CanCan::AccessDenied do |exception|
-      redirect_to root_url, :alert => exception.message
+      respond_to do |format|
+        format.html { redirect_to root_url, alert: exception.message }
+        format.json { render json: { error: exception.message }, status: :unauthorized }
+      end
     end
 
     # **********************************************
@@ -119,10 +122,24 @@ class ApplicationController < ActionController::Base
         decoded_token = AuthToken.valid?(token)
 
         raise InvalidTokenError if Rails.application.secrets.auth0_client_id != decoded_token[0]["aud"]
-
-        @user = decoded_token
+        
+        @user = User.find(decoded_token[0]['user_id'])
+        sign_in(@user, :event => :authentication)
       rescue JWT::DecodeError, InvalidTokenError
         render :json => { :error => "Unauthorized: Invalid token." }, status: :unauthorized
+      end
+    end
+
+    # **********************************************
+    # Admin methods
+    #
+    def check_admin
+      if !current_user.admin?
+        respond_to do |format|
+          format.json {
+            render json: { error: "Unauthorized: User not allowed to access requested resource." }, status: :unauthorized  
+          }
+        end
       end
     end
 
@@ -222,12 +239,10 @@ class ApplicationController < ActionController::Base
           
           # MAKE SURE THAT WE REMOVE THIS because the test user doesnt have an email.
           email = params[:lis_person_contact_email_primary] || "#{params[:user_id]}@#{params["custom_canvas_api_domain"]}"
-          # email = "test@test.test"
-          if email.nil? || email == ""
-            email = ::SecureRandom::hex(15)+"@test.test"
-          end
+          email = "#{params[:user_id]}_#{params[:tool_consumer_instance_guid]}@example.com" if email.blank?
+          
           @user = User.new(email: email, name: name)
-          @user.password             = ::SecureRandom::hex(15)
+          @user.password              = ::SecureRandom::hex(15)
           @user.password_confirmation = @user.password
           @user.account = current_account
           @user.skip_confirmation!
@@ -254,13 +269,6 @@ class ApplicationController < ActionController::Base
         user_not_authorized
       end
 
-    end
-
-    def find_external_identifier(url)
-      return nil unless url.present?
-      @provider = UrlHelper.host(url)
-      @identifier = params[:user_id]
-      ExternalIdentifier.find_by(provider: @provider, identifier: @identifier)
     end
 
     # **********************************************

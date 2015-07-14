@@ -11,7 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150707210829) do
+ActiveRecord::Schema.define(version: 20150713174100) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.string   "name"
@@ -62,8 +65,12 @@ ActiveRecord::Schema.define(version: 20150707210829) do
   create_table "assessment_settings", force: :cascade do |t|
     t.integer  "assessment_id"
     t.integer  "allowed_attempts"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.string   "style"
+    t.string   "per_sec"
+    t.boolean  "confidence_levels"
+    t.boolean  "enable_start"
   end
 
   create_table "assessment_xmls", force: :cascade do |t|
@@ -86,8 +93,10 @@ ActiveRecord::Schema.define(version: 20150707210829) do
     t.integer  "recommended_height"
     t.string   "license"
     t.string   "keywords"
+    t.integer  "account_id"
   end
 
+  add_index "assessments", ["account_id"], name: "index_assessments_on_account_id", using: :btree
   add_index "assessments", ["identifier", "user_id"], name: "index_assessments_on_identifier_and_user_id", using: :btree
   add_index "assessments", ["src_url", "user_id"], name: "index_assessments_on_src_url_and_user_id", using: :btree
 
@@ -280,6 +289,8 @@ ActiveRecord::Schema.define(version: 20150707210829) do
     t.datetime "updated_at",             null: false
     t.string   "eid"
   end
+
+  add_index "user_assessments", ["eid"], name: "index_user_assessments_on_eid", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "",        null: false

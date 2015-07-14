@@ -1,45 +1,33 @@
-class Api::AssessmentSettingsController < ApplicationController
-  before_action :set_assessment_setting, only: [:show, :edit, :update, :destroy]
+class Api::AssessmentSettingsController < Api::ApiController
 
-  # GET /assessment_settings
+  before_action :set_assessment_setting, only: [:show, :edit, :update, :destroy]
+  respond_to :json
   def index
     @assessment_settings = AssessmentSetting.all
+    respond_with(:api, @assessment_settings)
   end
 
-  # GET /assessment_settings/1
   def show
   end
 
-  # GET /assessment_settings/new
   def new
     @assessment_setting = AssessmentSetting.new
   end
 
-  # GET /assessment_settings/1/edit
   def edit
   end
 
-  # POST /assessment_settings
   def create
     @assessment_setting = AssessmentSetting.new(assessment_setting_params)
-
-    if @assessment_setting.save
-      redirect_to @assessment_setting, notice: 'Assessment setting was successfully created.'
-    else
-      render :new
-    end
+    @assessment_setting.save!
+    respond_with(:api, @assessment_setting)
   end
 
-  # PATCH/PUT /assessment_settings/1
   def update
-    if @assessment_setting.update(assessment_setting_params)
-      redirect_to @assessment_setting, notice: 'Assessment setting was successfully updated.'
-    else
-      render :edit
-    end
+    @assessment_setting.update(assessment_setting_params)
+    respond_with(:api, @assessment_setting)
   end
 
-  # DELETE /assessment_settings/1
   def destroy
     @assessment_setting.destroy
     redirect_to assessment_settings_url, notice: 'Assessment setting was successfully destroyed.'
@@ -53,6 +41,6 @@ class Api::AssessmentSettingsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def assessment_setting_params
-      params[:assessment_setting]
+      params.require(:assessment_setting).permit(:per_sec, :allowed_attempts, :style, :assessment_id, :enable_start, :confidence_levels)
     end
 end

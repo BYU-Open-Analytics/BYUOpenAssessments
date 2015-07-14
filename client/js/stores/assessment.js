@@ -211,6 +211,7 @@ Dispatcher.register(function(payload) {
           }
           _assessmentState = LOADED;
           if(!_startedAt && !SettingsStore.current().enableStart){
+            _assessmentState = STARTED;
             // set the start time for the assessment and the first question (only qti)
             if(_items[0])
             _items[0].startTime = Utils.currentTime()
@@ -282,7 +283,6 @@ Dispatcher.register(function(payload) {
       break;
 
     case Constants.ASSESSMENT_GRADED:
-      
       parseAssessmentResult(payload.data.text);
       break;
     case Constants.ASSESSMENT_SUBMITTED:
@@ -295,6 +295,9 @@ Dispatcher.register(function(payload) {
       break;
     case Constants.LEVEL_SELECTED:
       _items[_itemIndex].confidenceLevel = payload.level;
+      if(payload.index ==  _items.length - 1){
+        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+      }
       // if(SettingsStore.current().kind == "formative"){
       //   var answer = checkAnswer();
       //   if(answer != null && answer.correct)
@@ -303,6 +306,14 @@ Dispatcher.register(function(payload) {
       //     _answerMessageIndex = 0;
       
       // }
+      break;
+    case Constants.QUESTION_SELECTED:
+        _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
+        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+        _itemIndex = payload.index;
+        _items[_itemIndex].startTime = Utils.currentTime();
+        _selectedAnswerIds = _studentAnswers[_itemIndex];
+        _answerMessageIndex = -1;
       break;
     default:
       return true;

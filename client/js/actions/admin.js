@@ -7,7 +7,7 @@ export default {
 
   loadAccounts(){
     Dispatcher.dispatch({action: Constants.ACCOUNTS_LOADING});
-    Api.get(Constants.ACCOUNTS_LOADED, "admin/accounts/");
+    Api.get(Constants.ACCOUNTS_LOADED, "api/accounts/");
   },
 
   loadUsers(accountId, page){
@@ -16,7 +16,7 @@ export default {
     }
     var perPage = 100;
     Dispatcher.dispatch({action: Constants.USERS_LOADING, payload: accountId});
-    Api.get(Constants.USERS_LOADED, "admin/accounts/" + accountId + "/users?page=" + page + "&per_page=" + perPage);
+    Api.get(Constants.USERS_LOADED, "api/accounts/" + accountId + "/users?page=" + page + "&per_page=" + perPage);
   },
 
   changeNav(){
@@ -41,7 +41,7 @@ export default {
 
   updateUser(accountID, userID, payload){
     Dispatcher.dispatch({action: Constants.USER_UPDATING});
-    Api.put(Constants.USER_UPDATED, "admin/accounts/"+ accountID + "/users/" + userID, payload);
+    Api.put(Constants.USER_UPDATED, "api/accounts/"+ accountID + "/users/" + userID, payload);
   },
 
   addToSelectedUsers(payload){
@@ -52,17 +52,22 @@ export default {
     Dispatcher.dispatch({action: Constants.REMOVE_USER, payload: payload});
   },
 
-  deleteUsers(payload){
-    for(var i=0; i<payload.length; i++){
-      var url = "admin/accounts/" + payload[i].account_id + "/users/" + payload[i].id;
-      Dispatcher.dispatch({action: Constants.DELETING_USERS});
-      Api.del(Constants.DELETE_USERS, url);
-    }
-    this.loadUsers(payload[0].account_id, 1);
+  // deleteUsers(payload){
+  //   for(var i=0; i<payload.length; i++){
+  //     var url = "api/accounts/" + payload[i].account_id + "/users/" + payload[i].id;
+  //     Dispatcher.dispatch({action: Constants.DELETING_USERS});
+  //     Api.del(Constants.DELETE_USERS, url);
+  //   }
+  //   this.loadUsers(payload[0].account_id, 1);
+  // },
+  deleteUser(user){
+    var url = "api/accounts/" + user.account_id + "/users/" + user.id;
+    Dispatcher.dispatch({action: Constants.DELETING_USERS});
+    Api.del(Constants.DELETE_USERS, url);
   },
 
-  createUser(){
+  createUser(accountId, payload){
     Dispatcher.dispatch({action: Constants.CREATING_USER});
-    Api.post(Constants.CREATED_USER, '/admin/accounts/:account_id/users')
+    Api.post(Constants.CREATED_USER, '/api/accounts/'+ accountId +'/users', payload);
   },
 };

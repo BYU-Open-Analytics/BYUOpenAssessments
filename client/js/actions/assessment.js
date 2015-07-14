@@ -33,7 +33,9 @@ export default {
 
   start(eid, assessmentId){
     Dispatcher.dispatch({action: Constants.ASSESSMENT_START})
-    Api.put(Constants.ASSESSMENT_START, "/api/user_assessments/"+eid, {assessmentId: assessmentId})
+    if(eid && assessmentId){
+      Api.put(Constants.ASSESSMENT_START, "/api/user_assessments/"+eid, {assessmentId: assessmentId})
+    }
   },
 
   edXLoadSection(section){
@@ -56,12 +58,16 @@ export default {
     Dispatcher.dispatch({action: Constants.ANSWER_SELECTED, item: item});
   },
 
+  selectQuestion(index){
+    Dispatcher.dispatch({action: Constants.QUESTION_SELECTED, index: index});
+  },
+
   checkAnswer(){
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_CHECK_ANSWER });
   },
 
-  selectConfidenceLevel(level){
-    Dispatcher.dispatch({action: Constants.LEVEL_SELECTED, level: level});
+  selectConfidenceLevel(level, index){
+    Dispatcher.dispatch({action: Constants.LEVEL_SELECTED, level: level, index: index});
   },
   
   submitAssessment(identifier, assessmentId, questions, studentAnswers, settings){
@@ -75,7 +81,7 @@ export default {
         settings     : settings
       }
     }
-    Api.post(Constants.ASSESSMENT_GRADED,'/api/grades', body);
+    Api.post(Constants.ASSESSMENT_GRADED,'api/grades', body);
   },
 
   nextQuestion(){

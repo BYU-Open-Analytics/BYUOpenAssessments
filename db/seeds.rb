@@ -2,6 +2,8 @@ admin = CreateAdminService.new.call
 puts 'CREATED ADMIN USER: ' << admin.email
 
 # Setup default accounts
+canvas_uri = ENV["APP_DEFAULT_CANVAS_URL"] || 'https://canvas.instructure.com'
+
 if Rails.env.production?
   accounts = [{
     code: 'byuopenassessments',
@@ -11,6 +13,7 @@ if Rails.env.production?
     lti_secret: '',
     canvas_uri: 'https://canvas.instructure.com'
   }]
+  canvas_uri ||= 'https://canvas.instructure.com'
 else
   accounts = [{
     code: 'byuopenassessmentsdev',
@@ -20,7 +23,17 @@ else
     lti_secret: '',
     canvas_uri: 'https://canvas.instructure.com'
   }]
+  canvas_uri ||= 'https://atomicjolt.instructure.com'
 end
+
+accounts = [{
+  code: ENV["APP_SUBDOMAIN"],
+  name: Rails.application.secrets.application_name,
+  domain: Rails.application.secrets.application_url,
+  lti_key: ENV["APP_SUBDOMAIN"],
+  canvas_uri: canvas_uri
+}]
+
 
 # Setup accounts
 accounts.each do |account|
@@ -45,3 +58,7 @@ if assessment = Assessment.find_by(title: 'drupal.xml')
   assessment.recommended_height = 960
   assessment.save!
 end
+<<<<<<< HEAD
+=======
+
+>>>>>>> lumen/master
