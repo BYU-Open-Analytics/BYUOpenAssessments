@@ -46,6 +46,7 @@ export default class Qti{
         material   : this.material(xml),
         answers    : this.parseAnswers(xml),
         correct    : this.parseCorrect(xml),
+	feedbacks  : this.parseFeedback(xml),
         timeSpent  : 0
       };
 
@@ -79,12 +80,11 @@ export default class Qti{
       var condition = $(respconditions[i]);
       console.log(condition.attr("continue"));
       if(condition.find('setvar').text() != '0'){
-	//Get feedback, if there is any
+	//Get feedback for a specific answer, if there is any
 	var feedback = "";
 	if (condition.find("displayfeedback").length > 0) {
 		feedback = xml.find("itemfeedback[ident='"+$(condition.find("displayfeedback")[0]).attr("linkrefid")+"']").text();
 	}
-	//TODO: general incorrect feedback
 	var varequals = condition.find('conditionvar > varequal');
 	//Add an answer for each individual varequal, since for short answer questions, all correct answers are grouped in a single respcondition > conditionvar
 	for (var j=0; j<varequals.length; j++) {
@@ -124,6 +124,17 @@ export default class Qti{
 
     return this.listFromXml(xml, 'response_lid > render_choice > response_label', fromXml);
 
+  }
+
+  static parseFeedback(xml) {
+	//Extract general_fb and general_incorrect_fb
+	console.log("qti:131 parse feedback");
+	var serializer = new XMLSerializer();
+	//console.log(serializer.serializeToString(xml.get(0)));
+	var correct_feedback = xml.find("itemfeedback[ident='general_fb']").text() || "";
+	var incorrect_feedback = xml.find("itemfeedback[ident='general_incorrect_fb']").text() || "";
+	console.log(correct_feedback,incorrect_feedback);
+	return { correct: correct_feedback, incorrect: incorrect_feedback };
   }
 
   // Process nodes based on QTI spec here:

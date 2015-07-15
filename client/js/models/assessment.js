@@ -234,8 +234,12 @@ export default class Assessment{
 				}
 			    }
 		    }
-		    //TODO incorrect answer feedback
 	    }
+	    //See if we have general (in)correct feedback to display
+	    if (feedbacks == "") {
+		    feedbacks = (correct == true) ? item.feedbacks.corret : item.feedbacks.incorrect;
+	    }
+	    console.log(item);
 	    return {
 	      feedbacks: feedbacks,
 	      score: score,
@@ -244,10 +248,9 @@ export default class Assessment{
   }
 
   static checkEssayAnswer(item, essayAnswer) {
-	var feedbacks = "";
+	var feedbacks = item.feedbacks.correct || "";
 	var score = "0";
 	var correct = false;
-	//TODO display answer feedback
 	//TODO figure out how to save essay answer content. Should xAPI statement be sent here? Should the statement be sent (for all question types) when checking the answer, or how do we delineate an "attempt"?
 	//Only check that they entered something
 	if (item.answers[essayAnswer] != null && item.answers[essayAnswer].material != null && item.answers[essayAnswer].material.trim() != "") {
