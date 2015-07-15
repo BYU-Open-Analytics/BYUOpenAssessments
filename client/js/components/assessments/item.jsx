@@ -222,12 +222,12 @@ export default class Item extends BaseComponent{
     }
     else if(index == 0){
       result =  <div className="check_answer_result">
-                  <p>Incorrect</p><p>{feedback}</p>
+                  <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
                 </div>;
     }
     else {
       result =  <div className="check_answer_result">
-                  <p>Correct</p><p>{feedback}</p>
+                  <p>Correct</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
                 </div>;
     }
 

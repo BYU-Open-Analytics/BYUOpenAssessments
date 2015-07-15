@@ -83,7 +83,6 @@ export default class Qti{
 	var feedback = "";
 	if (condition.find("displayfeedback").length > 0) {
 		feedback = xml.find("itemfeedback[ident='"+$(condition.find("displayfeedback")[0]).attr("linkrefid")+"']").text();
-		console.log("feedback: ", feedback);
 	}
 	//TODO: general incorrect feedback
 	var varequals = condition.find('conditionvar > varequal');
