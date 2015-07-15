@@ -54,14 +54,10 @@ function selectAnswer(item){
   } else if (_items[_itemIndex].question_type == "matching_question"){
     updateMatchingAnswer(item);
   } else if (_items[_itemIndex].question_type == "short_answer_question") {
-	  //TODO: put contents of item textbox into _selectedanswer something
-	  //Put the value passed in from the textbox (item) as our only answer, and set selected answer id to 0 so we'll check if what they typed matches the correct answer.
+	  //Put the value passed in from the textbox (item) as our only answer choice in the question (_items[_itemIndex]), and set selected answer id to 0 so we'll check if what they typed matches the correct answer.
 	  _items[_itemIndex].answers = [{"material":item}];
 	  _selectedAnswerIds = 0;
-	  console.log("stores/assessment.js 58");
-	  console.log(item);
-	  console.log(_items);
-	  console.log(_items[_itemIndex]);
+	  //console.log("stores/assessment.js 58");
   }
 }
 

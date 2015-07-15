@@ -96,7 +96,7 @@ export default class UniversalInput extends React.Component{
         items = <Matching item={item} name="answer-option"/>;
         break;
       case "short_answer_question":
-      	console.log("universal_input:99 render short answer question",item);
+      	//console.log("universal_input:99 render short answer question",item);
         items = <TextField key={item.id} item={item} name="answer-text"/>;
         break;
       case "edx_numerical_input":

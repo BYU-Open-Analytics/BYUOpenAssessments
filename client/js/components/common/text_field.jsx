@@ -6,16 +6,9 @@ import AssessmentStore    from "../../stores/assessment";
 
 export default class TextField extends React.Component{
 
-  answerSelected(){
-	  console.log("text_field.jsx:10 answer selected",this,this.props,this.props.item);
-	  this.props.item.answers = [{"material":"salt lake city"}];
-    AssessmentActions.answerSelected(this.props.item);
-  }
 	onChange(e) {
 		console.log("text_field:16 change",e.target.value);
-		//this.props.item.answers = [{"material":"salt lake city"}];
 		AssessmentActions.answerSelected(e.target.value);
-		//answerSelected(e.target.value);
 	}
 
 	render(){

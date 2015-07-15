@@ -73,22 +73,27 @@ export default class Qti{
 
   static parseCorrect(xml){
     var respconditions = xml.find("respcondition");
+    //console.log("models/qti:76 respconditions",respconditions)
     var correctAnswers = []
     for (var i=0; i<respconditions.length; i++){
       var condition = $(respconditions[i]);
       if(condition.find('setvar').text() != '0'){
-        var answer = {
-          id: condition.find('conditionvar > varequal').text(),
-          value: condition.find('setvar').text()
-        }
-        if(answer.id == ""){
-          answer.id = condition.find('conditionvar > and > varequal').map((index, condition) => {
-            condition = $(condition);
-            return condition.text();
-          });
-          answer.id = answer.id.toArray();
-        }
-        correctAnswers.push(answer);
+	var varequals = condition.find('conditionvar > varequal');
+	for (var j=0; j<varequals.length; j++) {
+		var varequal = $(varequals[j]);
+		var answer = {
+		  id: varequal.text(),
+		  value: condition.find('setvar').text()
+		}
+		if(answer.id == ""){
+		  answer.id = condition.find('conditionvar > and > varequal').map((index, condition) => {
+		    condition = $(condition);
+		    return condition.text();
+		  });
+		  answer.id = answer.id.toArray();
+		}
+		correctAnswers.push(answer);
+	}
       }
     }
     return correctAnswers;

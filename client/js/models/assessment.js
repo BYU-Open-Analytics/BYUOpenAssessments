@@ -86,7 +86,7 @@ export default class Assessment{
         break;
       case 'short_answer_question':
       	console.log("checkign short answer question models/assessment.js:88");
-	console.log(item, selectedAnswers);
+	//console.log(item, selectedAnswers);
       	results = this.checkShortAnswer(item, selectedAnswers);
 	break;
       case 'edx_drag_and_drop':
@@ -212,22 +212,24 @@ export default class Assessment{
   }
 
   static checkShortAnswer(item, givenShortAnswer) {
-	console.log(item);
-	console.log(givenShortAnswer);
-
-	//scaffolding from multiple choice to modify
 	    var feedbacks = "";
 	    var score = "0";
 	    var correct = false;
 	    //Loop through all possible corect answers, and see if we match
-	    for (var i = 0; i < item.correct.length; i++){
-		//if (
-		console.log("Possible: ",item.correct[i]);
+	    console.log("Checking answer: ",item.answers[givenShortAnswer]);
+	    if (item.answers[givenShortAnswer] != null && item.answers[givenShortAnswer].material != null) {
+		    var answerToCheck = item.answers[givenShortAnswer].material.trim();
+		    if (answerToCheck != "") {
+			    for (var i = 0; i < item.correct.length; i++){
+				console.log("Possible: ",item.correct[i].id);
+				if (answerToCheck == item.correct[i].id) {
+					console.log("Matched!",item.answers[givenShortAnswer],item.correct[i]);
+					correct = true;
+					score = item.correct[i].score;
+				}
+			    }
+		    }
 	    }
-	    //if(selectedAnswerId == item.correct[0].id){
-	      //correct = true;
-	      //score = item.correct[0].score;
-	    //}
 	    return {
 	      feedbacks: feedbacks,
 	      score: score,
