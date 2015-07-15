@@ -89,6 +89,10 @@ export default class Assessment{
 	//console.log(item, selectedAnswers);
       	results = this.checkShortAnswer(item, selectedAnswers);
 	break;
+      case 'essay_question':
+      	console.log("models/assessment:88 checking essay answer",item,selectedAnswers);
+      	results = this.checkEssayAnswer(item, selectedAnswers);
+	break;
       case 'edx_drag_and_drop':
         results = this.checkEdXDragAndDrop(item);
         break;
@@ -237,6 +241,24 @@ export default class Assessment{
 	      score: score,
 	      correct: correct
 	    };
+  }
+
+  static checkEssayAnswer(item, essayAnswer) {
+	var feedbacks = "";
+	var score = "0";
+	var correct = false;
+	//TODO display answer feedback
+	//TODO figure out how to save essay answer content. Should xAPI statement be sent here? Should the statement be sent (for all question types) when checking the answer, or how do we delineate an "attempt"?
+	//Only check that they entered something
+	if (item.answers[essayAnswer] != null && item.answers[essayAnswer].material != null && item.answers[essayAnswer].material.trim() != "") {
+		correct = true;
+	}
+
+	return {
+		feedbacks: feedbacks,
+		score: score,
+		correct: correct
+	};
   }
 
   static checkEdXDragAndDrop(item){

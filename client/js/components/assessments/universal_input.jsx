@@ -99,6 +99,10 @@ export default class UniversalInput extends React.Component{
       	//console.log("universal_input:99 render short answer question",item);
         items = <TextField key={item.id} item={item} name="answer-text"/>;
         break;
+      case "essay_question":
+      	console.log("universal_input:103 render essay question",item);
+        items = <TextArea key={item.id} item={item} name="answer-essay"/>;
+      	break;
       case "edx_numerical_input":
       case "edx_text_input":
         items = item.answers.map((answer) => {
