@@ -85,6 +85,7 @@ export default class Qti{
 		feedback = xml.find("itemfeedback[ident='"+$(condition.find("displayfeedback")[0]).attr("linkrefid")+"']").text();
 		console.log("feedback: ", feedback);
 	}
+	//TODO: general incorrect feedback
 	var varequals = condition.find('conditionvar > varequal');
 	//Add an answer for each individual varequal, since for short answer questions, all correct answers are grouped in a single respcondition > conditionvar
 	for (var j=0; j<varequals.length; j++) {

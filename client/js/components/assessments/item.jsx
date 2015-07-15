@@ -212,7 +212,7 @@ export default class Item extends BaseComponent{
   }
 
 
-  getResult(index){
+  getResult(index,feedback){
     var result;
 
     if(index == -1){
@@ -222,12 +222,12 @@ export default class Item extends BaseComponent{
     }
     else if(index == 0){
       result =  <div className="check_answer_result">
-                  <p>Incorrect</p>
+                  <p>Incorrect</p><p>{feedback}</p>
                 </div>;
     }
     else {
       result =  <div className="check_answer_result">
-                  <p>Correct</p>
+                  <p>Correct</p><p>{feedback}</p>
                 </div>;
     }
 
@@ -238,7 +238,7 @@ export default class Item extends BaseComponent{
   render() {
     var styles = this.getStyles(this.context.theme);
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
-    var result = this.getResult(this.props.messageIndex);
+    var result = this.getResult(this.props.messageIndex,this.props.messageFeedback);
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
     var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit</button> : "";
     var footer = this.getFooterNav(this.context.theme, styles);
@@ -299,6 +299,7 @@ Item.propTypes = {
   currentIndex     : React.PropTypes.number.isRequired,
   questionCount    : React.PropTypes.number.isRequired,
   messageIndex     : React.PropTypes.number.isRequired,
+  messageFeedback  : React.PropTypes.string.isRequired,
   confidenceLevels : React.PropTypes.bool.isRequired
 };
 

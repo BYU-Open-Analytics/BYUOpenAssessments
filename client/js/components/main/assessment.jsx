@@ -35,6 +35,7 @@ export default class Assessment extends BaseComponent{
       showStart            : showStart,
       settings             : SettingsStore.current(),
       messageIndex         : AssessmentStore.answerMessageIndex(),
+      messageFeedback      : AssessmentStore.answerMessageFeedback(),
       studentAnswers       : AssessmentStore.allStudentAnswers(),
       allQuestions         : AssessmentStore.allQuestions(),
     }
@@ -99,6 +100,7 @@ export default class Assessment extends BaseComponent{
         questionCount    = {this.state.questionCount}
         assessmentResult = {this.state.assessmentResult}
         messageIndex     = {this.state.messageIndex}
+        messageFeedback  = {this.state.messageFeedback}
         allQuestions     = {this.state.allQuestions}
         studentAnswers   = {this.state.studentAnswers} 
         confidenceLevels = {this.state.settings.confidenceLevels}/>;

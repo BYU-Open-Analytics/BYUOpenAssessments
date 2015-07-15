@@ -26,6 +26,7 @@ var _finishedAt
 var _selectedConfidenceLevel = 0;
 var _selectedAnswerIds = [];
 var _answerMessageIndex = -1;
+var _answerMessageFeedback = "";
 var _sectionIndex = 0;
 var _itemIndex = 0;
 var _studentAnswers = [];
@@ -90,6 +91,7 @@ function clearStore(){
   _selectedConfidenceLevel = 0;
   _selectedAnswerIds = [];
   _answerMessageIndex = -1;
+  _answerMessageFeedback = "";
   _sectionIndex = 0;
   _itemIndex = 0;
   _studentAnswers = [];
@@ -161,6 +163,10 @@ var AssessmentStore = assign({}, StoreCommon, {
     return _answerMessageIndex;
   },
 
+  answerMessageFeedback(){
+    return _answerMessageFeedback;
+  },
+
   studentAnswers(){
     return _studentAnswers[_itemIndex];
   },
@@ -228,10 +234,13 @@ Dispatcher.register(function(payload) {
 
     case Constants.ASSESSMENT_CHECK_ANSWER:
       var answer = checkAnswer();
-      if(answer != null && answer.correct)
+      if(answer != null && answer.correct) {
         _answerMessageIndex = 1;
-      else if (answer != null && !answer.correct)
+	_answerMessageFeedback = answer.feedbacks;
+      } else if (answer != null && !answer.correct) {
         _answerMessageIndex = 0;
+	_answerMessageFeedback = answer.feedbacks;
+      }
       break;
 
     case Constants.ASSESSMENT_START:
@@ -259,6 +268,7 @@ Dispatcher.register(function(payload) {
         _items[_itemIndex].startTime = Utils.currentTime();
         _selectedAnswerIds = _studentAnswers[_itemIndex];
         _answerMessageIndex = -1;  
+	_answerMessageFeedback  = "";
       } 
       break;
 
@@ -270,6 +280,7 @@ Dispatcher.register(function(payload) {
         _items[_itemIndex].startTime = Utils.currentTime();
         _selectedAnswerIds = _studentAnswers[_itemIndex];
         _answerMessageIndex = -1;
+	_answerMessageFeedback  = "";
       }
       break;
 
@@ -319,6 +330,7 @@ Dispatcher.register(function(payload) {
         _items[_itemIndex].startTime = Utils.currentTime();
         _selectedAnswerIds = _studentAnswers[_itemIndex];
         _answerMessageIndex = -1;
+	_answerMessageFeedback  = "";
       break;
     default:
       return true;
