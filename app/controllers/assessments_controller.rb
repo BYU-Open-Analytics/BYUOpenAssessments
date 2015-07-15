@@ -35,10 +35,12 @@ class AssessmentsController < ApplicationController
     @style = params[:style] ? params[:style] :  ""
     @per_sec = params[:per_sec] ? params[:per_sec] : nil
     if @is_writeback # For now all LTI requests with grade writeback will produce summative assessments. All others will be formative.
-      @kind = "summative"
+      # @kind = "summative"
+      @kind = "formative"
     else
       @kind = "formative"
     end
+    p @kind
     if params[:id].present? && !['load', 'offline'].include?(params[:id])
       @assessment = Assessment.find(params[:id])
       @assessment_id = @assessment ? @assessment.id : params[:assessment_id] || 'null'

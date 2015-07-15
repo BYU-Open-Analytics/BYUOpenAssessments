@@ -7,6 +7,7 @@ import AssessmentStore    from "../../stores/assessment";
 export default class RadioButton extends React.Component{
   
   answerSelected(){
+	  console.log("radio.jsx answer selected",this.props.item);
     AssessmentActions.answerSelected(this.props.item);
   }
 

@@ -78,6 +78,7 @@ export default class UniversalInput extends React.Component{
                  </div>);
     }
 
+	console.log(item);
     switch(item.question_type){
       case "edx_multiple_choice":
       case "multiple_choice_question":
@@ -93,6 +94,10 @@ export default class UniversalInput extends React.Component{
         break;
       case "matching_question":
         items = <Matching item={item} name="answer-option"/>;
+        break;
+      case "short_answer_question":
+      	console.log("universal_input:99 render short answer question",item);
+        items = <TextField key={item.id} item={item} name="answer-text"/>;
         break;
       case "edx_numerical_input":
       case "edx_text_input":
@@ -151,3 +156,4 @@ UniversalInput.propTypes = {
 UniversalInput.contextTypes = {
   theme: React.PropTypes.object
 };
+
