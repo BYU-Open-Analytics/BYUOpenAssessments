@@ -224,8 +224,9 @@ export default class Assessment{
 				console.log("Possible: ",item.correct[i].id);
 				if (answerToCheck == item.correct[i].id) {
 					console.log("Matched!",item.answers[givenShortAnswer],item.correct[i]);
-					correct = true;
+					feedbacks += item.correct[i].feedback;
 					score = item.correct[i].score;
+					correct = true;
 				}
 			    }
 		    }

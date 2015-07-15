@@ -77,13 +77,22 @@ export default class Qti{
     var correctAnswers = []
     for (var i=0; i<respconditions.length; i++){
       var condition = $(respconditions[i]);
+      console.log(condition.attr("continue"));
       if(condition.find('setvar').text() != '0'){
+	//Get feedback, if there is any
+	var feedback = "";
+	if (condition.find("displayfeedback").length > 0) {
+		feedback = xml.find("itemfeedback[ident='"+$(condition.find("displayfeedback")[0]).attr("linkrefid")+"']").text();
+		console.log("feedback: ", feedback);
+	}
 	var varequals = condition.find('conditionvar > varequal');
+	//Add an answer for each individual varequal, since for short answer questions, all correct answers are grouped in a single respcondition > conditionvar
 	for (var j=0; j<varequals.length; j++) {
 		var varequal = $(varequals[j]);
 		var answer = {
 		  id: varequal.text(),
-		  value: condition.find('setvar').text()
+		  value: condition.find('setvar').text(),
+		  feedback: feedback
 		}
 		if(answer.id == ""){
 		  answer.id = condition.find('conditionvar > and > varequal').map((index, condition) => {
