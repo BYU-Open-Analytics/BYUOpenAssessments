@@ -1,17 +1,7 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
-
-    user ||= User.new # guest user (not logged in)
-    if user.admin?
-      can :manage, :all
-    else
-      can :read, :all
-      can :manage, Assessment, :user_id => user.id
-      cannot :read, Account
-      can :manage, User, :id => user.id
-    end
+  def initialize(user, account)
 
     # Define abilities for the passed in user here. For example:
     #
@@ -39,5 +29,30 @@ class Ability
     #
     # See the wiki for details:
     # https://github.com/CanCanCommunity/cancancan/wiki/Defining-Abilities
+
+    user ||= User.new # guest user (not logged in)
+
+    basic(user, account)
+    admin(user, account) if user.admin?
+    account_admin(user, account) if account.present? && user.account_admin?(account)
+
+  end
+
+  def basic(user, account)
+    can :manage, User, id: user.id
+    can :read, :all # TODO we don't really want read :all. Be more specific
+    cannot :read, Account
+    # if !account.restrict_assessment_create
+      can :manage, Assessment, :user_id => user.id
+    # end
+  end
+
+  def admin(user, account)
+    can :manage, :all
+  end
+
+  def account_admin(user, account)
+    can :read, Account, id: user.account_ids
+    can :update, Account, id: account.id
   end
 end

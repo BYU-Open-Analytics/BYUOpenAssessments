@@ -2,8 +2,13 @@ require 'rails_helper'
 
 describe AssessmentResultsController do
 
+  before do
+    @account = FactoryGirl.create(:account)
+    allow(controller).to receive(:current_account).and_return(@account)
+  end
+  
   describe "GET show" do
-    let(:assessment){ make_assessment }
+    let(:assessment){ create_assessment }
 
     it "returns http success" do
       get :show, :id => assessment.id

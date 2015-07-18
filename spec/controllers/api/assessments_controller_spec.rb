@@ -6,6 +6,8 @@ RSpec.describe Api::AssessmentsController, type: :controller do
     @xml = open(file).read
 
     @account = FactoryGirl.create(:account)
+    @account.restrict_assessment_create = false
+    @account.save!
     @user = FactoryGirl.create(:user, account: @account)
     @user.confirm!
     
@@ -14,6 +16,8 @@ RSpec.describe Api::AssessmentsController, type: :controller do
 
     @user_token = AuthToken.issue_token({ user_id: @user.id })
     @admin_token = AuthToken.issue_token({ user_id: @admin.id })
+
+    allow(controller).to receive(:current_account).and_return(@account)
   end
 
   describe "GET 'index'" do

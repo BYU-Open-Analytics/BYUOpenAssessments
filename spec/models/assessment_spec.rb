@@ -3,17 +3,34 @@ require 'rails_helper'
 describe Assessment do
 
   before do
-    @assessment = make_assessment
+    @assessment = create_assessment
+  end
+
+  describe "save_xml" do
+
+ # TODO
+    it "creates a formative assessment_xml" do
+      #@assessment.save_xml()
+    end
+
+    it "creates a summative assessment_xml" do
+      #@assessment.save_xml()
+    end
+
   end
 
   describe "from_xml" do
   
     it 'should extract the identifier' do
-      expect(@assessment.identifier).to eq('A1001')
+      assessment = build_assessment(identifier: nil)
+      assessment.save!
+      expect(assessment.identifier).to eq('A1001')
     end
 
     it 'should extract the title' do
-      expect(@assessment.title).to eq('XQuestionSample')
+      assessment = build_assessment(title: nil)
+      assessment.save!
+      expect(assessment.title).to eq('XQuestionSample')
     end
 
     it 'should extract the section' do
@@ -40,7 +57,7 @@ describe Assessment do
     it 'should add keywords to assessment' do
       keyword = FactoryGirl.generate(:name)
       @assessment.keyword_list.add(keyword, parse: true)
-      @assessment.save
+      @assessment.save!
       expect(Assessment.tagged_with(keyword).first).to eq(@assessment)
     end
   end

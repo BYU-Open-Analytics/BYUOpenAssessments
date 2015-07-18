@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150713174100) do
+ActiveRecord::Schema.define(version: 20150718013852) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "name"
@@ -20,8 +20,12 @@ ActiveRecord::Schema.define(version: 20150713174100) do
     t.string   "lti_secret"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "canvas_uri", limit: 2048
+    t.string   "canvas_uri",                 limit: 2048
     t.string   "code"
+    t.boolean  "restrict_signup",                         default: true
+    t.boolean  "restrict_assessment_create",              default: true
+    t.boolean  "restrict_public",                         default: true
+    t.string   "default_style"
   end
 
   add_index "accounts", ["code"], name: "index_accounts_on_code", using: :btree
@@ -91,6 +95,7 @@ ActiveRecord::Schema.define(version: 20150713174100) do
     t.string   "license"
     t.string   "keywords"
     t.integer  "account_id"
+    t.string   "kind"
   end
 
   add_index "assessments", ["account_id"], name: "index_assessments_on_account_id", using: :btree
