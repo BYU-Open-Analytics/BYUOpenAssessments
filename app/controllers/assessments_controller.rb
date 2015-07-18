@@ -7,8 +7,7 @@ class AssessmentsController < ApplicationController
   before_filter :skip_trackable
   before_filter :authenticate_user!, only: [:new, :create, :destroy]
   before_filter :check_lti, only: [:show]
-
-  load_and_authorize_resource except: [:index, :show, :create]
+  load_and_authorize_resource except: [:index, :show]
 
   respond_to :html
 
@@ -44,7 +43,8 @@ class AssessmentsController < ApplicationController
     if params[:id].present? && !['load', 'offline'].include?(params[:id])
       @assessment = Assessment.find(params[:id])
       @assessment_id = @assessment ? @assessment.id : params[:assessment_id] || 'null'
-      @assessment_settings = params[:asid] ? AssessmentSetting.find(params[:asid]) : nil;
+      @assessment_settings = params[:asid] ? AssessmentSetting.find(params[:asid]) : @assessment.default_settings;
+      @style = @assessment.default_style if @assessment.default_style
       if @assessment_settings.present?
         @style = @style != "" ? @style : @assessment_settings[:style] || ""
         @enable_start = params[:enable_start] ?  @enable_start : @assessment_settings[:enable_start] || false
@@ -109,12 +109,8 @@ class AssessmentsController < ApplicationController
   end
 
   def create
-    xml = assessment_params[:xml_file].read
-    @assessment = Assessment.from_xml(xml, current_user)
-    @assessment.title = assessment_params[:title] if assessment_params[:title].present?
-    @assessment.description = assessment_params[:description] if assessment_params[:description].present?
-    @assessment.license = assessment_params[:license] if assessment_params[:license].present?
-    @assessment.keyword_list.add(assessment_params[:keywords], parse: true) if assessment_params[:keywords].present?
+    @assessment.user = current_user
+    @assessment.account = current_account
     @assessment.save!
     respond_with(@assessment)
   end
@@ -136,7 +132,7 @@ class AssessmentsController < ApplicationController
     end
 
     def assessment_params
-      params.require(:assessment).permit(:title, :description, :xml_file, :license, :keywords)
+      params.require(:assessment).permit(:title, :description, :xml_file, :license, :keyword_list)
     end
 
     def check_lti

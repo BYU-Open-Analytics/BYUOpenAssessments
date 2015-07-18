@@ -1,5 +1,7 @@
 class Api::AccountsController < Api::ApiController
 
+  before_action :validate_token
+
   load_and_authorize_resource
 
   def index
@@ -35,11 +37,11 @@ class Api::AccountsController < Api::ApiController
   private
 
     def create_params
-      params.require(:account).permit(:name, :domain, :canvas_uri, :code)
+      params.require(:account).permit(:name, :domain, :canvas_uri, :code, :default_style)
     end
 
     def update_params
-      params.require(:account).permit(:name, :domain, :canvas_uri, :code)
+      params.require(:account).permit(:name, :domain, :canvas_uri, :code, :default_style)
     end
 
 end
