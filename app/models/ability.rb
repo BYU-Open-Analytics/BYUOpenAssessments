@@ -42,9 +42,9 @@ class Ability
     can :manage, User, id: user.id
     can :read, :all # TODO we don't really want read :all. Be more specific
     cannot :read, Account
-    if !account.restrict_assessment_create
+    # if !account.restrict_assessment_create
       can :manage, Assessment, :user_id => user.id
-    end
+    # end
   end
 
   def admin(user, account)

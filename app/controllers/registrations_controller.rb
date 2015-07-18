@@ -10,6 +10,6 @@ class RegistrationsController < Devise::RegistrationsController
 
   private
     def check_registration_restrictions
-      user_not_authorized if current_account.restrict_signup
+      # user_not_authorized if current_account.restrict_signup
     end
 end

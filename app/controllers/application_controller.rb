@@ -294,7 +294,7 @@ class ApplicationController < ActionController::Base
     def protect_account
       return if ['default', 'sessions', 'devise/passwords', 'devise/confirmations', 'devise/unlocks'].include?(params[:controller])
       return if request.post? && params['lti_message_type'].present?
-      user_not_authorized if current_account.restrict_public && !user_signed_in?
+      # user_not_authorized if current_account.restrict_public && !user_signed_in?
     end
 
   private
