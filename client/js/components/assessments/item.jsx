@@ -221,12 +221,12 @@ export default class Item extends BaseComponent{
                 </div>;
     }
     else if(index == 0){
-      result =  <div className="check_answer_result">
+      result =  <div className="check_answer_result answer_result_incorrect">
                   <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
                 </div>;
     }
     else {
-      result =  <div className="check_answer_result">
+      result =  <div className="check_answer_result answer_result_correct">
                   <p>Correct</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
                 </div>;
     }
