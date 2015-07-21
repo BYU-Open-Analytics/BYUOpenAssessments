@@ -63,7 +63,14 @@
 }
 .check_answer_result{
   margin:-5px 23px 18px 20px;
+  font-size: 16px;
   color: $orange;
+}
+.answer_result_incorrect {
+  color: red;
+}
+.answer_result_correct {
+  color: green;
 }
 .btn-block{
   margin-bottom: 5px; // HACK. ember adds tags that prevent the default margin from flat-ui being added to the btn-block
