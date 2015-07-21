@@ -206,8 +206,8 @@ class ApplicationController < ActionController::Base
 
     def do_lti
 
-      # provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-      provider = IMS::LTI::ToolProvider.new("examplekey", "examplesecret", params)
+      provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
+      # provider = IMS::LTI::ToolProvider.new("examplekey", "examplesecret", params)
 
       if provider.valid_request?(request)
 
@@ -293,7 +293,6 @@ class ApplicationController < ActionController::Base
 
     def current_account
       @current_account ||= Account.find_by(code: request.subdomains.first) || Account.find_by(domain: request.host) || Account.main
-      p @current_account.inspect
     end
 
     def protect_account
