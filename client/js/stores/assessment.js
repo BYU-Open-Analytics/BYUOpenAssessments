@@ -44,6 +44,7 @@ function checkAnswer(){
 }
 
 function selectAnswer(item){
+  console.log("stores/assessment:47",SettingsStore.current());
   if(_items[_itemIndex].question_type == "multiple_choice_question"){
     _selectedAnswerIds = item.id;
   } else if (_items[_itemIndex].question_type == "multiple_answers_question"){
