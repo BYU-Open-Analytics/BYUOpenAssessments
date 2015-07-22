@@ -19,10 +19,12 @@ export default {
 		externalUserId       : item.settings.externalUserId,
 		resultsEndPoint      : item.settings.resultsEndPoint,
 		assessmentUrl        : item.settings.srcUrl,
+		duration             : item.timeSpent,
 		scaledScore          : item.score,
 		questionsTotal       : item.questionCount,
 		questionsAnswered    : item.questionsAnswered,
-		questionsCorrect     : item.questionsCorrect
+		questionsCorrect     : item.questionsCorrect,
+		timestamp            : item.timestamp
 	};
 	console.log("actions/xapi:22 sending completion",item,body);
 	Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT})
@@ -34,7 +36,7 @@ export default {
 	var body = {
 		statementName        : "questionAttempted",
 		navigationMethod     : "next",
-		questionId           : item.currentIndex + 1,
+		questionId           : item.currentIndex + 2,
 		assessmentId         : item.settings.assessmentId,
 		identifier           : item.assessment.id,
 		eId                  : item.settings.eId,

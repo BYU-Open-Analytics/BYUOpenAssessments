@@ -185,6 +185,10 @@ var AssessmentStore = assign({}, StoreCommon, {
     return _items;
   },
 
+  startTime(){
+    return _startedAt;
+  },
+
   timeSpent(){
     var time = _finishedAt - _startedAt;
     var minutes = Math.floor(time/1000/60);

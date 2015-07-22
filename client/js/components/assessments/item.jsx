@@ -5,6 +5,7 @@ import BaseComponent      from "../base_component";
 import AssessmentActions  from "../../actions/assessment";
 import XapiActions        from "../../actions/xapi";
 import UniversalInput     from "./universal_input";
+import Utils              from "../../utils/utils";
 import AssessmentStore    from "../../stores/assessment";
 
 
@@ -57,6 +58,8 @@ export default class Item extends BaseComponent{
       this.props.score = numCorrect / numTotal;
       this.props.questionsCorrect = numCorrect;
       this.props.questionsAnswered = (complete == true) ? numTotal : numTotal - complete.length;
+      this.props.timeSpent = Utils.currentTime() - this.props.startTime;
+      this.props.timestamp = Utils.currentTime();
       AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
       XapiActions.sendCompletionStatement(this.props);
     } else if (complete != true) {

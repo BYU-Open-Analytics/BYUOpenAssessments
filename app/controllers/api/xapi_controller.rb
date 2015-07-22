@@ -82,6 +82,7 @@ class Api::XapiController < ApplicationController
     # The actor will be the same for all our statement types
     actor["name"] = current_user.name
     actor["mbox"] = "mailto:#{current_user.email}"
+    actor["objectType"] = "Agent"
 
     verb["id"] = verbAuthority + verbName
     verb["display"] = {"en-US"=>verbName.capitalize}
