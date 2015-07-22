@@ -73,6 +73,7 @@ export default {
   
   submitAssessment(identifier, assessmentId, questions, studentAnswers, settings){
     Dispatcher.dispatch({action: Constants.ASSESSMENT_SUBMITTED})
+    //TODO extract ["answer"] out of studentAnswers, since that schema was changed to allow for local grading.
     var body = {
       itemToGrade: {
         questions    : questions,

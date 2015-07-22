@@ -11,6 +11,7 @@ export default class TextField extends React.Component{
 		AssessmentActions.answerSelected(e.target.value);
 	}
 
+	//TODO Need to restore answer from studentAnswers (like in radio_button.jsx)?
 	render(){
 		return(
 			<div>

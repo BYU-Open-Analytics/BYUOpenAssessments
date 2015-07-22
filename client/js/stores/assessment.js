@@ -83,7 +83,7 @@ function updateMatchingAnswer(item){
 
 function setUpStudentAnswers(numOfQuestions){
   for (var i = 0; i < numOfQuestions; i++){
-    _studentAnswers[i] = [];
+    _studentAnswers[i] = {"answer":"","correct":false};
   }
 }
 
@@ -269,10 +269,10 @@ Dispatcher.register(function(payload) {
       // Will need to advance sections and items.
       if(_itemIndex < _items.length - 1){
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+	_studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
         _itemIndex++;
         _items[_itemIndex].startTime = Utils.currentTime();
-        _selectedAnswerIds = _studentAnswers[_itemIndex];
+        _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
         _answerMessageIndex = -1;  
 	_answerMessageFeedback  = "";
       } 
@@ -281,10 +281,10 @@ Dispatcher.register(function(payload) {
     case Constants.ASSESSMENT_PREVIOUS_QUESTION:
       if(_itemIndex > 0){
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime());
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+	_studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
         _itemIndex--;
         _items[_itemIndex].startTime = Utils.currentTime();
-        _selectedAnswerIds = _studentAnswers[_itemIndex];
+        _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
         _answerMessageIndex = -1;
 	_answerMessageFeedback  = "";
       }
@@ -318,7 +318,7 @@ Dispatcher.register(function(payload) {
     case Constants.LEVEL_SELECTED:
       _items[_itemIndex].confidenceLevel = payload.level;
       if(payload.index ==  _items.length - 1){
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+        _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
       }
       // if(SettingsStore.current().kind == "formative"){
       //   var answer = checkAnswer();
@@ -331,10 +331,10 @@ Dispatcher.register(function(payload) {
       break;
     case Constants.QUESTION_SELECTED:
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+        _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
         _itemIndex = payload.index;
         _items[_itemIndex].startTime = Utils.currentTime();
-        _selectedAnswerIds = _studentAnswers[_itemIndex];
+        _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
         _answerMessageIndex = -1;
 	_answerMessageFeedback  = "";
       break;

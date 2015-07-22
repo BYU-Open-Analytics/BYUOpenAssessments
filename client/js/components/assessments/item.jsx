@@ -25,20 +25,31 @@ export default class Item extends BaseComponent{
 
   confidenceLevelClicked(e, currentIndex){
     e.preventDefault()
-    AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
     AssessmentActions.checkAnswer();
+    AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
     //AssessmentActions.nextQuestion(); 
   }
 
   submitButtonClicked(e){
     //This will save the answer of the current question so it can be correctly marked as complete
     AssessmentActions.nextQuestion(); 
+    AssessmentActions.checkAnswer();
     if (this.props.currentIndex < this.props.questionCount - 1) {
 	    AssessmentActions.previousQuestion();
     }
     e.preventDefault()
 
-    console.log("components/assessments/item:41",this,this.props);
+    console.log("components/assessments/item:42",this.props.studentAnswers);
+    var numTotal = this.props.questionCount;
+    var numCorrect = 0;
+    for (var i = 0; i < this.props.studentAnswers.length; i++) {
+	if (this.props.studentAnswers[i]["correct"] == true) {
+		numCorrect += 1;
+	}
+    }
+    var score = numCorrect / numTotal;
+    //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button)
+    console.log("components/assessments/item:43 got " + numCorrect + " correct out of " + numTotal + " total questions. Score of " + score + "%.");
     var complete = this.checkCompletion();
     var confirmMessage = (complete == true) ? "You have answered all questions. Submit the quiz?" : "You left the following questions blank: " + this.formatUnansweredString(complete) + ". Submit the quiz anyway?";
     if (confirm(confirmMessage)) {
@@ -49,10 +60,9 @@ export default class Item extends BaseComponent{
   }
 
   checkCompletion(){
-	  console.log("components/assessments/item:46",this,this.props);
     var questionsNotAnswered = [];
     for (var i = 0; i < this.props.studentAnswers.length; i++) {
-      if(this.props.studentAnswers[i] == null || this.props.studentAnswers[i].length == 0){
+      if(this.props.studentAnswers[i]["answer"] == null || this.props.studentAnswers[i]["answer"].length == 0){
         
         questionsNotAnswered.push(i+1);
       }
