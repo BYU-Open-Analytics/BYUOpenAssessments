@@ -26,7 +26,8 @@ export default class Item extends BaseComponent{
   confidenceLevelClicked(e, currentIndex){
     e.preventDefault()
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
-    AssessmentActions.nextQuestion(); 
+    AssessmentActions.checkAnswer();
+    //AssessmentActions.nextQuestion(); 
   }
 
   submitButtonClicked(e){
@@ -174,7 +175,7 @@ export default class Item extends BaseComponent{
 
   getConfidenceLevels(level, styles){
     if(level){
-      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to go to the next question.</b></div>;
+      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to check your answer.</b></div>;
       return    (<div className="confidence_wrapper" style={styles.confidenceWrapper}>
                   {levelMessage}
                   <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
