@@ -68,5 +68,7 @@ export default {
   CREATED_USER: "created_user",
 
   // xAPI Statements
-  SEND_COMPLETION_STATEMENT: "send_completion"
+  SEND_COMPLETION_STATEMENT: "send_completion_statement",
+  SEND_NEXT_STATEMENT: "send_next_statement",
+  SEND_PREVIOUS_STATEMENT: "send_previous_statement"
 };
