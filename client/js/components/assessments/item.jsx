@@ -43,6 +43,7 @@ export default class Item extends BaseComponent{
   }
 
   checkCompletion(){
+	  console.log("components/assessments/item:46",this,this.props);
     var questionsNotAnswered = [];
     for (var i = 0; i < this.props.studentAnswers.length; i++) {
       if(this.props.studentAnswers[i] == null || this.props.studentAnswers[i].length == 0){
@@ -241,7 +242,7 @@ export default class Item extends BaseComponent{
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
     var result = this.getResult(this.props.messageIndex,this.props.messageFeedback);
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
-    var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit</button> : "";
+    var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     var footer = this.getFooterNav(this.context.theme, styles);
     
     // Get the confidence Level

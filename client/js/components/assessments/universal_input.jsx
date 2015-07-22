@@ -78,7 +78,7 @@ export default class UniversalInput extends React.Component{
                  </div>);
     }
 
-	console.log(item);
+	//console.log(item);
     switch(item.question_type){
       case "edx_multiple_choice":
       case "multiple_choice_question":
@@ -100,7 +100,7 @@ export default class UniversalInput extends React.Component{
         items = <TextField key={item.id} item={item} name="answer-text"/>;
         break;
       case "essay_question":
-      	console.log("universal_input:103 render essay question",item);
+      	//console.log("universal_input:103 render essay question",item);
         items = <TextArea key={item.id} item={item} name="answer-essay"/>;
       	break;
       case "edx_numerical_input":

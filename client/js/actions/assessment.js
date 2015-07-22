@@ -32,6 +32,7 @@ export default {
   },
 
   start(eid, assessmentId){
+	  console.log("actions/assessment:35",eid,assessmentId);
     Dispatcher.dispatch({action: Constants.ASSESSMENT_START})
     if(eid && assessmentId){
       Api.put(Constants.ASSESSMENT_START, "/api/user_assessments/"+eid, {assessmentId: assessmentId})
