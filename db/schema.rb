@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150720145709) do
+ActiveRecord::Schema.define(version: 20150721185502) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "name"
@@ -72,6 +72,7 @@ ActiveRecord::Schema.define(version: 20150720145709) do
     t.string   "per_sec"
     t.boolean  "confidence_levels"
     t.boolean  "enable_start"
+    t.boolean  "is_default"
   end
 
   create_table "assessment_xmls", force: :cascade do |t|

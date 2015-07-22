@@ -46,7 +46,7 @@ export default class ProgressListItem extends BaseComponent{
     return (
       <div style={styles.li} key={"li" + this.props.index} onClick={()=>{this.selectQuestion()}} onMouseEnter={()=>{this.mouseOver()}} onMouseLeave={()=>{this.mouseOut()}}>
         <h5>Question {this.props.index + 1}</h5>
-        <span>{this.props.question.material}</span>
+        <span dangerouslySetInnerHTML={{__html: this.props.question.material}}></span>
       </div>);
   }
 }

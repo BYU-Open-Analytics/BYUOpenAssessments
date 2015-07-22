@@ -207,6 +207,7 @@ class ApplicationController < ActionController::Base
     def do_lti
 
       provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
+      # provider = IMS::LTI::ToolProvider.new("examplekey", "examplesecret", params)
 
       if provider.valid_request?(request)
 
@@ -242,11 +243,14 @@ class ApplicationController < ActionController::Base
           # MAKE SURE THAT WE REMOVE THIS because the test user doesnt have an email.
           email = params[:lis_person_contact_email_primary] || "#{params[:user_id]}@#{params["custom_canvas_api_domain"]}"
           email = "#{params[:user_id]}_#{params[:tool_consumer_instance_guid]}@example.com" if email.blank?
+
+	  # debugger
           
           @user = User.new(email: email, name: name)
           @user.password              = ::SecureRandom::hex(15)
           @user.password_confirmation = @user.password
-          @user.account = current_account
+          # @user.account = current_account
+	  @user.account = Account.new()
           @user.skip_confirmation!
 
           count = 0
