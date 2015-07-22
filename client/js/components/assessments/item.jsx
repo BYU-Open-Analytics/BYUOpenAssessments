@@ -31,13 +31,19 @@ export default class Item extends BaseComponent{
   }
 
   submitButtonClicked(e){
+    //This will save the answer of the current question so it can be correctly marked as complete
+    AssessmentActions.nextQuestion(); 
+    if (this.props.currentIndex < this.props.questionCount - 1) {
+	    AssessmentActions.previousQuestion();
+    }
     e.preventDefault()
 
+    console.log("components/assessments/item:41",this,this.props);
     var complete = this.checkCompletion();
-    if(complete === true){
+    var confirmMessage = (complete == true) ? "You have answered all questions. Submit the quiz?" : "You left the following questions blank: " + this.formatUnansweredString(complete) + ". Submit the quiz anyway?";
+    if (confirm(confirmMessage)) {
       AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
-    }
-    else {
+    } else if (complete != true) {
       this.setState({unAnsweredQuestions: complete});
     }
   }
@@ -55,6 +61,18 @@ export default class Item extends BaseComponent{
       return questionsNotAnswered;
     }
     return true;
+  }
+
+  formatUnansweredString(arr){
+    var outStr = "";
+    if (arr.length === 1) {
+        outStr = arr[0];
+    } else if (arr.length === 2) {
+        outStr = arr.join(' and ');
+    } else if (arr.length > 2) {
+        outStr = arr.slice(0, -1).join(', ') + ', and ' + arr.slice(-1);
+    }
+    return outStr;
   }
 
   getStyles(theme){
@@ -176,7 +194,7 @@ export default class Item extends BaseComponent{
 
   getConfidenceLevels(level, styles){
     if(level){
-      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to check your answer.</b></div>;
+      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to save and check your answer.</b></div>;
       return    (<div className="confidence_wrapper" style={styles.confidenceWrapper}>
                   {levelMessage}
                   <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
@@ -242,7 +260,9 @@ export default class Item extends BaseComponent{
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
     var result = this.getResult(this.props.messageIndex,this.props.messageFeedback);
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
-    var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
+    //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
+    //TODO change the appearance of this button when all questions have been answered, like canvas
+    var submitButton = <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
     var footer = this.getFooterNav(this.context.theme, styles);
     
     // Get the confidence Level
