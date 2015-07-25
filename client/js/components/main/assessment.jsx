@@ -3,6 +3,7 @@
 import React              from 'react';
 import AssessmentStore    from "../../stores/assessment";
 import SettingsStore      from "../../stores/settings";
+import XapiStore          from "../../stores/xapi";
 import BaseComponent      from "../base_component";
 import AssessmentActions  from "../../actions/assessment";
 import XapiActions        from "../../actions/xapi";

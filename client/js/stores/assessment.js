@@ -205,7 +205,7 @@ var AssessmentStore = assign({}, StoreCommon, {
 // Register callback with Dispatcher
 Dispatcher.register(function(payload) {
   var action = payload.action;
-  
+
   switch(action){
 
     case Constants.ASSESSMENT_LOAD_PENDING:
@@ -346,7 +346,7 @@ Dispatcher.register(function(payload) {
 	}
       }
       //console.log("stores/assessment:339 sending question answered",statementBody);
-      XapiActions.sendQuestionAnsweredStatement(statementBody);
+      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       break;
     case Constants.QUESTION_SELECTED:
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 

@@ -24,10 +24,10 @@ export default {
 		statementName        : "assessmentLaunched"
 	};
 	body = this.addStandardStatementBody(body);
-	console.log("actions/xapi:28 sending launched",item,body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//console.log("actions/xapi:28 sending launched",item,body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, statement: body})
-	Api.post(Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, "api/xapi", body);
   },
 
   sendCompletionStatement(item) {
@@ -41,9 +41,10 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log("actions/xapi:22 sending completion",item,body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT, statement: body})
-	Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(true);
   },
 
   sendNextStatement(item) {
@@ -55,9 +56,10 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_NEXT_STATEMENT})
-	Api.post(Constants.SEND_NEXT_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_NEXT_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(false);
   },
 
   sendPreviousStatement(item) {
@@ -69,9 +71,10 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
-	Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(false);
   },
 
   // Notice that we're adding 1 to question index here. We should always pass raw question index into these functions, and add 1 for human-normal value here.
@@ -85,9 +88,10 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_DIRECT_NAVIGATION_STATEMENT})
-	Api.post(Constants.SEND_DIRECT_NAVIGATION_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_DIRECT_NAVIGATION_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(false);
   },
 	
   sendQuestionAnsweredStatement(item) {
@@ -105,9 +109,9 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_QUESTION_ANSWERED_STATEMENT})
-	Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
   },
 
   sendAssessmentSuspendedStatement(item) {
@@ -116,10 +120,10 @@ export default {
 		questionId           : item.questionId + 1
 	};
 	body = this.addStandardStatementBody(body);
-	console.log(body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT})
-	Api.post(Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT, "api/xapi", body);
   },
 
   sendAssessmentResumedStatement(item) {
@@ -128,10 +132,14 @@ export default {
 		questionId           : item.questionId + 1
 	};
 	body = this.addStandardStatementBody(body);
-	console.log(body);
-	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_RESUMED_STATEMENT})
-	Api.post(Constants.SEND_ASSESSMENT_RESUMED_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_ASSESSMENT_RESUMED_STATEMENT, "api/xapi", body);
+  },
+
+  flushStatementQueue(forcibly) {
+	  Dispatcher.dispatch({ action: Constants.FLUSH_STATEMENT_QUEUE, forcibly: forcibly });
   }
 
 };
