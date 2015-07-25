@@ -62,7 +62,6 @@ function selectAnswer(item){
 	  _selectedAnswerIds = 0;
 	  //console.log("stores/assessment.js 61");
   } else if (_items[_itemIndex].question_type == "essay_question") {
-	  //TODO: Essays will always be correct when checked here, but we still need to store the response
 	  _items[_itemIndex].answers = [{"material":item}];
 	  _selectedAnswerIds = 0;
 	  //console.log("stores/assessment.js 66",item);

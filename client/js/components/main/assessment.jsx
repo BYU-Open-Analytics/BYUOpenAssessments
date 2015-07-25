@@ -65,12 +65,11 @@ export default class Assessment extends BaseComponent{
   }
 
   handleWindowFocus(e){
-    //TODO maybe check to make sure one of these isn't sent on intial load (it was never suspended, so it wouldn't make sense to send a resumed statement)
-    XapiActions.sendAssessmentResumedStatement();
+    XapiActions.sendAssessmentResumedStatement({"questionID":this.state.currentIndex});
   }
 
   handleWindowBlur(e){
-    XapiActions.sendAssessmentSuspendedStatement();
+    XapiActions.sendAssessmentSuspendedStatement({"questionID":this.state.currentIndex});
   }
 
   getStyles(theme){

@@ -61,6 +61,8 @@ export default {
 	Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
   },
 
+  // Notice that we're adding 1 to question index here. We should always pass raw question index into these functions, and add 1 for human-normal value here.
+
   sendDirectNavigationStatement(item) {
 	//console.log("actions/xapi:69 sending direct statement",item);
 	var body = {
@@ -97,7 +99,8 @@ export default {
 	console.log("actions/xapi:97 sending assessment suspended statement",item);
 
 	var body = {
-		statementName        : "assessmentSuspended"
+		statementName        : "assessmentSuspended",
+		questionId           : item.questionId + 1
 	};
 	body = this.addStandardStatementBody(body);
 	console.log(body);
@@ -109,7 +112,8 @@ export default {
 	console.log("actions/xapi:109 sending assessment resumed statement",item);
 
 	var body = {
-		statementName        : "assessmentResumed"
+		statementName        : "assessmentResumed",
+		questionId           : item.questionId + 1
 	};
 	body = this.addStandardStatementBody(body);
 	console.log(body);

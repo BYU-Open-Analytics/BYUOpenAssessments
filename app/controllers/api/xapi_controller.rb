@@ -71,24 +71,22 @@ class Api::XapiController < ApplicationController
 
     when "assessmentSuspended"
 	verbName = "suspended"
-        # TODO change this if we want the object to be the particular question of the assessment
 	object = {
-		"id"		=> params["assessmentUrl"],
-		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
+		"id"		=> "#{params["assessmentUrl"]}##{params["questionId"]}",
+		"definition"	=> {"name" => {"en-US" => "Question ##{params["questionId"]} of assessment #{params["assessmentId"]}"} }
 	}
 	context = {
-		"contextActivities" => {"parent" => {"id" => "http://example.com/course_uri_here"} }
+		"contextActivities"	=> {"parent" => { "id" => params["assessmentUrl"]} },
 	}
 
     when "assessmentResumed"
 	verbName = "resumed"
-        # TODO change this if we want the object to be the particular question of the assessment
 	object = {
-		"id"		=> params["assessmentUrl"],
-		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
+		"id"		=> "#{params["assessmentUrl"]}##{params["questionId"]}",
+		"definition"	=> {"name" => {"en-US" => "Question ##{params["questionId"]} of assessment #{params["assessmentId"]}"} }
 	}
 	context = {
-		"contextActivities" => {"parent" => {"id" => "http://example.com/course_uri_here"} }
+		"contextActivities"	=> {"parent" => { "id" => params["assessmentUrl"]} },
 	}
 
     when "assessmentCompleted"
