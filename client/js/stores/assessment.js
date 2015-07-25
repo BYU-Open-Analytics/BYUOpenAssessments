@@ -333,15 +333,20 @@ Dispatcher.register(function(payload) {
       //     _answerMessageIndex = 0;
       // }
       //We have to do send the xapi statement in this icky place instead of in item.jsx on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
-      var statementBody = {"confidenceLevel":payload.level,"questionId":_itemIndex,"correct":_studentAnswers[_itemIndex].correct}
+      var statementBody = {"confidenceLevel":payload.level,"questionId":_itemIndex,"correct":_studentAnswers[_itemIndex].correct,"questionType":_items[_itemIndex].question_type}
       statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
       if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
-	statementBody["givenAnswer"] = _items[_itemIndex].answers[_selectedAnswerIds]
+	statementBody["answerGiven"] = _items[_itemIndex].answers[_selectedAnswerIds].material.trim();
       } else {
-	statementBody["givenAnswer"] = _selectedAnswerIds;
+	statementBody["answerGiven"] = _selectedAnswerIds;
+	for (var i=0; i<_items[_itemIndex].answers.length; i++) {
+		if (_items[_itemIndex].answers[i].id == _selectedAnswerIds) {
+			statementBody["answerGiven"] = _items[_itemIndex].answers[i].material.trim();
+			break;
+		}
+	}
       }
-      // TODO put actual answer in statement body
-      console.log("stores/assessment:339 sending question answered",statementBody);
+      //console.log("stores/assessment:339 sending question answered",statementBody);
       XapiActions.sendQuestionAnsweredStatement(statementBody);
       break;
     case Constants.QUESTION_SELECTED:

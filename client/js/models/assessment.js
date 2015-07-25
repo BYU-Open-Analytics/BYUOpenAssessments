@@ -102,7 +102,7 @@ export default class Assessment{
         results = this.checkEdXMultipleChoice();
         break;
     }
-    console.log("models/assessment:105 checkAnswer",item);
+    //console.log("models/assessment:105 checkAnswer",item);
 
     // var end = Utils.currentTime();
     // var settings = this.get('settings');

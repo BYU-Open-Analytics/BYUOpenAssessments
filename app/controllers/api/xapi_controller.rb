@@ -38,6 +38,24 @@ class Api::XapiController < ApplicationController
 	}
     when "questionAnswered"
 	verbName = "answered"
+	object = {
+		"id"		=> "#{params["assessmentUrl"]}##{params["questionId"]}",
+		"definition"	=> {"name" => {"en-US" => "Question ##{params["questionId"]} of assessment #{params["assessmentId"]}"} }
+	}
+	context = {
+		"contextActivities"	=> {"parent" => { "id" => params["assessmentUrl"]} },
+		"extensions"		=> {
+			"#{extensionAuthority}answer_given"	=> params["answerGiven"],
+			"#{extensionAuthority}confidence_level"	=> params["confidenceLevel"],
+			"#{extensionAuthority}question_type"	=> params["questionType"].sub(/_question/,""),
+			"#{extensionAuthority}correct"		=> params["correct"]
+			}
+	}
+	result = {
+		"completion"	=> (params["answerGiven"] != ""),
+		"success"	=> params["correct"],
+		"duration"	=> params["duration"],
+	}
 
     when "questionAttempted"
 	verbName = "attempted"

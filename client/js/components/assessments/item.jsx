@@ -31,7 +31,7 @@ export default class Item extends BaseComponent{
     e.preventDefault()
     AssessmentActions.checkAnswer();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
-    console.log("item.jsx:34",this.props,e.target.value);
+    //console.log("item.jsx:34",this.props,e.target.value);
       //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
     //XapiActions.sendQuestionAnsweredStatement(this.props);
     //AssessmentActions.nextQuestion(); 
@@ -46,7 +46,7 @@ export default class Item extends BaseComponent{
     }
     e.preventDefault()
 
-    console.log("components/assessments/item:42",this);
+    //console.log("components/assessments/item:42",this);
     var numTotal = this.props.questionCount;
     var numCorrect = 0;
     for (var i = 0; i < this.props.studentAnswers.length; i++) {
