@@ -109,7 +109,8 @@ export default {
   },
 
   sendAssessmentResumedStatement(item) {
-	console.log("actions/xapi:109 sending assessment resumed statement",item);
+	  //TODO need to track question ID in suspend/resume statements
+	console.log("actions/xapi:109 sending assessment resumed statement",SettingsStore.current());
 
 	var body = {
 		statementName        : "assessmentResumed",

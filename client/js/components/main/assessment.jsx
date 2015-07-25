@@ -65,11 +65,11 @@ export default class Assessment extends BaseComponent{
   }
 
   handleWindowFocus(e){
-    XapiActions.sendAssessmentResumedStatement({"questionID":this.state.currentIndex});
+    XapiActions.sendAssessmentResumedStatement({"questionId":AssessmentStore.currentIndex()});
   }
 
   handleWindowBlur(e){
-    XapiActions.sendAssessmentSuspendedStatement({"questionID":this.state.currentIndex});
+    XapiActions.sendAssessmentSuspendedStatement({"questionId":AssessmentStore.currentIndex()});
   }
 
   getStyles(theme){

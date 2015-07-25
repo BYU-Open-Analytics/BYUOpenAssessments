@@ -29,7 +29,7 @@ class Api::XapiController < ApplicationController
     # Depending on the statement type, fill our verb, object, context, and result as needed
     case params["statementName"]
     when "assessmentStarted"
-	verbName = "attempted"
+	verbName = "launched"
 	object = {
 		"id"		=> params["assessmentUrl"],
 		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
