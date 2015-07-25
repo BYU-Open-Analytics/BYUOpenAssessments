@@ -17,20 +17,23 @@ export default class Item extends BaseComponent{
 
   nextButtonClicked(){
     this.setState({unAnsweredQuestions: null})
-    AssessmentActions.nextQuestion();
     XapiActions.sendNextStatement(this.props);
+    AssessmentActions.nextQuestion();
   }
 
   previousButtonClicked(){
     this.setState({unAnsweredQuestions: null})
-    AssessmentActions.previousQuestion();
     XapiActions.sendPreviousStatement(this.props);
+    AssessmentActions.previousQuestion();
   }
 
   confidenceLevelClicked(e, currentIndex){
     e.preventDefault()
     AssessmentActions.checkAnswer();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
+    console.log("item.jsx:34",this.props,e.target.value);
+      //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
+    //XapiActions.sendQuestionAnsweredStatement(this.props);
     //AssessmentActions.nextQuestion(); 
   }
 

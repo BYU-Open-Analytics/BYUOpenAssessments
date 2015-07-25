@@ -9,6 +9,7 @@ import Assessment     from "../models/assessment";
 import SettingsStore  from "./settings";
 import EdX            from "../models/edx";
 import _              from "lodash";
+import XapiActions    from "../actions/xapi";
 const INVALID = -1;
 const NOT_LOADED = 0;
 const LOADING = 1;
@@ -321,17 +322,27 @@ Dispatcher.register(function(payload) {
       break;
     case Constants.LEVEL_SELECTED:
       _items[_itemIndex].confidenceLevel = payload.level;
-      if(payload.index ==  _items.length - 1){
+      // if(payload.index ==  _items.length - 1){
         _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
-      }
+      // }
       // if(SettingsStore.current().kind == "formative"){
       //   var answer = checkAnswer();
       //   if(answer != null && answer.correct)
       //     _answerMessageIndex = 1;
       //   else if (answer != null && !answer.correct)
       //     _answerMessageIndex = 0;
-      
       // }
+      //We have to do send the xapi statement in this icky place instead of in item.jsx on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
+      var statementBody = {"confidenceLevel":payload.level,"questionId":_itemIndex,"correct":_studentAnswers[_itemIndex].correct}
+      statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
+      if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
+	statementBody["givenAnswer"] = _items[_itemIndex].answers[_selectedAnswerIds]
+      } else {
+	statementBody["givenAnswer"] = _selectedAnswerIds;
+      }
+      // TODO put actual answer in statement body
+      console.log("stores/assessment:339 sending question answered",statementBody);
+      XapiActions.sendQuestionAnsweredStatement(statementBody);
       break;
     case Constants.QUESTION_SELECTED:
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 

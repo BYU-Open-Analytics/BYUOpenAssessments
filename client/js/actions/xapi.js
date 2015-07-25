@@ -74,6 +74,22 @@ export default {
 	Api.post(Constants.SEND_DIRECT_NAVIGATION_STATEMENT, "api/xapi", body);
   },
 	
+  sendQuestionAnsweredStatement(item) {
+	console.log("actions/xapi:78 sending question answered statement",item);
+	var confidenceLevel = {"Just A Guess":"low","Pretty Sure":"medium","Very Sure":"high"}[item.confidenceLevel];
+
+	var body = {
+		statementName        : "questionAnswered",
+		confidenceLevel      : confidenceLevel,
+		questionId           : item.questionId,
+		duration             : item.duration,
+		correct              : item.correct
+	};
+	body = this.addStandardStatementBody(body);
+	console.log(body);
+	//Dispatcher.dispatch({ action: Constants.SEND_QUESTION_ANSWERED_STATEMENT})
+	Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
+  },
 
   submitAssessment(identifier, assessmentId, questions, studentAnswers, settings){
     Dispatcher.dispatch({action: Constants.ASSESSMENT_SUBMITTED})
