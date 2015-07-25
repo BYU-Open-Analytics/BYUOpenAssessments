@@ -34,5 +34,10 @@ export default {
   shouldShowProgressText: false,
   shouldShowCounter: false,
   shouldShowNextPrevious: false,
-  shouldShowFooter: true,
+  shouldShowFooter: false,
+
+  correctBackgroundColor: "rgba(113, 184, 137, 0.2)",
+  incorrectBackgroundColor: "rgba(207, 0, 0, 0.2)",
+  correctBorder: "1px solid rgb(113, 184, 137)",
+  incorrectBorder: "1px solid rgb(207, 0, 0)",
 }
