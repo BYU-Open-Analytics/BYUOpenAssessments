@@ -24,6 +24,7 @@ export default class Item extends BaseComponent{
   previousButtonClicked(){
     this.setState({unAnsweredQuestions: null})
     AssessmentActions.previousQuestion();
+    XapiActions.sendPreviousStatement(this.props);
   }
 
   confidenceLevelClicked(e, currentIndex){

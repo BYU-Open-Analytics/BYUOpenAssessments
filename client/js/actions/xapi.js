@@ -9,23 +9,27 @@ export default {
 
   //Valid statementName values: assessmentStarted, questionAnswered, questionAttempted, assessmentSuspsended, assessmentResumed, assessmentCompleted 
 
+  addStandardStatementBody(body) {
+	body["offline"]              = SettingsStore.current()["offline"];
+	body["assessmentId"]         = SettingsStore.current()["assessmentId"];
+	body["assessmentLongId"]     = SettingsStore.current()["eId"];
+	body["externalUserId"]       = SettingsStore.current()["externalUserId"];
+	body["resultsEndPoint"]      = SettingsStore.current()["resultsEndPoint"];
+	body["assessmentUrl"]        = SettingsStore.current()["srcUrl"];
+	body["timestamp"]            = new Date().toISOString();
+	return body;
+  },
+
   sendCompletionStatement(item) {
 	var body = {
 		statementName        : "assessmentCompleted",
-		offline              : item.settings.offline,
-		assessmentId         : item.settings.assessmentId,
-		identifier           : item.assessment.id,
-		eId                  : item.settings.eId,
-		externalUserId       : item.settings.externalUserId,
-		resultsEndPoint      : item.settings.resultsEndPoint,
-		assessmentUrl        : item.settings.srcUrl,
 		duration             : item.timeSpent,
 		scaledScore          : item.score,
 		questionsTotal       : item.questionCount,
 		questionsAnswered    : item.questionsAnswered,
-		questionsCorrect     : item.questionsCorrect,
-		timestamp            : item.timestamp
+		questionsCorrect     : item.questionsCorrect
 	};
+	body = this.addStandardStatementBody(body);
 	console.log("actions/xapi:22 sending completion",item,body);
 	Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT})
 	Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
@@ -36,17 +40,40 @@ export default {
 	var body = {
 		statementName        : "questionAttempted",
 		navigationMethod     : "next",
-		questionId           : item.currentIndex + 2,
-		assessmentId         : item.settings.assessmentId,
-		identifier           : item.assessment.id,
-		eId                  : item.settings.eId,
-		externalUserId       : item.settings.externalUserId,
-		assessmentUrl        : item.settings.srcUrl
+		questionId           : item.currentIndex + 2
 	};
+	body = this.addStandardStatementBody(body);
 	console.log(body);
 	Dispatcher.dispatch({ action: Constants.SEND_NEXT_STATEMENT})
 	Api.post(Constants.SEND_NEXT_STATEMENT, "api/xapi", body);
   },
+
+  sendPreviousStatement(item) {
+	console.log("actions/xapi:52 sending previous statement",item);
+	var body = {
+		statementName        : "questionAttempted",
+		navigationMethod     : "previous",
+		questionId           : item.currentIndex
+	};
+	body = this.addStandardStatementBody(body);
+	console.log(body);
+	Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
+	Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
+  },
+
+  sendDirectNavigationStatement(item) {
+	console.log("actions/xapi:69 sending direct statement",item);
+	var body = {
+		statementName        : "questionAttempted",
+		navigationMethod     : "direct",
+		questionId           : item.index + 1
+	};
+	body = this.addStandardStatementBody(body);
+	console.log(body);
+	Dispatcher.dispatch({ action: Constants.SEND_DIRECT_NAVIGATION_STATEMENT})
+	Api.post(Constants.SEND_DIRECT_NAVIGATION_STATEMENT, "api/xapi", body);
+  },
+	
 
   submitAssessment(identifier, assessmentId, questions, studentAnswers, settings){
     Dispatcher.dispatch({action: Constants.ASSESSMENT_SUBMITTED})

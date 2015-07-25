@@ -21,6 +21,9 @@ class Api::XapiController < ApplicationController
     verbAuthority = "http://adlnet.gov/expapi/verbs/"
     extensionAuthority = "http://byuopenanalytics.byu.edu/expapi/extensions/"
 
+	# TODO check for things that are required in post params, especially assessment id/url
+	# TODO check if user id passed in matches one from rails session? to check if the statement post is authorized
+
     # Valid statementName values: assessmentStarted, questionAnswered, questionAttempted, assessmentSuspsended, assessmentResumed, assessmentCompleted 
     # Depending on the statement type, fill our verb, object, context, and result as needed
     case params["statementName"]
@@ -31,7 +34,7 @@ class Api::XapiController < ApplicationController
 		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
 	}
 	context = {
-		"contextActivities" => {"parent" => "Course URI here"}
+		"contextActivities" => {"parent" => {"id" => "Course URI here"} }
 	}
     when "questionAnswered"
 	verbName = "answered"
@@ -43,7 +46,7 @@ class Api::XapiController < ApplicationController
 		"definition"	=> {"name" => {"en-US" => "Question ##{params["questionId"]} of assessment #{params["assessmentId"]}"} }
 	}
 	context = {
-		"contextActivities"	=> {"parent" => params["assessmentUrl"]},
+		"contextActivities"	=> {"parent" => { "id" => params["assessmentUrl"]} },
 		"extensions"		=> {"#{extensionAuthority}navigation_method" => params["navigationMethod"]}
 	}
 
@@ -60,7 +63,7 @@ class Api::XapiController < ApplicationController
 		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
 	}
 	context = {
-		"contextActivities" => {"parent" => "Course URI here"}
+		"contextActivities" => {"parent" => {"id" => "Course URI here"} }
 	}
 	# TODO implement completion, success, and raw/min/max (see xapi statement document)
 	result = {
@@ -121,6 +124,7 @@ class Api::XapiController < ApplicationController
 # 	)
 # 
     uri = URI.parse("https://ec2-52-26-250-81.us-west-2.compute.amazonaws.com/lrs/data/xAPI/statements")
+    # uri = URI.parse("http://validate.jsontest.com")
 
     http = Net::HTTP.new(uri.host,uri.port)
     http.use_ssl = true
@@ -131,11 +135,11 @@ class Api::XapiController < ApplicationController
     request["Content-Type"] = "application/json"
     request.body = statement.to_json
     request.basic_auth("2c74146ac94ceb9d7807fa3080e49bb98f53b1c9","4bd0bf1a080be1a1919e11398edbfcb6c20b692e")
-    # response = http.request(request)
+    response = http.request(request)
     
     # render text: '<b>Test xapi request: ' + params.inspect + '</b><br/>Statement: ' + statement + '<br/>Code: ' + response.code + '<br/>Response: ' + response.body + '<br />'
     # render text: '<b>Test UNSENT xapi request: ' + params.inspect + '</b><br/>User info: ' + current_user.inspect + session.inspect + '<br/>Statement: ' + statement.to_json + '<br/>Code: ' + response.code + '<br/>Response: ' + response.body + '<br />'
-    render text: "Test UNSENT xapi statement: \n" + statement.to_json
+    render text: "Test UNSENT xapi statement: \n#{request.body}\n Response: " + response.body
     # respond_to do |format|
       # format.json { render json: @accounts }
     # end

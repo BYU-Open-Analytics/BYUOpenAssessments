@@ -2,6 +2,7 @@
 
 import React              from 'react';
 import AssessmentActions  from "../../actions/assessment";
+import XapiActions        from "../../actions/xapi";
 import AssessmentStore    from "../../stores/assessment";
 import BaseComponent      from "../base_component";
 
@@ -23,6 +24,8 @@ export default class ProgressListItem extends BaseComponent{
   selectQuestion(){
     if(AssessmentStore.isStarted()){
       AssessmentActions.selectQuestion(this.props.index);
+      //console.log("progressListItem:27",this);
+      XapiActions.sendDirectNavigationStatement(this.props);
       this.props.toggle();
     }
   }
