@@ -1,7 +1,6 @@
 "use strict";
 
 import Constants   from   "../constants";
-import Api         from   "./api";
 import Dispatcher  from   "../dispatcher";
 import SettingsStore from '../stores/settings';
 
@@ -17,7 +16,7 @@ export default {
 	body["resultsEndPoint"]      = SettingsStore.current()["resultsEndPoint"];
 	body["assessmentUrl"]        = SettingsStore.current()["srcUrl"];
 	body["timestamp"]            = new Date().toISOString();
-	return {"statements":[body]};
+	return body;
   },
 
   sendAssessmentLaunchedStatement(item) {
@@ -26,7 +25,8 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	console.log("actions/xapi:28 sending launched",item,body);
-	Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT})
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, statement: body})
 	Api.post(Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, "api/xapi", body);
   },
 
@@ -41,7 +41,8 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log("actions/xapi:22 sending completion",item,body);
-	Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT})
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT, statement: body})
 	Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
   },
 
@@ -54,7 +55,8 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_NEXT_STATEMENT})
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_NEXT_STATEMENT})
 	Api.post(Constants.SEND_NEXT_STATEMENT, "api/xapi", body);
   },
 
@@ -67,7 +69,8 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
 	Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
   },
 
@@ -82,7 +85,8 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_DIRECT_NAVIGATION_STATEMENT})
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_DIRECT_NAVIGATION_STATEMENT})
 	Api.post(Constants.SEND_DIRECT_NAVIGATION_STATEMENT, "api/xapi", body);
   },
 	
@@ -101,6 +105,7 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_QUESTION_ANSWERED_STATEMENT})
 	Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
   },
@@ -112,7 +117,8 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT})
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT})
 	Api.post(Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT, "api/xapi", body);
   },
 
@@ -123,7 +129,8 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_RESUMED_STATEMENT})
+	Dispatcher.dispatch({ action: Constants.QUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_RESUMED_STATEMENT})
 	Api.post(Constants.SEND_ASSESSMENT_RESUMED_STATEMENT, "api/xapi", body);
   }
 
