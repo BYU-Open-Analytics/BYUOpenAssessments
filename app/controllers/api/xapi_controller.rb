@@ -34,7 +34,7 @@ class Api::XapiController < ApplicationController
 		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
 	}
 	context = {
-		"contextActivities" => {"parent" => {"id" => "Course URI here"} }
+		"contextActivities" => {"parent" => {"id" => "http://example.com/course_uri_here"} }
 	}
     when "questionAnswered"
 	verbName = "answered"
@@ -63,7 +63,7 @@ class Api::XapiController < ApplicationController
 		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
 	}
 	context = {
-		"contextActivities" => {"parent" => {"id" => "Course URI here"} }
+		"contextActivities" => {"parent" => {"id" => "http://example.com/course_uri_here"} }
 	}
 	# TODO implement completion, success, and raw/min/max (see xapi statement document)
 	result = {
