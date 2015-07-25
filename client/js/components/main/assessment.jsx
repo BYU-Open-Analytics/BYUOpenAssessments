@@ -49,6 +49,9 @@ export default class Assessment extends BaseComponent{
       // Trigger action to indicate the assessment was viewed
       AssessmentActions.assessmentViewed(this.state.settings, this.state.assessment);  
     }
+    // Send assessment launched statement
+    console.log("assessment:52 launched statement?");
+    XapiActions.sendAssessmentLaunchedStatement({});
     //Code taken from https://facebook.github.io/react/tips/dom-event-listeners.html
     window.addEventListener("focus", this.handleWindowFocus);
     window.addEventListener("blur", this.handleWindowBlur);

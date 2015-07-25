@@ -74,5 +74,6 @@ export default {
   SEND_DIRECT_NAVIGATION_STATEMENT: "send_direct_navigation_statement",
   SEND_QUESTION_ANSWERED_STATEMENT: "send_question_answered_statement",
   SEND_ASSESSMENT_SUSPENDED_STATEMENT: "send_assessment_suspended_statement",
-  SEND_ASSESSMENT_RESUMED_STATEMENT: "send_assessment_resumed_statement"
+  SEND_ASSESSMENT_RESUMED_STATEMENT: "send_assessment_resumed_statement",
+  SEND_ASSESSMENT_LAUNCHED_STATEMENT: "send_assessment_launched_statement"
 };
