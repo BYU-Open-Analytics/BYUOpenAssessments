@@ -5,6 +5,7 @@ import AssessmentStore    from "../../stores/assessment";
 import SettingsStore      from "../../stores/settings";
 import BaseComponent      from "../base_component";
 import AssessmentActions  from "../../actions/assessment";
+import XapiActions        from "../../actions/xapi";
 import Loading            from "../assessments/loading";
 import CheckUnderstanding from "../assessments/check_understanding";
 import Item               from "../assessments/item";
@@ -48,11 +49,28 @@ export default class Assessment extends BaseComponent{
       // Trigger action to indicate the assessment was viewed
       AssessmentActions.assessmentViewed(this.state.settings, this.state.assessment);  
     }
+    //Code taken from https://facebook.github.io/react/tips/dom-event-listeners.html
+    window.addEventListener("focus", this.handleWindowFocus);
+    window.addEventListener("blur", this.handleWindowBlur);
   }
 
+  componentWillUnmount(){
+      super.componentWillUnmount();
+      window.removeEventListener("focus", this.handleWindowFocus);
+      window.removeEventListener("blur", this.handleWindowBlur);
+  }
 
   checkProgress(current, total){
     return Math.floor(current/total * 100);
+  }
+
+  handleWindowFocus(e){
+    //TODO maybe check to make sure one of these isn't sent on intial load (it was never suspended, so it wouldn't make sense to send a resumed statement)
+    XapiActions.sendAssessmentResumedStatement();
+  }
+
+  handleWindowBlur(e){
+    XapiActions.sendAssessmentSuspendedStatement();
   }
 
   getStyles(theme){

@@ -9,6 +9,7 @@ class Api::XapiController < ApplicationController
   def index
     require "net/https"
     require "uri"
+    require "time"
 
     # Set up the componenents of our statement
     actor = {}
@@ -68,11 +69,27 @@ class Api::XapiController < ApplicationController
 		"extensions"		=> {"#{extensionAuthority}navigation_method" => params["navigationMethod"]}
 	}
 
-    when "assessmentSuspsended"
+    when "assessmentSuspended"
 	verbName = "suspended"
+        # TODO change this if we want the object to be the particular question of the assessment
+	object = {
+		"id"		=> params["assessmentUrl"],
+		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
+	}
+	context = {
+		"contextActivities" => {"parent" => {"id" => "http://example.com/course_uri_here"} }
+	}
 
     when "assessmentResumed"
 	verbName = "resumed"
+        # TODO change this if we want the object to be the particular question of the assessment
+	object = {
+		"id"		=> params["assessmentUrl"],
+		"definition"	=> {"name" => {"en-US" => "Assessment #{params["assessmentId"]}"} }
+	}
+	context = {
+		"contextActivities" => {"parent" => {"id" => "http://example.com/course_uri_here"} }
+	}
 
     when "assessmentCompleted"
 	verbName = "completed"
@@ -108,12 +125,16 @@ class Api::XapiController < ApplicationController
     verb["id"] = verbAuthority + verbName
     verb["display"] = {"en-US"=>verbName.capitalize}
 
+    # Include timestamp in all statements
+    timestamp = params["timestamp"] || Time.now.utc.iso8601
+
     statement = {
 	    "actor"	=> actor,
 	    "verb"	=> verb,
 	    "object"	=> object,
 	    "context"	=> context,
-	    "result"	=> result
+	    "result"	=> result,
+	    "timestamp" => timestamp
     }
 
 # 	statement = %Q(

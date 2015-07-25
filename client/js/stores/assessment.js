@@ -336,7 +336,7 @@ Dispatcher.register(function(payload) {
       var statementBody = {"confidenceLevel":payload.level,"questionId":_itemIndex,"correct":_studentAnswers[_itemIndex].correct,"questionType":_items[_itemIndex].question_type}
       statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
       if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
-	statementBody["answerGiven"] = _items[_itemIndex].answers[_selectedAnswerIds].material.trim();
+	statementBody["answerGiven"] = (_items[_itemIndex].answers[_selectedAnswerIds] != null) ? _items[_itemIndex].answers[_selectedAnswerIds].material.trim() : "";
       } else {
 	statementBody["answerGiven"] = _selectedAnswerIds;
 	for (var i=0; i<_items[_itemIndex].answers.length; i++) {

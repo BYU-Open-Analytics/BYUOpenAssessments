@@ -81,7 +81,7 @@ export default {
 	var body = {
 		statementName        : "questionAnswered",
 		confidenceLevel      : confidenceLevel,
-		questionId           : item.questionId,
+		questionId           : item.questionId + 1,
 		duration             : item.duration,
 		correct              : item.correct,
 		answerGiven          : item.answerGiven,
@@ -91,6 +91,30 @@ export default {
 	//console.log(body);
 	//Dispatcher.dispatch({ action: Constants.SEND_QUESTION_ANSWERED_STATEMENT})
 	Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
+  },
+
+  sendAssessmentSuspendedStatement(item) {
+	console.log("actions/xapi:97 sending assessment suspended statement",item);
+
+	var body = {
+		statementName        : "assessmentSuspended"
+	};
+	body = this.addStandardStatementBody(body);
+	console.log(body);
+	Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT})
+	Api.post(Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT, "api/xapi", body);
+  },
+
+  sendAssessmentResumedStatement(item) {
+	console.log("actions/xapi:109 sending assessment resumed statement",item);
+
+	var body = {
+		statementName        : "assessmentResumed"
+	};
+	body = this.addStandardStatementBody(body);
+	console.log(body);
+	Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_RESUMED_STATEMENT})
+	Api.post(Constants.SEND_ASSESSMENT_RESUMED_STATEMENT, "api/xapi", body);
   },
 
   submitAssessment(identifier, assessmentId, questions, studentAnswers, settings){
