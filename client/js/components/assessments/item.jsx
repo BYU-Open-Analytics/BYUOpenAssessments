@@ -3,8 +3,10 @@
 import React              from 'react';
 import BaseComponent      from "../base_component";
 import AssessmentActions  from "../../actions/assessment";
+import XapiActions        from "../../actions/xapi";
 import UniversalInput     from "./universal_input";
 import AssessmentStore    from "../../stores/assessment";
+import Utils              from "../../utils/utils";
 
 
 export default class Item extends BaseComponent{
@@ -15,28 +17,56 @@ export default class Item extends BaseComponent{
 
   nextButtonClicked(){
     this.setState({unAnsweredQuestions: null})
+    XapiActions.sendNextStatement(this.props);
     AssessmentActions.nextQuestion();
   }
 
   previousButtonClicked(){
     this.setState({unAnsweredQuestions: null})
+    XapiActions.sendPreviousStatement(this.props);
     AssessmentActions.previousQuestion();
   }
 
   confidenceLevelClicked(e, currentIndex){
     e.preventDefault()
+    AssessmentActions.checkAnswer();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
-    AssessmentActions.nextQuestion(); 
+    //console.log("item.jsx:34",this.props,e.target.value);
+      //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
+    //XapiActions.sendQuestionAnsweredStatement(this.props);
+    //AssessmentActions.nextQuestion(); 
   }
 
   submitButtonClicked(e){
+    //This will save the answer of the current question so it can be correctly marked as complete
+    AssessmentActions.nextQuestion(); 
+    AssessmentActions.checkAnswer();
+    if (this.props.currentIndex < this.props.questionCount - 1) {
+	    AssessmentActions.previousQuestion();
+    }
     e.preventDefault()
 
-    var complete = this.checkCompletion();
-    if(complete === true){
-      AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
+    //console.log("components/assessments/item:42",this);
+    var numTotal = this.props.questionCount;
+    var numCorrect = 0;
+    for (var i = 0; i < this.props.studentAnswers.length; i++) {
+	if (this.props.studentAnswers[i]["correct"] == true) {
+		numCorrect += 1;
+	}
     }
-    else {
+    //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button). Don't necessarily want to check all answers for them, since we'll be logging (via xAPI) all answer checks. So maybe put a flag for checkAnswer, or a different action constant?
+    console.log("components/assessments/item:43 got " + numCorrect + " correct out of " + numTotal + " total questions. Score of " + this.props.score*100 + "%.");
+    var complete = this.checkCompletion();
+    var confirmMessage = (complete == true) ? "You have answered all questions. Submit the quiz?" : "You left the following questions blank: " + this.formatUnansweredString(complete) + ". Submit the quiz anyway?";
+    if (confirm(confirmMessage)) {
+      this.props.score = numCorrect / numTotal;
+      this.props.questionsCorrect = numCorrect;
+      this.props.questionsAnswered = (complete == true) ? numTotal : numTotal - complete.length;
+      this.props.timeSpent = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - this.props.startTime) /10 ));
+      this.props.timestamp = new Date().toISOString();
+      AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
+      XapiActions.sendCompletionStatement(this.props);
+    } else if (complete != true) {
       this.setState({unAnsweredQuestions: complete});
     }
   }
@@ -44,7 +74,7 @@ export default class Item extends BaseComponent{
   checkCompletion(){
     var questionsNotAnswered = [];
     for (var i = 0; i < this.props.studentAnswers.length; i++) {
-      if(this.props.studentAnswers[i] == null || this.props.studentAnswers[i].length == 0){
+      if(this.props.studentAnswers[i]["answer"] == null || this.props.studentAnswers[i]["answer"].length == 0){
         
         questionsNotAnswered.push(i+1);
       }
@@ -53,6 +83,18 @@ export default class Item extends BaseComponent{
       return questionsNotAnswered;
     }
     return true;
+  }
+
+  formatUnansweredString(arr){
+    var outStr = "";
+    if (arr.length === 1) {
+        outStr = arr[0];
+    } else if (arr.length === 2) {
+        outStr = arr.join(' and ');
+    } else if (arr.length > 2) {
+        outStr = arr.slice(0, -1).join(', ') + ', and ' + arr.slice(-1);
+    }
+    return outStr;
   }
 
   getStyles(theme){
@@ -174,7 +216,7 @@ export default class Item extends BaseComponent{
 
   getConfidenceLevels(level, styles){
     if(level){
-      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to go to the next question.</b></div>;
+      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to save and check your answer.</b></div>;
       return    (<div className="confidence_wrapper" style={styles.confidenceWrapper}>
                   {levelMessage}
                   <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
@@ -240,7 +282,9 @@ export default class Item extends BaseComponent{
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
     var result = this.getResult(this.props.messageIndex,this.props.messageFeedback);
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
-    var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit</button> : "";
+    //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
+    //TODO change the appearance of this button when all questions have been answered, like canvas
+    var submitButton = <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
     var footer = this.getFooterNav(this.context.theme, styles);
     
     // Get the confidence Level

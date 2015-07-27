@@ -65,5 +65,12 @@ export default {
 
   CLEAR_STORE: "clear_store",
   LEVEL_SELECTED: "level_selected", 
-  CREATED_USER: "created_user"
+  CREATED_USER: "created_user",
+
+  // xAPI Statements
+  SEND_COMPLETION_STATEMENT: "send_completion_statement",
+  SEND_NEXT_STATEMENT: "send_next_statement",
+  SEND_PREVIOUS_STATEMENT: "send_previous_statement",
+  SEND_DIRECT_NAVIGATION_STATEMENT: "send_direct_navigation_statement",
+  SEND_QUESTION_ANSWERED_STATEMENT: "send_question_answered_statement"
 };

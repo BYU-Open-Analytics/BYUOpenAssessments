@@ -41,7 +41,7 @@ export default class RadioButton extends React.Component{
   }
   render(){
     var styles = this.getStyles(this.context.theme)
-    var checked = (this.props.item.id == AssessmentStore.studentAnswers()) ? "true" : null;
+    var checked = (this.props.item.id == AssessmentStore.studentAnswers()["answer"]) ? "true" : null;
 
     return (
       <div className="btn btn-block btn-question" style={styles.btnQuestion}>

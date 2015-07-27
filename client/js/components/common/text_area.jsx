@@ -20,6 +20,7 @@ export default class TextArea extends React.Component{
 	}
 
 	//TODO add onpropertychange, or key event for ie, other browsers?
+	//TODO Need to restore answer from studentAnswers (like in radio_button.jsx)?
 
 	render(){
 		return(

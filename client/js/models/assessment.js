@@ -85,12 +85,11 @@ export default class Assessment{
         results = this.checkMatchingAnswer(item, selectedAnswers);
         break;
       case 'short_answer_question':
-      	console.log("checkign short answer question models/assessment.js:88");
-	//console.log(item, selectedAnswers);
+      	//console.log("checkign short answer question models/assessment.js:88");
       	results = this.checkShortAnswer(item, selectedAnswers);
 	break;
       case 'essay_question':
-      	console.log("models/assessment:88 checking essay answer",item,selectedAnswers);
+      	//console.log("models/assessment:88 checking essay answer",item,selectedAnswers);
       	results = this.checkEssayAnswer(item, selectedAnswers);
 	break;
       case 'edx_drag_and_drop':
@@ -103,6 +102,7 @@ export default class Assessment{
         results = this.checkEdXMultipleChoice();
         break;
     }
+    //console.log("models/assessment:105 checkAnswer",item);
 
     // var end = Utils.currentTime();
     // var settings = this.get('settings');
@@ -220,14 +220,14 @@ export default class Assessment{
 	    var score = "0";
 	    var correct = false;
 	    //Loop through all possible corect answers, and see if we match
-	    console.log("Checking answer: ",item.answers[givenShortAnswer]);
+	    //console.log("Checking answer: ",item.answers[givenShortAnswer]);
 	    if (item.answers[givenShortAnswer] != null && item.answers[givenShortAnswer].material != null) {
 		    var answerToCheck = item.answers[givenShortAnswer].material.trim();
 		    if (answerToCheck != "") {
 			    for (var i = 0; i < item.correct.length; i++){
-				console.log("Possible: ",item.correct[i].id);
+				//console.log("Possible: ",item.correct[i].id);
 				if (answerToCheck == item.correct[i].id) {
-					console.log("Matched!",item.answers[givenShortAnswer],item.correct[i]);
+					//console.log("Matched!",item.answers[givenShortAnswer],item.correct[i]);
 					feedbacks += item.correct[i].feedback;
 					score = item.correct[i].score;
 					correct = true;
@@ -239,7 +239,7 @@ export default class Assessment{
 	    if (feedbacks == "") {
 		    feedbacks = (correct == true) ? item.feedbacks.corret : item.feedbacks.incorrect;
 	    }
-	    console.log(item);
+	    //console.log(item);
 	    return {
 	      feedbacks: feedbacks,
 	      score: score,

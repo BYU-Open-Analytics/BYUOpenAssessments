@@ -58,6 +58,8 @@ Rails.application.routes.draw do
   # oembed
   match 'oembed' => 'oembed#endpoint', :via => [:get, :post]
 
+  post 'api/xapi', to: 'api/xapi#index'
+
   namespace :api do
     resources :user_assessments
     resources :assessments

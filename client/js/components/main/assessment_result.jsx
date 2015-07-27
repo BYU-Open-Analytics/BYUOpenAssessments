@@ -52,6 +52,7 @@ export default class AssessmentResult extends BaseComponent{
 
   render(){
     var styles = this.getStyles(); 
+    console.log("components/main/assessment_result:55",this);
     return( 
     <div>
       <div className="progress">

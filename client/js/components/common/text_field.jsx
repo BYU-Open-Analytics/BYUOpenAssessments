@@ -7,10 +7,11 @@ import AssessmentStore    from "../../stores/assessment";
 export default class TextField extends React.Component{
 
 	onChange(e) {
-		console.log("text_field:16 change",e.target.value);
+		//console.log("text_field:16 change",e.target.value);
 		AssessmentActions.answerSelected(e.target.value);
 	}
 
+	//TODO Need to restore answer from studentAnswers (like in radio_button.jsx)?
 	render(){
 		return(
 			<div>

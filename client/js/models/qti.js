@@ -78,7 +78,7 @@ export default class Qti{
     var correctAnswers = []
     for (var i=0; i<respconditions.length; i++){
       var condition = $(respconditions[i]);
-      console.log(condition.attr("continue"));
+      //console.log(condition.attr("continue"));
       if(condition.find('setvar').text() != '0'){
 	//Get feedback for a specific answer, if there is any
 	var feedback = "";
@@ -128,12 +128,12 @@ export default class Qti{
 
   static parseFeedback(xml) {
 	//Extract general_fb and general_incorrect_fb
-	console.log("qti:131 parse feedback");
+	//console.log("qti:131 parse feedback");
 	var serializer = new XMLSerializer();
 	//console.log(serializer.serializeToString(xml.get(0)));
 	var correct_feedback = xml.find("itemfeedback[ident='general_fb']").text() || "";
 	var incorrect_feedback = xml.find("itemfeedback[ident='general_incorrect_fb']").text() || "";
-	console.log(correct_feedback,incorrect_feedback);
+	//console.log(correct_feedback,incorrect_feedback);
 	return { correct: correct_feedback, incorrect: incorrect_feedback };
   }
 

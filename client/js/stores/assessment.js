@@ -9,6 +9,7 @@ import Assessment     from "../models/assessment";
 import SettingsStore  from "./settings";
 import EdX            from "../models/edx";
 import _              from "lodash";
+import XapiActions    from "../actions/xapi";
 const INVALID = -1;
 const NOT_LOADED = 0;
 const LOADING = 1;
@@ -44,7 +45,7 @@ function checkAnswer(){
 }
 
 function selectAnswer(item){
-  console.log("stores/assessment:47",SettingsStore.current());
+  //console.log("stores/assessment:47",SettingsStore.current());
   if(_items[_itemIndex].question_type == "multiple_choice_question"){
     _selectedAnswerIds = item.id;
   } else if (_items[_itemIndex].question_type == "multiple_answers_question"){
@@ -64,7 +65,7 @@ function selectAnswer(item){
 	  //TODO: Essays will always be correct when checked here, but we still need to store the response
 	  _items[_itemIndex].answers = [{"material":item}];
 	  _selectedAnswerIds = 0;
-	  console.log("stores/assessment.js 66",item);
+	  //console.log("stores/assessment.js 66",item);
   }
 }
 
@@ -83,7 +84,7 @@ function updateMatchingAnswer(item){
 
 function setUpStudentAnswers(numOfQuestions){
   for (var i = 0; i < numOfQuestions; i++){
-    _studentAnswers[i] = [];
+    _studentAnswers[i] = {"answer":"","correct":false};
   }
 }
 
@@ -185,6 +186,10 @@ var AssessmentStore = assign({}, StoreCommon, {
     return _items;
   },
 
+  startTime(){
+    return _startedAt;
+  },
+
   timeSpent(){
     var time = _finishedAt - _startedAt;
     var minutes = Math.floor(time/1000/60);
@@ -269,10 +274,10 @@ Dispatcher.register(function(payload) {
       // Will need to advance sections and items.
       if(_itemIndex < _items.length - 1){
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+	_studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
         _itemIndex++;
         _items[_itemIndex].startTime = Utils.currentTime();
-        _selectedAnswerIds = _studentAnswers[_itemIndex];
+        _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
         _answerMessageIndex = -1;  
 	_answerMessageFeedback  = "";
       } 
@@ -281,10 +286,10 @@ Dispatcher.register(function(payload) {
     case Constants.ASSESSMENT_PREVIOUS_QUESTION:
       if(_itemIndex > 0){
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime());
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+	_studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
         _itemIndex--;
         _items[_itemIndex].startTime = Utils.currentTime();
-        _selectedAnswerIds = _studentAnswers[_itemIndex];
+        _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
         _answerMessageIndex = -1;
 	_answerMessageFeedback  = "";
       }
@@ -317,24 +322,39 @@ Dispatcher.register(function(payload) {
       break;
     case Constants.LEVEL_SELECTED:
       _items[_itemIndex].confidenceLevel = payload.level;
-      if(payload.index ==  _items.length - 1){
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
-      }
+      // if(payload.index ==  _items.length - 1){
+        _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
+      // }
       // if(SettingsStore.current().kind == "formative"){
       //   var answer = checkAnswer();
       //   if(answer != null && answer.correct)
       //     _answerMessageIndex = 1;
       //   else if (answer != null && !answer.correct)
       //     _answerMessageIndex = 0;
-      
       // }
+      //We have to do send the xapi statement in this icky place instead of in item.jsx on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
+      var statementBody = {"confidenceLevel":payload.level,"questionId":_itemIndex,"correct":_studentAnswers[_itemIndex].correct,"questionType":_items[_itemIndex].question_type}
+      statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
+      if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
+	statementBody["answerGiven"] = _items[_itemIndex].answers[_selectedAnswerIds].material.trim();
+      } else {
+	statementBody["answerGiven"] = _selectedAnswerIds;
+	for (var i=0; i<_items[_itemIndex].answers.length; i++) {
+		if (_items[_itemIndex].answers[i].id == _selectedAnswerIds) {
+			statementBody["answerGiven"] = _items[_itemIndex].answers[i].material.trim();
+			break;
+		}
+	}
+      }
+      //console.log("stores/assessment:339 sending question answered",statementBody);
+      XapiActions.sendQuestionAnsweredStatement(statementBody);
       break;
     case Constants.QUESTION_SELECTED:
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
-        _studentAnswers[_itemIndex] = _selectedAnswerIds;
+        _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
         _itemIndex = payload.index;
         _items[_itemIndex].startTime = Utils.currentTime();
-        _selectedAnswerIds = _studentAnswers[_itemIndex];
+        _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
         _answerMessageIndex = -1;
 	_answerMessageFeedback  = "";
       break;
