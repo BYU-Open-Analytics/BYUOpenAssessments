@@ -19,13 +19,13 @@ export default class TextArea extends React.Component{
 		AssessmentActions.answerSelected(e.target.value);
 	}
 
-	//TODO add onpropertychange, or key event for ie, other browsers?
-	//TODO Need to restore answer from studentAnswers (like in radio_button.jsx)?
 
 	render(){
+		//console.log("text_area.jsx:26 rendering",this,AssessmentStore);
+		var previousAnswer = (this.props.item.answers.length > 0 && this.props.item.answers[0].material != null) ? this.props.item.answers[0].material.trim() : "";
 		return(
 			<div>
-				<textarea className="form-control" rows="4" onChange={this.onChange} onKeyup={this.onKeyup} onInput={this.onInput}></textarea>
+				<textarea className="form-control" rows="4" onBlur={this.onChange}>{previousAnswer}</textarea>
 			</div>
 		);
 	}

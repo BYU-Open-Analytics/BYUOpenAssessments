@@ -11,11 +11,13 @@ export default class TextField extends React.Component{
 		AssessmentActions.answerSelected(e.target.value);
 	}
 
-	//TODO Need to restore answer from studentAnswers (like in radio_button.jsx)?
+	//TODO add onpropertychange, or key event for ie, other browsers?
 	render(){
+		//console.log("text_field.jsx:16 rendering",this,AssessmentStore);
+		var previousAnswer = (this.props.item.answers.length > 0 && this.props.item.answers[0].material != null) ? this.props.item.answers[0].material : "";
 		return(
 			<div>
-				<input type="text" className="form-control" onInput={this.onChange} />
+				<input type="text" className="form-control" value={previousAnswer} onInput={this.onChange} onChange={this.onChange} onKeyup={this.onChange} />
 			</div>
 		);
 	}

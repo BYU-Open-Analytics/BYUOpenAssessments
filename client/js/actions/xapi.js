@@ -1,7 +1,6 @@
 "use strict";
 
 import Constants   from   "../constants";
-import Api         from   "./api";
 import Dispatcher  from   "../dispatcher";
 import SettingsStore from '../stores/settings';
 
@@ -20,6 +19,17 @@ export default {
 	return body;
   },
 
+  sendAssessmentLaunchedStatement(item) {
+	var body = {
+		statementName        : "assessmentLaunched"
+	};
+	body = this.addStandardStatementBody(body);
+	//console.log("actions/xapi:28 sending launched",item,body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, statement: body})
+	//Api.post(Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, "api/xapi", body);
+  },
+
   sendCompletionStatement(item) {
 	var body = {
 		statementName        : "assessmentCompleted",
@@ -31,8 +41,10 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log("actions/xapi:22 sending completion",item,body);
-	Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT})
-	Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT, statement: body})
+	//Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(true);
   },
 
   sendNextStatement(item) {
@@ -44,8 +56,10 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_NEXT_STATEMENT})
-	Api.post(Constants.SEND_NEXT_STATEMENT, "api/xapi", body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_NEXT_STATEMENT})
+	//Api.post(Constants.SEND_NEXT_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(false);
   },
 
   sendPreviousStatement(item) {
@@ -57,9 +71,13 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
-	Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
+	//Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(false);
   },
+
+  // Notice that we're adding 1 to question index here. We should always pass raw question index into these functions, and add 1 for human-normal value here.
 
   sendDirectNavigationStatement(item) {
 	//console.log("actions/xapi:69 sending direct statement",item);
@@ -70,8 +88,10 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
-	Dispatcher.dispatch({ action: Constants.SEND_DIRECT_NAVIGATION_STATEMENT})
-	Api.post(Constants.SEND_DIRECT_NAVIGATION_STATEMENT, "api/xapi", body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_DIRECT_NAVIGATION_STATEMENT})
+	//Api.post(Constants.SEND_DIRECT_NAVIGATION_STATEMENT, "api/xapi", body);
+	this.flushStatementQueue(false);
   },
 	
   sendQuestionAnsweredStatement(item) {
@@ -81,7 +101,7 @@ export default {
 	var body = {
 		statementName        : "questionAnswered",
 		confidenceLevel      : confidenceLevel,
-		questionId           : item.questionId,
+		questionId           : item.questionId + 1,
 		duration             : item.duration,
 		correct              : item.correct,
 		answerGiven          : item.answerGiven,
@@ -89,66 +109,37 @@ export default {
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_QUESTION_ANSWERED_STATEMENT})
-	Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
+	//Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
   },
 
-  submitAssessment(identifier, assessmentId, questions, studentAnswers, settings){
-    Dispatcher.dispatch({action: Constants.ASSESSMENT_SUBMITTED})
-    //TODO extract ["answer"] out of studentAnswers, since that schema was changed to allow for local grading.
-    var body = {
-      itemToGrade: {
-        questions    : questions,
-        answers      : studentAnswers,
-        assessmentId : assessmentId,
-        identifier   : identifier,
-        settings     : settings
-      }
-    }
-    Api.post(Constants.ASSESSMENT_GRADED,'api/grades', body);
+  sendAssessmentSuspendedStatement(item) {
+	var body = {
+		statementName        : "assessmentSuspended",
+		questionId           : item.questionId + 1
+	};
+	body = this.addStandardStatementBody(body);
+	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT})
+	//Api.post(Constants.SEND_ASSESSMENT_SUSPENDED_STATEMENT, "api/xapi", body);
   },
 
-  nextQuestion(){
-    Dispatcher.dispatch({ action: Constants.ASSESSMENT_NEXT_QUESTION });
+  sendAssessmentResumedStatement(item) {
+	var body = {
+		statementName        : "assessmentResumed",
+		questionId           : item.questionId + 1
+	};
+	body = this.addStandardStatementBody(body);
+	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_ASSESSMENT_RESUMED_STATEMENT})
+	//Api.post(Constants.SEND_ASSESSMENT_RESUMED_STATEMENT, "api/xapi", body);
   },
 
-  previousQuestion(){
-    Dispatcher.dispatch({ action: Constants.ASSESSMENT_PREVIOUS_QUESTION });
-  },
-  
-  assessmentViewed(settings, assessment){
-    var body = {
-      assessment_result : {
-        offline          : settings.offline,
-        assessment_id    : settings.assessmentId,
-        identifier       : assessment.id,
-        eId              : settings.eId,
-        external_user_id : settings.externalUserId,
-        resultsEndPoint  : settings.resultsEndPoint,
-        keywords         : settings.keywords,
-        objectives       : assessment.objectives,
-        src_url          : settings.srcUrl
-      }
-    };
-    Api.post(Constants.ASSESSMENT_VIEWED, '/api/assessment_results', body);
-  },
-
-  itemViewed(settings, assessment, assessment_result){
-    var body = {
-      item_result : {
-        offline              : settings.offline,
-        assessment_result_id : assessment_result.id,
-        assessment_id        : settings.assessmentId,
-        identifier           : assessment.id,
-        eId                  : settings.eId,
-        external_user_id     : settings.externalUserId,
-        resultsEndPoint      : settings.resultsEndPoint,
-        keywords             : settings.keywords,
-        objectives           : assessment.objectives,
-        src_url              : settings.srcUrl
-      }
-    };
-    Api.post(Constants.ASSESSMENT_VIEWED, '/api/item_results', body);
+  flushStatementQueue(forcibly) {
+	  Dispatcher.dispatch({ action: Constants.FLUSH_STATEMENT_QUEUE, forcibly: forcibly });
   }
-  
+
 };

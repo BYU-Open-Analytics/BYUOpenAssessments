@@ -68,9 +68,14 @@ export default {
   CREATED_USER: "created_user",
 
   // xAPI Statements
-  SEND_COMPLETION_STATEMENT: "send_completion_statement",
-  SEND_NEXT_STATEMENT: "send_next_statement",
-  SEND_PREVIOUS_STATEMENT: "send_previous_statement",
-  SEND_DIRECT_NAVIGATION_STATEMENT: "send_direct_navigation_statement",
-  SEND_QUESTION_ANSWERED_STATEMENT: "send_question_answered_statement"
+  FLUSH_STATEMENT_QUEUE: "flush_statement_queue",
+  ENQUEUE_STATEMENT: "enqueue_statement",
+  //SEND_COMPLETION_STATEMENT: "send_completion_statement",
+  //SEND_NEXT_STATEMENT: "send_next_statement",
+  //SEND_PREVIOUS_STATEMENT: "send_previous_statement",
+  //SEND_DIRECT_NAVIGATION_STATEMENT: "send_direct_navigation_statement",
+  //SEND_QUESTION_ANSWERED_STATEMENT: "send_question_answered_statement",
+  //SEND_ASSESSMENT_SUSPENDED_STATEMENT: "send_assessment_suspended_statement",
+  //SEND_ASSESSMENT_RESUMED_STATEMENT: "send_assessment_resumed_statement",
+  //SEND_ASSESSMENT_LAUNCHED_STATEMENT: "send_assessment_launched_statement"
 };

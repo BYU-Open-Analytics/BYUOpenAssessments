@@ -62,7 +62,6 @@ function selectAnswer(item){
 	  _selectedAnswerIds = 0;
 	  //console.log("stores/assessment.js 61");
   } else if (_items[_itemIndex].question_type == "essay_question") {
-	  //TODO: Essays will always be correct when checked here, but we still need to store the response
 	  _items[_itemIndex].answers = [{"material":item}];
 	  _selectedAnswerIds = 0;
 	  //console.log("stores/assessment.js 66",item);
@@ -206,7 +205,7 @@ var AssessmentStore = assign({}, StoreCommon, {
 // Register callback with Dispatcher
 Dispatcher.register(function(payload) {
   var action = payload.action;
-  
+
   switch(action){
 
     case Constants.ASSESSMENT_LOAD_PENDING:
@@ -336,7 +335,7 @@ Dispatcher.register(function(payload) {
       var statementBody = {"confidenceLevel":payload.level,"questionId":_itemIndex,"correct":_studentAnswers[_itemIndex].correct,"questionType":_items[_itemIndex].question_type}
       statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
       if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
-	statementBody["answerGiven"] = _items[_itemIndex].answers[_selectedAnswerIds].material.trim();
+	statementBody["answerGiven"] = (_items[_itemIndex].answers[_selectedAnswerIds] != null) ? _items[_itemIndex].answers[_selectedAnswerIds].material.trim() : "";
       } else {
 	statementBody["answerGiven"] = _selectedAnswerIds;
 	for (var i=0; i<_items[_itemIndex].answers.length; i++) {
@@ -347,7 +346,7 @@ Dispatcher.register(function(payload) {
 	}
       }
       //console.log("stores/assessment:339 sending question answered",statementBody);
-      XapiActions.sendQuestionAnsweredStatement(statementBody);
+      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       break;
     case Constants.QUESTION_SELECTED:
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
