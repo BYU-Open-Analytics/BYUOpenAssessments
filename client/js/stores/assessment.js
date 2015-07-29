@@ -98,25 +98,6 @@ function setUpStudentAnswers(numOfQuestions){
   }
 }
 
-<<<<<<< HEAD
-function clearStore(){
-  _assessment = null;
-  _assessmentXml = null;
-  _items = [];
-  _assessmentResult = null;
-  _assessmentState = NO_LOADED;
-  _startedAt;
-  _selectedConfidenceLevel = 0;
-  _selectedAnswerIds = [];
-  _answerMessageIndex = -1;
-  _answerMessageFeedback = "";
-  _sectionIndex = 0;
-  _itemIndex = 0;
-  _studentAnswers = [];
-}
-
-=======
->>>>>>> lumen/master
 function calculateTime(start, end){
   return end - start;
 };
