@@ -69,11 +69,15 @@ export default class Assessment extends BaseComponent{
   }
 
   handleWindowFocus(e){
-    XapiActions.sendAssessmentResumedStatement({"questionId":AssessmentStore.currentIndex()});
+    var questionId = (AssessmentStore.currentIndex() != null) ? AssessmentStore.currentIndex() : 0;
+    console.log("assessment:73 resume question "+questionId);
+    XapiActions.sendAssessmentResumedStatement({"questionId":questionId});
   }
 
   handleWindowBlur(e){
-    XapiActions.sendAssessmentSuspendedStatement({"questionId":AssessmentStore.currentIndex()});
+    var questionId = (AssessmentStore.currentIndex() != null) ? AssessmentStore.currentIndex() : 0;
+    console.log("assessment:73 suspend question "+questionId);
+    XapiActions.sendAssessmentSuspendedStatement({"questionId":questionId});
   }
 
   getStyles(theme){
