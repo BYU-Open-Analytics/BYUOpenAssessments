@@ -41,6 +41,7 @@ export default class Assessment extends BaseComponent{
       messageFeedback      : AssessmentStore.answerMessageFeedback(),
       studentAnswers       : AssessmentStore.allStudentAnswers(),
       allQuestions         : AssessmentStore.allQuestions(),
+      outcomes             : AssessmentStore.outcomes()
     }
   }
 
@@ -106,12 +107,14 @@ export default class Assessment extends BaseComponent{
     if(!this.state.isLoaded){
       content = <Loading />;  
     } else if(this.state.showStart){
-      content = <CheckUnderstanding 
-        name={this.state.question.name}
-        maxAttempts={this.state.settings.allowedAttempts} 
-        userAttempts={this.state.settings.userAttempts} 
-        eid={this.state.settings.lisUserId}
-        assessmentId={this.state.assessment.assessmentId}/>;
+        content         = <CheckUnderstanding 
+        name            = {this.state.question.name}
+        maxAttempts     = {this.state.settings.allowedAttempts} 
+        userAttempts    = {this.state.settings.userAttempts} 
+        eid             = {this.state.settings.lisUserId}
+        assessmentId    = {this.state.assessment.assessmentId}
+        assessmentKind  = {this.state.settings.assessmentKind} 
+        primaryOutcome  = {this.state.outcomes[0]}/>;
         
     } else {
       content = <Item 
@@ -126,7 +129,8 @@ export default class Assessment extends BaseComponent{
         allQuestions     = {this.state.allQuestions}
 	startTime        = {this.state.startTime}
         studentAnswers   = {this.state.studentAnswers} 
-        confidenceLevels = {this.state.settings.confidenceLevels}/>;
+        confidenceLevels = {this.state.settings.confidenceLevels}
+        outcomes         = {this.state.outcomes}/>;
       // TODO figure out when to mark an item as viewed. assessmentResult must be valid before this call is made.
       // AssessmentActions.itemViewed(this.state.settings, this.state.assessment, this.state.assessmentResult);
     }

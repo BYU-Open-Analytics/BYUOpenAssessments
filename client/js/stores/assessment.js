@@ -20,10 +20,11 @@ const STARTED = 4;
 var _assessment = null;
 var _assessmentXml = null;
 var _items = [];
+var _outcomes = [];
 var _assessmentResult = null;
 var _assessmentState = NOT_LOADED;
 var _startedAt;
-var _finishedAt
+var _finishedAt;
 var _selectedConfidenceLevel = 0;
 var _selectedAnswerIds = [];
 var _answerMessageIndex = -1;
@@ -68,6 +69,16 @@ function selectAnswer(item){
   }
 }
 
+function loadOutcomes(assessment){
+  var outcomes = assessment.sections.map((section)=>{
+    if(section.outcome != "root section"){
+      return section.outcome;
+    }
+  });
+  outcomes = _.drop(outcomes);
+  return outcomes;
+}
+
 function updateMatchingAnswer(item){
   for (var i = 0; i < _selectedAnswerIds.length; i++){
     if(_selectedAnswerIds[i] && _selectedAnswerIds[i].answerNumber == item.answerNumber){
@@ -87,6 +98,7 @@ function setUpStudentAnswers(numOfQuestions){
   }
 }
 
+<<<<<<< HEAD
 function clearStore(){
   _assessment = null;
   _assessmentXml = null;
@@ -103,6 +115,8 @@ function clearStore(){
   _studentAnswers = [];
 }
 
+=======
+>>>>>>> lumen/master
 function calculateTime(start, end){
   return end - start;
 };
@@ -189,6 +203,10 @@ var AssessmentStore = assign({}, StoreCommon, {
     return _startedAt;
   },
 
+  outcomes(){
+    return _outcomes;
+  },
+
   timeSpent(){
     var time = _finishedAt - _startedAt;
     var minutes = Math.floor(time/1000/60);
@@ -228,6 +246,7 @@ Dispatcher.register(function(payload) {
             } else {
               _items = _assessment.sections[_sectionIndex].items
             }
+            _outcomes = loadOutcomes(_assessment);
             setUpStudentAnswers(_items.length)
           }
           _assessmentState = LOADED;
@@ -315,10 +334,7 @@ Dispatcher.register(function(payload) {
       _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime());
       _finishedAt = Utils.currentTime(); 
       break;
-
-    case Constants.CLEAR_STORE:
-      clearStore();
-      break;
+      
     case Constants.LEVEL_SELECTED:
       _items[_itemIndex].confidenceLevel = payload.level;
       // if(payload.index ==  _items.length - 1){

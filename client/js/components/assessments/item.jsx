@@ -343,8 +343,13 @@ Item.propTypes = {
   currentIndex     : React.PropTypes.number.isRequired,
   questionCount    : React.PropTypes.number.isRequired,
   messageIndex     : React.PropTypes.number.isRequired,
+<<<<<<< HEAD
   messageFeedback  : React.PropTypes.string.isRequired,
   confidenceLevels : React.PropTypes.bool.isRequired
+=======
+  confidenceLevels : React.PropTypes.bool.isRequired,
+  outcomes         : React.PropTypes.object
+>>>>>>> lumen/master
 };
 
 Item.contextTypes = {
