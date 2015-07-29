@@ -344,7 +344,8 @@ Item.propTypes = {
   questionCount    : React.PropTypes.number.isRequired,
   messageIndex     : React.PropTypes.number.isRequired,
   messageFeedback  : React.PropTypes.string.isRequired,
-  confidenceLevels : React.PropTypes.bool.isRequired
+  confidenceLevels : React.PropTypes.bool.isRequired,
+  outcomes         : React.PropTypes.object
 };
 
 Item.contextTypes = {
