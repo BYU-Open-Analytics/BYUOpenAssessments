@@ -280,7 +280,7 @@ class ApplicationController < ActionController::Base
         end
       end
     end
-    
+
     # **********************************************
     #
     # Account related functionality:
