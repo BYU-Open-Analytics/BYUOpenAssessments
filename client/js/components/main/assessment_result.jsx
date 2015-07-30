@@ -160,6 +160,7 @@ export default class AssessmentResult extends BaseComponent{
         continue;
       } else {
         correctCount++;
+	console.log("components/assessment_result:163",this.state.assessment);
         if(correctCount == this.state.settings.perSec || correctCount == this.state.assessment.sections[sectionIndex + 1].items.length){
           lists.positiveList.push(this.state.outcomes[sectionIndex]);
           correctCount = 0;
@@ -173,13 +174,20 @@ export default class AssessmentResult extends BaseComponent{
       }
     }
 
-    var positiveList = lists.positiveList.map((item, index)=>{
-      return <div key={"positive " + index}><p style={styles.green}><i className="glyphicon glyphicon-ok" style={styles.green}></i>{item.shortOutcome}</p></div>;
-    });
-
-    var negativeList = lists.negativeList.map((item, index)=>{
-      return <div key={"negative " + index}><p>{item.shortOutcome}</p></div>;
-    });
+    var positiveList = [];
+    if (lists.positiveList.length > 0) {
+	    positiveList = lists.positiveList.map((item, index)=>{
+	      return <div key={"positive " + index}><p style={styles.green}><i className="glyphicon glyphicon-ok" style={styles.green}></i>{item.shortOutcome}</p></div>;
+	    });
+    }
+	    
+    var negativeList = [];
+    console.log("a_result:185",lists);
+    if (lists.negativeList.length > 0) {
+	    negativeList = lists.negativeList.map((item, index)=>{
+	      return <div key={"negative " + index}><p>{item.shortOutcome}</p></div>;
+	    });
+    }
     return {
       positiveList: positiveList,
       negativeList: negativeList

@@ -111,36 +111,50 @@ class Api::GradesController < Api::ApiController
     end
 
     score = Float(answered_correctly) / Float(questions.length)
-    canvas_score = score
+    lti_score = score
     score *= Float(100)
+
+    params = {
+      'lis_result_sourcedid'    => settings["lisResultSourceDid"],
+      'lis_outcome_service_url' => settings["lisOutcomeServiceUrl"],
+      'user_id'                 => settings["lisUserId"]
+    }
+    
+    submission_status = "Unknown error"
+    if settings["isLti"]
+      begin
+          provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
+    
+          # post the given score to the TC
+          lti_score = (lti_score != '' ? lti_score.to_s : nil)
+          p lti_score
+          p provider.inspect
+          # debugger
+    
+          res = provider.post_replace_result!(lti_score)
+    
+          # Need to figure out error handling - these will need to be passed to the client
+          # or we can also post scores async using activejob in which case we'll want to
+          # log any errors and make them visible in the admin ui
+          success = res.success?
+	  submission_status = (success) ? "Graded posted successfully" : "There was an error posting the grade: #{res.inspect}"
+          # debugger
+      rescue StandardError => bang
+           "Some error: #{bang}"
+      end
+    end
+
     graded_assessment = { 
       score: score,
       feedback: "Study Harder",
       correct_list: correct_list,
       feedback_list: feedback_list,
-      confidence_level_list: confidence_level_list
+      confidence_level_list: confidence_level_list,
+      submission_status: submission_status
     }
 
-    params = {
-      'lis_result_sourcedid'    => settings[:lisResultSourceDid],
-      'lis_outcome_service_url' => settings[:lisOutcomeSourceUrl],
-      'user_id'                 => settings[:lisUserId]
-    }
-    
-    if settings["isLti"]
-      provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-
-      # post the given score to the TC
-      canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
-
-      res = provider.post_replace_result!(canvas_score)
-
-      # Need to figure out error handling - these will need to be passed to the client
-      # or we can also post scores async using activejob in which case we'll want to
-      # log any errors and make them visible in the admin ui
-      success = res.success?
-    end
     # Ping analytics server
+    # TODO Send xAPI statement
     respond_to do |format|
       format.json { render json: graded_assessment }
     end
@@ -175,7 +189,7 @@ class Api::GradesController < Api::ApiController
       end
     end
 
-    correct, feedback
+    return correct, feedback.strip
   end
 
   def grade_short_answer(question, answer) 
@@ -206,12 +220,12 @@ class Api::GradesController < Api::ApiController
 	incorrect = question.xpath("itemfeedback[@ident='general_incorrect_fb']")
 	if incorrect.count > 0
 		feedback = incorrect[0].text
-		p incorrect[0].text
+		# p incorrect[0].text
 	end
     end
     # debugger
     # TODO return correct *and* feedback
-    correct, feedback
+    return correct, feedback.strip
   end
 
   def grade_essay(question, answer) 
@@ -231,7 +245,7 @@ class Api::GradesController < Api::ApiController
     end
     
     # TODO return correct *and* feedback
-    correct, feedback
+    return correct, feedback.strip
   end
 
 
@@ -255,7 +269,7 @@ class Api::GradesController < Api::ApiController
       correct = true
     end
 
-    correct, feedback
+    return correct, feedback.strip
   end
 
   def grade_matching(question, answers)
@@ -273,7 +287,7 @@ class Api::GradesController < Api::ApiController
       correct = true
     end
 
-    correct, feedback
+    return correct, feedback.strip
   end
   
 end
