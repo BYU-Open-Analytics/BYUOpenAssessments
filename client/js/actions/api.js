@@ -5,6 +5,7 @@ import User          from "../stores/user";
 import Constants     from "../constants";
 import Dispatcher    from "../dispatcher";
 import SettingsStore from '../stores/settings';
+import Promise       from 'bluebird';
 
 const TIMEOUT = 10000;
 
