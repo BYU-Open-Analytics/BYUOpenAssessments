@@ -26,7 +26,7 @@ var _assessmentState = NOT_LOADED;
 var _startedAt;
 var _finishedAt;
 var _selectedConfidenceLevel = 0;
-var _selectedAnswerIds = [];
+var _selectedAnswerIds = "";
 var _answerMessageIndex = -1;
 var _answerMessageFeedback = "";
 var _sectionIndex = 0;
@@ -61,11 +61,13 @@ function selectAnswer(item){
 	  //Put the value passed in from the textbox (item) as our only answer choice in the question (_items[_itemIndex]), and set selected answer id to 0 so we'll check if what they typed matches the correct answer.
 	  _items[_itemIndex].answers = [{"material":item}];
 	  _selectedAnswerIds = 0;
+	  _selectedAnswerIds = item;
 	  //console.log("stores/assessment.js 61");
   } else if (_items[_itemIndex].question_type == "essay_question") {
 	  _items[_itemIndex].answers = [{"material":item}];
 	  _selectedAnswerIds = 0;
 	  //console.log("stores/assessment.js 66",item);
+	  _selectedAnswerIds = item;
   }
 }
 
@@ -243,6 +245,7 @@ Dispatcher.register(function(payload) {
       break;
 
     case Constants.ASSESSMENT_CHECK_ANSWER:
+      console.log("store/assessment:248 checking answer");
       var answer = checkAnswer();
       if(answer != null && answer.correct) {
         _answerMessageIndex = 1;

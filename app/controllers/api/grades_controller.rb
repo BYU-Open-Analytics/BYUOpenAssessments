@@ -18,6 +18,7 @@ class Api::GradesController < Api::ApiController
     result.save!
     settings = item_to_grade["settings"]
     correct_list = []
+    feedback_list = []
     confidence_level_list = []
     positive_outcome_list = []
     negative_outcome_list = []
@@ -31,6 +32,7 @@ class Api::GradesController < Api::ApiController
       if question["id"] == xml_questions[xml_index].attributes["ident"].value
 
         correct = false;
+        feedback = ""
         # find the question type
         type = xml_questions[xml_index].children.xpath("qtimetadata").children.xpath("fieldentry").children.text
         
@@ -42,20 +44,21 @@ class Api::GradesController < Api::ApiController
 
         # grade the question based off of question type
         if type == "multiple_choice_question"
-          correct = grade_multiple_choice(xml_questions[xml_index], answers[index])  
+          correct, feedback = grade_multiple_choice(xml_questions[xml_index], answers[index])  
         elsif type == "short_answer_question"
-          correct = grade_short_answer(xml_questions[xml_index], answers[index])  
+          correct, feedback = grade_short_answer(xml_questions[xml_index], answers[index])  
         elsif type == "essay_question"
-          correct = grade_essay(xml_questions[xml_index], answers[index])  
+          correct, feedback = grade_essay(xml_questions[xml_index], answers[index])  
         elsif type == "multiple_answers_question"
-          correct = grade_multiple_answers(xml_questions[xml_index], answers[index])
+          correct, feedback = grade_multiple_answers(xml_questions[xml_index], answers[index])
         elsif type == "matching_question"
-          correct = grade_matching(xml_questions[xml_index], answers[index])
+          correct, feedback = grade_matching(xml_questions[xml_index], answers[index])
         end
         if correct
           answered_correctly += 1
         end
         correct_list[index] = correct
+	feedback_list[index] = feedback
         confidence_level_list[index] = question["confidenceLevel"]
 
         if item = assessment.items.find_by(identifier: question["id"])
@@ -114,6 +117,7 @@ class Api::GradesController < Api::ApiController
       score: score,
       feedback: "Study Harder",
       correct_list: correct_list,
+      feedback_list: feedback_list,
       confidence_level_list: confidence_level_list
     }
 
@@ -123,7 +127,7 @@ class Api::GradesController < Api::ApiController
       'user_id'                 => settings[:lisUserId]
     }
     
-    if settings["isLti"] && settings["assessmentKind"].upcase == "SUMMATIVE"
+    if settings["isLti"]
       provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
 
       # post the given score to the TC
@@ -152,40 +156,49 @@ class Api::GradesController < Api::ApiController
     end
     return -1
   end
+
   def grade_multiple_choice(question, answer) 
     correct = false;
+    feedback = ""
     choices = question.children.xpath("respcondition")
+
     choices.each_with_index do |choice, index|
       # TODO feedback (correct and incorrect, is there even general?) here
       # if the students response id matches the correct response id for the question the answer is correct
       if choice.xpath("setvar").count > 0 && choice.xpath("setvar")[0].children.text == "100" && answer == choice.xpath("conditionvar").xpath("varequal").children.text
         correct = true;
       end
+      # Set the corresponding feedback (if there is any)
+      if choice.xpath("displayfeedback").count > 0
+        feedback = question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
+        p feedback
+      end
     end
-    correct
+
+    correct, feedback
   end
+
   def grade_short_answer(question, answer) 
     correct = false;
     feedback = ""
     choices = question.children.xpath("respcondition")
 
     choices.each_with_index do |choice, index|
-
-    # Need to go through each varequal, since short answers can have multiple correct answers
-    choice.children.xpath("varequal").each do |possibleAnswer|
-        # p "apossibility: #{possibleAnswer.text}"
-        # If this answer matches, set the corresponding feedback (if there is any)
-        if answer == possibleAnswer.text
-		if choice.xpath("displayfeedback").count > 0
-			feedback = question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
-			# p feedback
-		end
-                # Now check if it's a correct answer (presence of setvar with value of 100)
-                if choice.xpath("setvar").count > 0 && choice.xpath("setvar")[0].children.text == "100"
-          	  correct = true;
-                end
+        # Need to go through each varequal, since short answers can have multiple correct answers
+        choice.children.xpath("varequal").each do |possibleAnswer|
+            # p "apossibility: #{possibleAnswer.text}"
+            # If this answer matches, set the corresponding feedback (if there is any)
+            if answer == possibleAnswer.text
+            	if choice.xpath("displayfeedback").count > 0
+            		feedback = question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
+            		# p feedback
+            	end
+                    # Now check if it's a correct answer (presence of setvar with value of 100)
+                    if choice.xpath("setvar").count > 0 && choice.xpath("setvar")[0].children.text == "100"
+              	  	correct = true;
+                    end
+            end
         end
-    end
     end
     # Get general incorrect feedback, if not correct
     if not correct
@@ -198,48 +211,33 @@ class Api::GradesController < Api::ApiController
     end
     # debugger
     # TODO return correct *and* feedback
-    correct
+    correct, feedback
   end
 
   def grade_essay(question, answer) 
     correct = false;
     feedback = ""
-    choices = question.children.xpath("respcondition")
-    choices.each_with_index do |choice, index|
 
-    # Need to go through each varequal, since short answers can have multiple correct answers
-    choice.children.xpath("varequal").each do |possibleAnswer|
-        p "apossibility: #{possibleAnswer.text}"
-        # If this answer matches, set the corresponding feedback (if there is any)
-        if answer == possibleAnswer.text
-		if choice.xpath("displayfeedback").count > 0
-			feedback = question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
-			p feedback
-		end
-                # Now check if it's a correct answer (presence of setvar with value of 100)
-                if choice.xpath("setvar").count > 0 && choice.xpath("setvar")[0].children.text == "100"
-          	  correct = true;
-                end
-        end
+    answer.strip!
+    # Essays are correct if they have any content
+    if answer != nil && answer != ""
+	    correct = true
     end
+
+    # Check if there is any general feedback
+    general_fb = question.xpath("itemfeedback[@ident='general_fb']")
+    if general_fb.count > 0
+    	feedback = general_fb[0].text
     end
-    # Get general incorrect feedback, if not correct
-    if not correct
-	# Check if there is any general incorrect feedback
-	incorrect = question.xpath("itemfeedback[@ident='general_incorrect_fb']")
-	if incorrect.count > 0
-		feedback = incorrect[0].text
-		p incorrect[0].text
-	end
-    end
-    # debugger
+    
     # TODO return correct *and* feedback
-    correct
+    correct, feedback
   end
 
 
   def grade_multiple_answers(question, answers)
     correct = false;
+    feedback = ""
     choices = question.children.xpath("respcondition").children.xpath("and").xpath("varequal")
     correct_count = 0
     total_correct = choices.length
@@ -257,11 +255,12 @@ class Api::GradesController < Api::ApiController
       correct = true
     end
 
-    correct
+    correct, feedback
   end
 
   def grade_matching(question, answers)
     correct = false;
+    feedback = ""
     choices = question.children.xpath("respcondition")
     total_correct = choices.length
     correct_count = 0
@@ -274,7 +273,7 @@ class Api::GradesController < Api::ApiController
       correct = true
     end
 
-    correct
+    correct, feedback
   end
   
 end
