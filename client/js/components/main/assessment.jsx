@@ -94,24 +94,38 @@ export default class Assessment extends BaseComponent{
         padding: theme.assessmentPadding,
         backgroundColor: theme.assessmentBackground,
       },
-      titleBar: {
+      progressContainer: {
         padding: "10px 20px 10px 20px",
         position: "absolute",
         left: "0px",
-        top: "0px",
+        top: "44px",
         width: "100%",
         backgroundColor: theme.titleBarBackgroundColor,
       },
+      titleBar: {
+        position: "absolute",
+        top: "0px",
+        left: "0px",
+        width: "100%",
+        padding: "10px 20px 10px 20px",
+        backgroundColor: theme.probablyBackgroundColor,
+        color: "white",
+        fontSize: "130%",
+        //fontWeight: "bold"
+      }
     }
   }
 
   render(){
     var styles = this.getStyles(this.context.theme)
     var content;
+    var progressBar;
+    var titleBar;
     if(!this.state.isLoaded){
       content = <Loading />;  
     } else if(this.state.showStart){
-        content         = <CheckUnderstanding 
+        content         = <CheckUnderstanding
+        title           = {this.state.assessment.title} 
         name            = {this.state.question.name}
         maxAttempts     = {this.state.settings.allowedAttempts} 
         userAttempts    = {this.state.settings.userAttempts} 
@@ -120,6 +134,7 @@ export default class Assessment extends BaseComponent{
         assessmentKind  = {this.state.settings.assessmentKind} 
         primaryOutcome  = {this.state.outcomes[0]}
         icon            = {this.state.settings.images.QuizIcon_svg}/>;
+        progressBar = "";
         
     } else {
       content = <Item 
@@ -136,23 +151,24 @@ export default class Assessment extends BaseComponent{
         studentAnswers   = {this.state.studentAnswers} 
         confidenceLevels = {this.state.settings.confidenceLevels}
         outcomes         = {this.state.outcomes}/>;
+        progressBar = <div style={styles.progressContainer}>
+                        {progressText}                                                                                                        
+                        <ProgressDropdown questions={this.state.allQuestions} currentQuestion={this.state.currentIndex + 1} questionCount={this.state.questionCount} />
+                      </div>;
       // TODO figure out when to mark an item as viewed. assessmentResult must be valid before this call is made.
       // AssessmentActions.itemViewed(this.state.settings, this.state.assessment, this.state.assessmentResult);
     }
     
     var percentCompleted = this.checkProgress(this.state.currentIndex, this.state.questionCount);
     var progressStyle = {width:percentCompleted+"%"};
-
     var progressText = "";
-    
+    var titleBar = this.state.settings.assessmentKind.toUpperCase() === "FORMATIVE" ?  "" : <div style={styles.titleBar}>{this.state.assessment ? this.state.assessment.title : ""}</div>;
     if(this.state.assessment){
       progressText = this.context.theme.shouldShowProgressText ? <div><b>{this.state.assessment.title + " Progress"}</b>{" - You are on question " + (this.state.currentIndex + 1) + " of " + this.state.questionCount}</div> : ""; 
     }
-    var progressBar = this.state.settings.assessmentKind.toUpperCase() == "FORMATIVE" ? "" : <div style={styles.titleBar}>
-                                                                                              {progressText}                                                                                                        
-                                                                                              <ProgressDropdown questions={this.state.allQuestions} currentQuestion={this.state.currentIndex + 1} questionCount={this.state.questionCount} />
-                                                                                             </div>;
+    progressBar = this.state.settings.assessmentKind.toUpperCase() === "FORMATIVE" ? "" : progressBar;
     return <div className="assessment" style={styles.assessment}>
+      {titleBar}
       {progressBar}
       <div className="section_list">
         <div className="section_container">

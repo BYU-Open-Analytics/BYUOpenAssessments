@@ -54,8 +54,14 @@ class Api::GradesController < Api::ApiController
         elsif type == "matching_question"
           correct, feedback = grade_matching(xml_questions[xml_index], answers[index])
         end
-        if correct
+        if correct == true
           answered_correctly += 1
+          correct_list[index] = correct
+        elsif correct == false
+          correct_list[index] = correct
+        elsif correct[:name]== "partial"
+          answered_correctly = Float(answered_correctly) + (Float(correct[:correct]) / Float(correct[:total]))
+          correct_list[index] = correct[:name]
         end
         correct_list[index] = correct
 	feedback_list[index] = feedback
@@ -109,7 +115,6 @@ class Api::GradesController < Api::ApiController
       # if the Id isn't found then there has been an error and return the error
     
     end
-
     score = Float(answered_correctly) / Float(questions.length)
     lti_score = score
     score *= Float(100)
@@ -256,13 +261,17 @@ class Api::GradesController < Api::ApiController
     total_correct = choices.length
     # if the answers to many or to few then return false
 
-    if answers.length != total_correct
+    if answers.length > total_correct
       return correct
     end 
     choices.each_with_index do |choice, index|
       if answers.include?(choice.text)
         correct_count += 1;
       end
+    end
+
+    if correct_count > 0
+      correct = {name: "partial", correct: correct_count, total: total_correct}
     end
     if correct_count == total_correct
       correct = true

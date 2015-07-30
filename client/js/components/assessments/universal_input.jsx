@@ -31,7 +31,7 @@ export default class UniversalInput extends React.Component{
       panel: {
         position: theme.panelPosition,
         marginBottom: theme.panelMarginBottom,
-        backgroundColor: props.isResult ? "transparent" : theme.panelBackgroundColor,
+        backgroundColor: "transparent",//props.isResult ? "transparent" : theme.panelBackgroundColor,
         border: theme.panelBorder,
         borderRadius: theme.panelBorderRadius,
         boxShadow: theme.panelBoxShadow,
@@ -43,10 +43,11 @@ export default class UniversalInput extends React.Component{
         borderTopRightRadius: theme.panelHeadingBorderTopRightRadius,
         borderTopLeftRadius: theme.panelHeadingBorderTopLeftRadius,
         textAlign: theme.panelHeadingTextAlign,
-        backgroundColor: props.isResult ? "transparent" : theme.panelHeadingBackgroundColor,
+        backgroundColor: "transparent" //props.isResult ? "transparent" : theme.panelHeadingBackgroundColor,
       },
       panelBody: {
-        padding: theme.panelBodyPadding
+        padding: theme.panelBodyPadding,
+        marginTop: "-20px",
       }
     }
   }

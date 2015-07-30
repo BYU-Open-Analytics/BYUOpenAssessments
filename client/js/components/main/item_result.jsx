@@ -6,10 +6,22 @@ import ResultConfidence from '../common/result_confidence';
 export default class ItemResult extends React.Component{
   
   getStyles(props, theme){
+    var color;
+    var border;
+    if(props.isCorrect == "partial"){
+      color = theme.partialBackgroundColor;
+      border = theme.partialBorder;
+    } else if (props.isCorrect == false){
+      border = theme.correctBorder;
+      color = theme.incorrectBackgroundColor;
+    } else if (props.isCorrect){
+      color = theme.correctBackgroundColor;
+      border = theme.correctBorder
+    }
     return {
       resultContainer: {
-        backgroundColor: props.isCorrect ? theme.correctBackgroundColor : theme.incorrectBackgroundColor,
-        border: props.isCorrect ? theme.correctBorder : theme.incorrectBorder,
+        backgroundColor: color,
+        border: border,
         borderRadius : "4px",
         padding: "20px",
       },
@@ -40,6 +52,7 @@ export default class ItemResult extends React.Component{
   }
 
   render() {
+    console.log(this.props.isCorrect)
     var styles = this.getStyles(this.props, this.context.theme)
     console.log("item_result:27 render",this.props);
     return (
