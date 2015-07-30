@@ -22,8 +22,26 @@ export default class ItemResult extends React.Component{
       },
     };
   }
+  getFeedback(correct,feedback){
+    var result;
+
+    if(correct == true) {
+      result =  <div className="check_answer_result answer_result_correct">
+                  <p>Correct</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
+                </div>;
+    }
+    else {
+      result =  <div className="check_answer_result answer_result_incorrect">
+                  <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
+                </div>;
+    }
+
+    return result;
+  }
+
   render() {
     var styles = this.getStyles(this.props, this.context.theme)
+    console.log("item_result:27 render",this.props);
     return (
       <div>
         <div className="row">
@@ -34,6 +52,7 @@ export default class ItemResult extends React.Component{
             <div>
               <UniversalInput item={this.props.question} isResult={true}/>
             </div>
+	    {this.getFeedback(this.props.isCorrect,this.props.feedback)}
             <div style={styles.confidenceWrapper}>
               <ResultConfidence level={this.props.confidence} />
             </div>

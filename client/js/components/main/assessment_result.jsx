@@ -133,8 +133,9 @@ export default class AssessmentResult extends BaseComponent{
   }
 
   getItemResults(){
+	  console.log("assessment_result:136 trying to get feeback to ItemResult objects",this.state);
     return this.state.questions.map((question, index)=>{
-      return <ItemResult question={question} isCorrect={this.state.assessmentResult.correct_list[index]} confidence={this.state.assessmentResult.confidence_level_list[index]}/>;
+      return <ItemResult question={question} feedback={this.state.assessmentResult.feedback_list[index]} isCorrect={this.state.assessmentResult.correct_list[index]} confidence={this.state.assessmentResult.confidence_level_list[index]}/>;
     })
   }
 
@@ -143,6 +144,8 @@ export default class AssessmentResult extends BaseComponent{
       positiveList: [],
       negativeList: [],
     };
+    // TODO TAKE THIS OUT! IT'S ONLY FOR TESTING IF THESE ARE NEEDED
+    return lists;
     var sectionIndex = 0;
     var perSecCount = 0;
     var correctCount = 0;
@@ -194,7 +197,7 @@ export default class AssessmentResult extends BaseComponent{
     };
   }
 
-  getContent(styles, itemResults, OutcomeLists){
+  getContent(styles, itemResults, outcomeLists){
     return (<div style={styles.assessment}>
       <div style={styles.assessmentContainer}>
         <div className="row" style={styles.wrapperStyle}>
@@ -232,7 +235,7 @@ export default class AssessmentResult extends BaseComponent{
       </div>
     </div>)
   }
-  getFormativeContent(styles, OutcomeLists){
+  getFormativeContent(styles, outcomeLists){
     var score = Math.trunc(this.state.assessmentResult.score);
     var image = "";
     var feedback = "";

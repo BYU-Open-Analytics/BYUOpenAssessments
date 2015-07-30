@@ -235,13 +235,12 @@ class Api::GradesController < Api::ApiController
     answer.strip!
     # Essays are correct if they have any content
     if answer != nil && answer != ""
-	    correct = true
-    end
-
-    # Check if there is any general feedback
-    general_fb = question.xpath("itemfeedback[@ident='general_fb']")
-    if general_fb.count > 0
-    	feedback = general_fb[0].text
+      correct = true
+      # Check if there is any general feedback
+      general_fb = question.xpath("itemfeedback[@ident='general_fb']")
+      if general_fb.count > 0
+      	feedback = general_fb[0].text
+      end
     end
     
     # TODO return correct *and* feedback
