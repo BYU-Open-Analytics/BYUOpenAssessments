@@ -94,6 +94,10 @@ export default {
   previousQuestion(){
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_PREVIOUS_QUESTION });
   },
+
+  retakeAssessment(){
+    Dispatcher.dispatch({action: Constants.RETAKE_ASSESSMENT})
+  },
   
   assessmentViewed(settings, assessment){
     var body = {

@@ -354,6 +354,13 @@ Dispatcher.register(function(payload) {
         _answerMessageIndex = -1;
 	_answerMessageFeedback  = "";
       break;
+    case Constants.RETAKE_ASSESSMENT:
+      _assessmentResult = null;
+      _studentAnswers = [];
+      _itemIndex = 0;
+      _sectionIndex = 0;
+      _selectedAnswerIds = [];
+      break;
     default:
       return true;
   }
