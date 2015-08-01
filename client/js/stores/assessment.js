@@ -60,13 +60,13 @@ function selectAnswer(item){
   } else if (_items[_itemIndex].question_type == "short_answer_question") {
 	  //Put the value passed in from the textbox (item) as our only answer choice in the question (_items[_itemIndex]), and set selected answer id to 0 so we'll check if what they typed matches the correct answer.
 	  _items[_itemIndex].answers = [{"material":item}];
-	  _selectedAnswerIds = 0;
+	  //_selectedAnswerIds = 0;
 	  _selectedAnswerIds = item;
 	  //console.log("stores/assessment.js 61");
   } else if (_items[_itemIndex].question_type == "essay_question") {
 	  _items[_itemIndex].answers = [{"material":item}];
-	  _selectedAnswerIds = 0;
-	  //console.log("stores/assessment.js 66",item);
+	  //_selectedAnswerIds = 0;
+	  console.log("stores/assessment.js 69",item);
 	  _selectedAnswerIds = item;
   }
 }

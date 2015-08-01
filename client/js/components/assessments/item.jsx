@@ -32,9 +32,11 @@ export default class Item extends BaseComponent{
   confidenceLevelClicked(e, currentIndex){
     e.preventDefault()
     //AssessmentActions.checkAnswer();
-    console.log("item.jsx:35 want to send stuff for remote answer checking",this,this.props,AssessmentStore);
-    AssessmentActions.checkAnswerRemotely();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
+    setTimeout( function() {
+	    console.log("item.jsx:35 want to send stuff for remote answer checking",this.props.studentAnswers[this.props.currentIndex],this.props,AssessmentStore.studentAnswers());
+	    AssessmentActions.checkAnswerRemotely(this.props.assessment.id, this.props.assessment.assessmentId, this.props.question, this.props.studentAnswers[this.props.currentIndex]["answer"], this.props.settings);
+    }, 1);
     //console.log("item.jsx:34",this.props,e.target.value);
       //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
     //XapiActions.sendQuestionAnsweredStatement(this.props);
