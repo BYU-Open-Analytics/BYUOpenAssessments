@@ -25,7 +25,6 @@ class Api::GradesController < Api::ApiController
     # This array is now the subarray ["answer"] since we did that in js frontend
     # answers = item_to_grade["answers"]
     answers = item_to_grade["answers"].collect {|a| a["answer"]}
-
     questions.each_with_index do |question, index|
 
       # make sure we are looking at the right question
