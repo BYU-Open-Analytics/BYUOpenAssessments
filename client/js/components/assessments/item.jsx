@@ -56,7 +56,6 @@ export default class Item extends BaseComponent{
     }
     e.preventDefault()
 
-    //console.log("components/assessments/item:42",this);
     var numTotal = this.props.questionCount;
     var numCorrect = 0;
     for (var i = 0; i < this.props.studentAnswers.length; i++) {
@@ -64,18 +63,11 @@ export default class Item extends BaseComponent{
 		numCorrect += 1;
 	}
     }
-    //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button). Don't necessarily want to check all answers for them, since we'll be logging (via xAPI) all answer checks. So maybe put a flag for checkAnswer, or a different action constant?
-    console.log("components/assessments/item:43 got " + numCorrect + " correct out of " + numTotal + " total questions. Score of " + this.props.score*100 + "%.");
+    //console.log("components/assessments/item:43 got " + numCorrect + " correct out of " + numTotal + " total questions. Score of " + this.props.score*100 + "%.");
     var complete = this.checkCompletion();
     var confirmMessage = (complete == true) ? "You have answered all questions. Submit the quiz?" : "You left the following questions blank: " + this.formatUnansweredString(complete) + ". Submit the quiz anyway?";
     if (confirm(confirmMessage)) {
-      this.props.score = numCorrect / numTotal;
-      this.props.questionsCorrect = numCorrect;
-      this.props.questionsAnswered = (complete == true) ? numTotal : numTotal - complete.length;
-      this.props.timeSpent = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - this.props.startTime) /10 ));
-      this.props.timestamp = new Date().toISOString();
       AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
-      XapiActions.sendCompletionStatement(this.props);
     } else if (complete != true) {
       this.setState({unAnsweredQuestions: complete});
     }

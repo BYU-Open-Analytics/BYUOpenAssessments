@@ -119,6 +119,20 @@ function getItems(sections, perSec){
   return items;
 }
 
+function checkCompletion(){
+  var questionsNotAnswered = [];
+  for (var i = 0; i < _studentAnswers.length; i++) {
+    if(_studentAnswers[i]["answer"] == null || _studentAnswers[i]["answer"].length == 0){
+      
+      questionsNotAnswered.push(i+1);
+    }
+  };
+  if(questionsNotAnswered.length > 0){
+    return questionsNotAnswered;
+  }
+  return true;
+}
+
 // Extend User Store with EventEmitter to add eventing capabilities
 var AssessmentStore = assign({}, StoreCommon, {
 
@@ -313,6 +327,25 @@ Dispatcher.register(function(payload) {
 
     case Constants.ASSESSMENT_GRADED:
       parseAssessmentResult(payload.data.text);
+      //console.log("stores/assessment:316 assessment graded");
+      //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button). Don't necessarily want to check all answers for them, since we'll be logging (via xAPI) all answer checks. So maybe put a flag for checkAnswer, or a different action constant?
+      var correct_list = _assessmentResult.correct_list;
+      var numCorrect = 0;
+      var numTotal = correct_list.length;
+      var complete = checkCompletion();
+      for (var i=0; i<numTotal; i++) {
+	      if (correct_list[i] == true) {
+		      numCorrect++;
+	      }
+      }
+      var statementBody = {};
+      statementBody.duration = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _startedAt) /10 ));
+      statementBody.scaledScore = numCorrect / numTotal;
+      statementBody.questionsTotal = numTotal;
+      statementBody.questionsAnswered = (complete == true) ? numTotal : numTotal - complete.length;
+      statementBody.questionsCorrect = numCorrect;
+      //console.log("store/assessment:345 statement body",statementBody);
+      setTimeout(function() { XapiActions.sendAssessmentCompletedStatement(statementBody); }, 1);
       break;
     case Constants.ASSESSMENT_SUBMITTED:
       _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime());
