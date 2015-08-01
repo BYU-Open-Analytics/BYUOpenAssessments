@@ -59,9 +59,7 @@ export default class ItemResult extends React.Component{
       <div>
         <div className="row">
           <div className="col-md-9" style={styles.resultContainer}>
-            <div>
-              {this.props.question.material}
-            </div>
+            <div dangerouslySetInnerHTML={{__html: this.props.question.material}}></div>
             <div>
               <UniversalInput item={this.props.question} isResult={true}/>
             </div>

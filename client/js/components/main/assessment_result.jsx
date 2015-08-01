@@ -209,22 +209,8 @@ export default class AssessmentResult extends BaseComponent{
             </div>
             Time Spent: {this.state.timeSpent.minutes} mins {this.state.timeSpent.seconds} sec
             <br />
-            Attempts
+            You can review your answers below.
           </div>
-
-          <div className="col-md-4" >
-            <h3><strong>Good Work On These Concepts</strong></h3>
-            <p>You answered questions that covered these concepts correctly.</p>
-            {outcomeLists.positiveList}
-            <div style={{clear: 'both'}}></div>
-          </div>
-
-          <div className="col-md-4" >
-            <h3 style={styles.improveScoreStyle}><strong>There is still more to learn<i styleclassName="glyphicon glyphicon-warning-sign" ></i></strong></h3>
-            <p>You can retake this quiz in 1 hour - plenty of time to review these sections!</p>
-            {outcomeLists.negativeList}
-          </div>
-
         </div>
         <hr />
         <div style={styles.resultsStyle}>
