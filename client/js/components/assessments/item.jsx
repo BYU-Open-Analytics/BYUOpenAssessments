@@ -31,7 +31,9 @@ export default class Item extends BaseComponent{
 
   confidenceLevelClicked(e, currentIndex){
     e.preventDefault()
-    AssessmentActions.checkAnswer();
+    //AssessmentActions.checkAnswer();
+    console.log("item.jsx:35 want to send stuff for remote answer checking",this,this.props,AssessmentStore);
+    AssessmentActions.checkAnswerRemotely();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
     //console.log("item.jsx:34",this.props,e.target.value);
       //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.

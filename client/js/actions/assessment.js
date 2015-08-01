@@ -67,11 +67,11 @@ export default {
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_CHECK_ANSWER });
   },
 
-  checkAnswerRemotely(identifier, assessmentId, questionId, answer, settings,){
+  checkAnswerRemotely(identifier, assessmentId, question, answer, settings,){
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_CHECK_ANSWER_REMOTELY });
     var body = {
       itemToGrade: {
-	questionId   : questionId,
+	question     : question,
         answer       : answer,
         assessmentId : assessmentId,
         identifier   : identifier,
