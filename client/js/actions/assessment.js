@@ -67,6 +67,21 @@ export default {
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_CHECK_ANSWER });
   },
 
+  checkAnswerRemotely(identifier, assessmentId, questionId, answer, settings,){
+    Dispatcher.dispatch({ action: Constants.ASSESSMENT_CHECK_ANSWER_REMOTELY });
+    var body = {
+      itemToGrade: {
+	questionId   : questionId,
+        answer       : answer,
+        assessmentId : assessmentId,
+        identifier   : identifier,
+        settings     : settings
+      }
+    }
+    console.log("actions/asssessment:81 sending remote check",body);
+    Api.post(Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED, 'api/grades/question', body);
+  },
+
   selectConfidenceLevel(level, index){
     Dispatcher.dispatch({action: Constants.LEVEL_SELECTED, level: level, index: index});
   },

@@ -270,6 +270,11 @@ Dispatcher.register(function(payload) {
       }
       break;
 
+    case Constants.ASSESSMENT_QUESTION_GRADED:
+      console.log("store/assessment:274 question graded",payload.data);
+      // TODO do what is normally done in one right above this
+      break;
+
     case Constants.ASSESSMENT_START:
       if(!_startedAt){
         // set the start time for the assessment and the first question
@@ -328,7 +333,8 @@ Dispatcher.register(function(payload) {
     case Constants.ASSESSMENT_GRADED:
       parseAssessmentResult(payload.data.text);
       //console.log("stores/assessment:316 assessment graded");
-      //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button). Don't necessarily want to check all answers for them, since we'll be logging (via xAPI) all answer checks. So maybe put a flag for checkAnswer, or a different action constant?
+      //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button). Don't necessarily want to check all answers for them, since we'll be logging (via xAPI) all answer checks. So maybe put a flag for checkAnswer, or a different action constant
+      break;
       var correct_list = _assessmentResult.correct_list;
       var numCorrect = 0;
       var numTotal = correct_list.length;

@@ -18,6 +18,8 @@ export default {
   ASSESSMENT_PREVIOUS_QUESTION: "assessment_previous_question",
   ASSESSMENT_START: "assessment_start",
   ASSESSMENT_CHECK_ANSWER: "assessment_check_answer",
+  ASSESSMENT_CHECK_ANSWER_REMOTELY: "assessment_check_answer_remotely",
+  ASSESSMENT_ANSWER_REMOTELY_CHECKED: "assessment_answer_remotely_checked",
   ASSESSMENT_VIEWED: "assessment_viewed",
   ASSESSMENT_SUBMITTED: "assessment_submitted",
   ANSWER_SELECTED: "answer_selected",
