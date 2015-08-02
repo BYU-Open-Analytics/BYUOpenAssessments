@@ -29,7 +29,7 @@ export default class ItemResult extends React.Component{
         width: theme.confidenceWrapperWidth,
         height: theme.confidenceWrapperHeight,
         padding: theme.confidenceWrapperPadding,
-        marginTop: "20px",
+        marginTop: "5px",
         backgroundColor: theme.confidenceWrapperBackgroundColor,
       },
       answerResult: {
@@ -37,7 +37,7 @@ export default class ItemResult extends React.Component{
       }
     };
   }
-  getFeedback(correct,feedback){
+  getFeedback(correct,feedback,styles){
     var result;
 
     if(correct == true) {
@@ -66,7 +66,7 @@ export default class ItemResult extends React.Component{
             <div>
               <UniversalInput item={this.props.question} isResult={true}/>
             </div>
-	    {this.getFeedback(this.props.isCorrect,this.props.feedback)}
+	    {this.getFeedback(this.props.isCorrect,this.props.feedback,styles)}
             <div style={styles.confidenceWrapper}>
               <ResultConfidence level={this.props.confidence} />
             </div>

@@ -134,6 +134,7 @@ export default class AssessmentResult extends BaseComponent{
 
   getItemResults(){
     return this.state.questions.map((question, index)=>{
+      question.question_index = index;
       return <ItemResult question={question} feedback={this.state.assessmentResult.feedback_list[index]} isCorrect={this.state.assessmentResult.correct_list[index]} confidence={this.state.assessmentResult.confidence_level_list[index]}/>;
     })
   }
