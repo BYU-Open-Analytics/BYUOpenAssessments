@@ -16,7 +16,7 @@ export default class TextArea extends React.Component{
 		var previousAnswer = (this.props.item.answers.length > 0 && this.props.item.answers[0].material != null) ? this.props.item.answers[0].material.trim() : "";
 		return(
 			<div>
-				<textarea className="form-control" rows="4" onBlur={this.onChange} onInput={this.onChange} onChange={this.onChange} onKeyup={this.onChange}>{previousAnswer}</textarea>
+				<textarea className="form-control" rows="4" onBlur={this.onChange}>{previousAnswer}</textarea>
 			</div>
 		);
 	}

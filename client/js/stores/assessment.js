@@ -66,7 +66,7 @@ function selectAnswer(item){
   } else if (_items[_itemIndex].question_type == "essay_question") {
 	  _items[_itemIndex].answers = [{"material":item}];
 	  //_selectedAnswerIds = 0;
-	  console.log("stores/assessment.js:69 textarea answer selected",item);
+	  //console.log("stores/assessment.js:69 textarea answer selected",item);
 	  _selectedAnswerIds = item;
   }
 }
@@ -272,15 +272,18 @@ Dispatcher.register(function(payload) {
     
     case Constants.ASSESSMENT_CHECK_ANSWER_REMOTELY:
       // TODO show spinner or some loading indicator here
+      _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
+      _answerMessageIndex = -1;
+      _answerMessageFeedback = "Checking...";
       break;
 
     case Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED:
       console.log("store/assessment:274 question graded",JSON.parse(payload.data.text));
       // TODO hide spinner
-      // TODO ensure that we received a result for the question that we're still displaying
       var result = JSON.parse(payload.data.text);
       console.log(result.correct,result.feedback);
-      if (result.error == null && result.correct != null) {
+      // Ensure that we received a result for the question that we're still displaying
+      if (result.error == null && result.correct != null && result.question_id == _items[_itemIndex].id) {
 	      if(result.correct) {
 		_answerMessageIndex = 1;
 		_answerMessageFeedback = result.feedback;
@@ -289,6 +292,21 @@ Dispatcher.register(function(payload) {
 		_answerMessageFeedback = result.feedback;
 	      }
 	      // TODO send xapi question answered statement here
+	      var statementBody = {"confidenceLevel":result.confidence_level,"questionId":_itemIndex,"correct":result.correct,"questionType":_items[_itemIndex].question_type}
+	      statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
+	      if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
+		statementBody["answerGiven"] = (_studentAnswers[_itemIndex]["answer"] != null) ? _studentAnswers[_itemIndex]["answer"].trim() : "";
+	      } else {
+		statementBody["answerGiven"] = _selectedAnswerIds;
+		for (var i=0; i<_items[_itemIndex].answers.length; i++) {
+			if (_items[_itemIndex].answers[i].id == _selectedAnswerIds) {
+				statementBody["answerGiven"] = _items[_itemIndex].answers[i].material.trim();
+				break;
+			}
+		}
+	      }
+	      //console.log("stores/assessment:339 sending question answered",statementBody);
+	      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       } else {
 	      // TODO something in case of an error checking question
       }
@@ -352,8 +370,6 @@ Dispatcher.register(function(payload) {
     case Constants.ASSESSMENT_GRADED:
       parseAssessmentResult(payload.data.text);
       //console.log("stores/assessment:316 assessment graded");
-      //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button). Don't necessarily want to check all answers for them, since we'll be logging (via xAPI) all answer checks. So maybe put a flag for checkAnswer, or a different action constant
-      break;
       var correct_list = _assessmentResult.correct_list;
       var numCorrect = 0;
       var numTotal = correct_list.length;
@@ -404,7 +420,7 @@ Dispatcher.register(function(payload) {
 	}
       }
       //console.log("stores/assessment:339 sending question answered",statementBody);
-      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
+      //setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       break;
     case Constants.QUESTION_SELECTED:
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
