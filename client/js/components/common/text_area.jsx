@@ -7,7 +7,7 @@ import AssessmentStore    from "../../stores/assessment";
 export default class TextArea extends React.Component{
 	
 	onChange(e) {
-		//console.log("text_area onchange",e.target.value);
+		console.log("text_area onchange",e.target.value);
 		AssessmentActions.answerSelected(e.target.value);
 	}
 

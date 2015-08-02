@@ -66,7 +66,7 @@ function selectAnswer(item){
   } else if (_items[_itemIndex].question_type == "essay_question") {
 	  _items[_itemIndex].answers = [{"material":item}];
 	  //_selectedAnswerIds = 0;
-	  //console.log("stores/assessment.js 69",item);
+	  console.log("stores/assessment.js:69 textarea answer selected",item);
 	  _selectedAnswerIds = item;
   }
 }

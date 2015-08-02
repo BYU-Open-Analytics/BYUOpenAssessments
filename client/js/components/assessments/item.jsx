@@ -33,7 +33,7 @@ export default class Item extends BaseComponent{
     e.preventDefault()
     //AssessmentActions.checkAnswer();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
-    //Store a reference to this function so we can call it in the timeout and get the actual answer that otherwise wouldn't be in here because we're calling it too soon (I think).
+    //Store a reference to this function so we can call it in the timeout and get the actual answer that otherwise wouldn't be in here because we're calling it too soon (I think that's why it otherwise doesn't work).
     var studentAnswersFunction = AssessmentStore.studentAnswers;
     var body = [this.props.assessment.id, this.props.assessment.assessmentId, this.props.question, null, this.props.settings];
     setTimeout( function() {
@@ -56,11 +56,16 @@ export default class Item extends BaseComponent{
 
   submitButtonClicked(e){
     //This will save the answer of the current question so it can be correctly marked as complete
-    AssessmentActions.nextQuestion(); 
-    AssessmentActions.checkAnswer();
-    if (this.props.currentIndex < this.props.questionCount - 1) {
+    if (this.props.currentIndex > 0) {
+	    AssessmentActions.previousQuestion(); 
+	    AssessmentActions.checkAnswer();
+	    AssessmentActions.nextQuestion();
+    } else {
+	    AssessmentActions.nextQuestion();
+	    AssessmentActions.checkAnswer();
 	    AssessmentActions.previousQuestion();
     }
+
     e.preventDefault()
 
     var numTotal = this.props.questionCount;

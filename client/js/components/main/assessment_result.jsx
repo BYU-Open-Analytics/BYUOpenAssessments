@@ -60,7 +60,7 @@ export default class AssessmentResult extends BaseComponent{
         color: "#458B00"
       },
       assessmentContainer:{
-        marginTop: "70px",
+        marginTop: "5px",
         boxShadow: theme.assessmentContainerBoxShadow, 
         borderRadius: theme.assessmentContainerBorderRadius,
         padding: "20px"

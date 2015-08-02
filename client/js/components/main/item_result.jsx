@@ -23,7 +23,7 @@ export default class ItemResult extends React.Component{
         backgroundColor: color,
         border: border,
         borderRadius : "4px",
-        padding: "20px",
+        padding: "10px",
       },
       confidenceWrapper: {
         width: theme.confidenceWrapperWidth,
