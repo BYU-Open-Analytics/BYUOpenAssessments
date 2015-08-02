@@ -31,10 +31,10 @@ export default {
   progressDropdownBoxShadow: "0px 0px 20px 0px rgba(0,0,0,0.2)",
 
   shouldShowAttempts: true,
-  shouldShowProgressText: false,
-  shouldShowCounter: false,
-  shouldShowNextPrevious: false,
-  shouldShowFooter: false,
+  shouldShowProgressText: true,
+  shouldShowCounter: true,
+  shouldShowNextPrevious: true,
+  shouldShowFooter: true,
 
   correctBackgroundColor: "rgba(113, 184, 137, 0.2)",
   incorrectBackgroundColor: "rgba(207, 0, 0, 0.2)",

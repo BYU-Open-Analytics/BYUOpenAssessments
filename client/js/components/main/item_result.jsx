@@ -12,7 +12,7 @@ export default class ItemResult extends React.Component{
       color = theme.partialBackgroundColor;
       border = theme.partialBorder;
     } else if (props.isCorrect == false){
-      border = theme.correctBorder;
+      border = theme.incorrectBorder;
       color = theme.incorrectBackgroundColor;
     } else if (props.isCorrect){
       color = theme.correctBackgroundColor;
@@ -29,21 +29,24 @@ export default class ItemResult extends React.Component{
         width: theme.confidenceWrapperWidth,
         height: theme.confidenceWrapperHeight,
         padding: theme.confidenceWrapperPadding,
-        marginTop: "50px",
+        marginTop: "20px",
         backgroundColor: theme.confidenceWrapperBackgroundColor,
       },
+      answerResult: {
+        marginTop: "20px"
+      }
     };
   }
   getFeedback(correct,feedback){
     var result;
 
     if(correct == true) {
-      result =  <div className="check_answer_result answer_result_correct">
+      result =  <div className="check_answer_result answer_result_correct" style={styles.answerResult}>
                   <p>Correct</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
                 </div>;
     }
     else {
-      result =  <div className="check_answer_result answer_result_incorrect">
+      result =  <div className="check_answer_result answer_result_incorrect" style={styles.answerResult}>
                   <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
                 </div>;
     }
