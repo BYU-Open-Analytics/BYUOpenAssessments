@@ -271,15 +271,13 @@ Dispatcher.register(function(payload) {
       break;
     
     case Constants.ASSESSMENT_CHECK_ANSWER_REMOTELY:
-      // TODO show spinner or some loading indicator here
       _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
-      _answerMessageIndex = -1;
-      _answerMessageFeedback = "Checking...";
+      // show spinner
+      _answerMessageIndex = "loading";
       break;
 
     case Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED:
-      console.log("store/assessment:274 question graded",JSON.parse(payload.data.text));
-      // TODO hide spinner
+      //console.log("store/assessment:274 question graded",JSON.parse(payload.data.text));
       var result = JSON.parse(payload.data.text);
       console.log(result.correct,result.feedback);
       // Ensure that we received a result for the question that we're still displaying
@@ -291,7 +289,7 @@ Dispatcher.register(function(payload) {
 		_answerMessageIndex = 0;
 		_answerMessageFeedback = result.feedback;
 	      }
-	      // TODO send xapi question answered statement here
+	      // Send xapi question answered statement here
 	      var statementBody = {"confidenceLevel":result.confidence_level,"questionId":_itemIndex,"correct":result.correct,"questionType":_items[_itemIndex].question_type}
 	      statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
 	      if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
@@ -309,6 +307,7 @@ Dispatcher.register(function(payload) {
 	      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       } else {
 	      // TODO something in case of an error checking question
+	      _answerMessageIndex = "error";
       }
       break;
 

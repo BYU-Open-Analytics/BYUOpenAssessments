@@ -79,6 +79,7 @@ export default class Item extends BaseComponent{
     var complete = this.checkCompletion();
     var confirmMessage = (complete == true) ? "You have answered all questions. Submit the quiz?" : "You left the following questions blank: " + this.formatUnansweredString(complete) + ". Submit the quiz anyway?";
     if (confirm(confirmMessage)) {
+      this.setState({loading: true});
       AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
     } else if (complete != true) {
       this.setState({unAnsweredQuestions: complete});
@@ -295,6 +296,11 @@ export default class Item extends BaseComponent{
                   <p></p>
                 </div>;
     }
+    else if(index == "loading") {
+      result =  <div className="check_answer_result answer_result_loading">
+                  <img src={this.props.settings.images.SpinnerIcon_svg} /><p>Checking...</p>
+                </div>;
+    }
     else if(index == 0){
       result =  <div className="check_answer_result answer_result_incorrect">
                   <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
@@ -318,7 +324,8 @@ export default class Item extends BaseComponent{
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
-    var submitButton = <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
+    console.log("item:327 render",this.state);
+    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.SpinnerIcon_svg} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
     var footer = this.getFooterNav(this.context.theme, styles);
     
     // Get the confidence Level
