@@ -52,7 +52,7 @@ export default class Assessment extends BaseComponent{
       AssessmentActions.assessmentViewed(this.state.settings, this.state.assessment);  
     }
     // Send assessment launched statement
-    console.log("assessment:52 launched statement?");
+    //console.log("assessment:52 launched statement?");
     XapiActions.sendAssessmentLaunchedStatement({});
     //Code taken from https://facebook.github.io/react/tips/dom-event-listeners.html
     window.addEventListener("focus", this.handleWindowFocus);
@@ -71,13 +71,13 @@ export default class Assessment extends BaseComponent{
 
   handleWindowFocus(e){
     var questionId = (AssessmentStore.currentIndex() != null) ? AssessmentStore.currentIndex() : 0;
-    console.log("assessment:73 resume question "+questionId);
+    //console.log("assessment:73 resume question "+(questionId+1));
     XapiActions.sendAssessmentResumedStatement({"questionId":questionId});
   }
 
   handleWindowBlur(e){
     var questionId = (AssessmentStore.currentIndex() != null) ? AssessmentStore.currentIndex() : 0;
-    console.log("assessment:73 suspend question "+questionId);
+    //console.log("assessment:73 suspend question "+(questionId+1));
     XapiActions.sendAssessmentSuspendedStatement({"questionId":questionId});
   }
 

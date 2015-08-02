@@ -95,7 +95,7 @@ export default {
   },
 	
   sendQuestionAnsweredStatement(item) {
-	//console.log("actions/xapi:78 sending question answered statement",item);
+	console.log("actions/xapi:78 sending question answered statement",item);
 	var confidenceLevel = {"Just A Guess":"low","Pretty Sure":"medium","Very Sure":"high"}[item.confidenceLevel];
 
 	var body = {

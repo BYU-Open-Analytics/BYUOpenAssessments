@@ -66,7 +66,7 @@ function selectAnswer(item){
   } else if (_items[_itemIndex].question_type == "essay_question") {
 	  _items[_itemIndex].answers = [{"material":item}];
 	  //_selectedAnswerIds = 0;
-	  console.log("stores/assessment.js 69",item);
+	  //console.log("stores/assessment.js 69",item);
 	  _selectedAnswerIds = item;
   }
 }
@@ -259,7 +259,7 @@ Dispatcher.register(function(payload) {
       break;
 
     case Constants.ASSESSMENT_CHECK_ANSWER:
-      console.log("store/assessment:248 checking answer");
+      //console.log("store/assessment:248 checking answer");
       var answer = checkAnswer();
       if(answer != null && answer.correct) {
         _answerMessageIndex = 1;
@@ -269,10 +269,29 @@ Dispatcher.register(function(payload) {
 	_answerMessageFeedback = answer.feedbacks;
       }
       break;
+    
+    case Constants.ASSESSMENT_CHECK_ANSWER_REMOTELY:
+      // TODO show spinner or some loading indicator here
+      break;
 
-    case Constants.ASSESSMENT_QUESTION_GRADED:
-      console.log("store/assessment:274 question graded",payload.data);
-      // TODO do what is normally done in one right above this
+    case Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED:
+      console.log("store/assessment:274 question graded",JSON.parse(payload.data.text));
+      // TODO hide spinner
+      // TODO ensure that we received a result for the question that we're still displaying
+      var result = JSON.parse(payload.data.text);
+      console.log(result.correct,result.feedback);
+      if (result.error == null && result.correct != null) {
+	      if(result.correct) {
+		_answerMessageIndex = 1;
+		_answerMessageFeedback = result.feedback;
+	      } else {
+		_answerMessageIndex = 0;
+		_answerMessageFeedback = result.feedback;
+	      }
+	      // TODO send xapi question answered statement here
+      } else {
+	      // TODO something in case of an error checking question
+      }
       break;
 
     case Constants.ASSESSMENT_START:

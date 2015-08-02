@@ -33,9 +33,12 @@ export default class Item extends BaseComponent{
     e.preventDefault()
     //AssessmentActions.checkAnswer();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
+    //Store a reference to this function so we can call it in the timeout and get the actual answer that otherwise wouldn't be in here because we're calling it too soon (I think).
+    var studentAnswersFunction = AssessmentStore.studentAnswers;
+    var body = [this.props.assessment.id, this.props.assessment.assessmentId, this.props.question, null, this.props.settings];
     setTimeout( function() {
-	    console.log("item.jsx:35 want to send stuff for remote answer checking",this.props.studentAnswers[this.props.currentIndex],this.props,AssessmentStore.studentAnswers());
-	    AssessmentActions.checkAnswerRemotely(this.props.assessment.id, this.props.assessment.assessmentId, this.props.question, this.props.studentAnswers[this.props.currentIndex]["answer"], this.props.settings);
+	    //console.log("item.jsx:35 want to send stuff for remote answer checking",studentAnswersFunction()["answer"],body);
+	    AssessmentActions.checkAnswerRemotely(body[0], body[1], body[2], studentAnswersFunction()["answer"], body[4]);
     }, 1);
     //console.log("item.jsx:34",this.props,e.target.value);
       //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
@@ -305,7 +308,7 @@ export default class Item extends BaseComponent{
   render() {
     var styles = this.getStyles(this.context.theme);
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
-    var result = this.getResult(this.props.messageIndex);
+    var result = this.getResult(this.props.messageIndex, this.props.messageFeedback);
     var message = this.state && this.state.showMessage ? <div style={styles.warning}>You must select an answer before continuing.</div> : "";
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";

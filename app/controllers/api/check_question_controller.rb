@@ -54,7 +54,7 @@ class Api::CheckQuestionController < Api::ApiController
     }
 
     respond_to do |format|
-      format.json { render json: graded_assessment }
+      format.json { render json: question_result }
     end
   end
 

@@ -79,7 +79,7 @@ export default {
       }
     }
     console.log("actions/asssessment:81 sending remote check",body);
-    Api.post(Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED, 'api/grades/question', body);
+    Api.post(Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED, 'api/check_question', body);
   },
 
   selectConfidenceLevel(level, index){
