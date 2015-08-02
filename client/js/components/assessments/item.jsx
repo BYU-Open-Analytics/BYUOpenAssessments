@@ -324,7 +324,7 @@ export default class Item extends BaseComponent{
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
-    console.log("item:327 render",this.state);
+    //console.log("item:327 render",this.state);
     var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.SpinnerIcon_svg} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
     var footer = this.getFooterNav(this.context.theme, styles);
     

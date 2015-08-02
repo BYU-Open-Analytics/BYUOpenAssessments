@@ -40,7 +40,7 @@ export default class RadioButton extends React.Component{
     }
   }
   render(){
-    console.log("radio)button:45 not setting checked properly this, assessmentstore",this,AssessmentStore,AssessmentStore.allStudentAnswers());
+    //console.log("radio)button:45 not setting checked properly this, assessmentstore",this,AssessmentStore,AssessmentStore.allStudentAnswers());
     var styles = this.getStyles(this.props, this.context.theme)
     var checked = null;
     if (this.props.question.question_index != null) {
@@ -50,7 +50,7 @@ export default class RadioButton extends React.Component{
     } else {
 	    checked = (this.props.item.id == AssessmentStore.studentAnswers()["answer"]) ? "true" : null;
     }
-    console.log("checked: ",checked);
+    //console.log("checked: ",checked);
     var radio = !this.props.isDisabled ? <input type="radio" defaultChecked={checked} name={this.props.name} onClick={()=>{ this.answerSelected() }}/> : <b></b>;//<input type="radio" disabled="true" defaultChecked={checked} name={this.props.name} onClick={()=>{ this.answerSelected() }}/>;
     if (checked && this.props.isDisabled) {
 	    styles.btnQuestion.border = "solid gray 1px";

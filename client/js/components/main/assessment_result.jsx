@@ -163,7 +163,7 @@ export default class AssessmentResult extends BaseComponent{
         continue;
       } else {
         correctCount++;
-	console.log("components/assessment_result:163",this.state.assessment);
+	//console.log("components/assessment_result:163",this.state.assessment);
         if(correctCount == this.state.settings.perSec || correctCount == this.state.assessment.sections[sectionIndex + 1].items.length){
           lists.positiveList.push(this.state.outcomes[sectionIndex]);
           correctCount = 0;
@@ -185,7 +185,7 @@ export default class AssessmentResult extends BaseComponent{
     }
 	    
     var negativeList = [];
-    console.log("a_result:185",lists);
+    //console.log("a_result:185",lists);
     if (lists.negativeList.length > 0) {
 	    negativeList = lists.negativeList.map((item, index)=>{
 	      return <div key={"negative " + index}><p>{item.shortOutcome}</p></div>;

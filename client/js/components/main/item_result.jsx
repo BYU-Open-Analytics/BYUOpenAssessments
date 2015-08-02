@@ -55,9 +55,9 @@ export default class ItemResult extends React.Component{
   }
 
   render() {
-    console.log(this.props.isCorrect)
+    //console.log(this.props.isCorrect)
     var styles = this.getStyles(this.props, this.context.theme)
-    console.log("item_result:27 render",this.props);
+    //console.log("item_result:27 render",this.props);
     return (
       <div>
         <div className="row">

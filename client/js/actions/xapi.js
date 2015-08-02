@@ -40,7 +40,7 @@ export default {
 		questionsCorrect     : item.questionsCorrect
 	};
 	body = this.addStandardStatementBody(body);
-	console.log("actions/xapi:43 sending completed",item,body);
+	//console.log("actions/xapi:43 sending completed",item,body);
 	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT, statement: body})
 	//Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
@@ -95,7 +95,7 @@ export default {
   },
 	
   sendQuestionAnsweredStatement(item) {
-	console.log("actions/xapi:98 sending question answered statement",item);
+	//console.log("actions/xapi:98 sending question answered statement",item);
 	var confidenceLevel = {"Just A Guess":"low","Pretty Sure":"medium","Very Sure":"high"}[item.confidenceLevel];
 
 	var body = {
