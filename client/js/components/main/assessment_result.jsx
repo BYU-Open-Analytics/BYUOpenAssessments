@@ -210,6 +210,8 @@ export default class AssessmentResult extends BaseComponent{
             </div>
             Time Spent: {this.state.timeSpent.minutes} mins {this.state.timeSpent.seconds} sec
             <br />
+	    {this.state.assessmentResult.submission_status}
+	    <br />
             You can review your answers below.
           </div>
         </div>
