@@ -57,12 +57,14 @@ export default class Assessment extends BaseComponent{
     //Code taken from https://facebook.github.io/react/tips/dom-event-listeners.html
     window.addEventListener("focus", this.handleWindowFocus);
     window.addEventListener("blur", this.handleWindowBlur);
+    window.addEventListener("beforeunload", this.handleWindowBeforeUnload);
   }
 
   componentWillUnmount(){
       super.componentWillUnmount();
       window.removeEventListener("focus", this.handleWindowFocus);
       window.removeEventListener("blur", this.handleWindowBlur);
+      window.removeEventListener("beforeunload", this.handleWindowBeforeUnload);
   }
 
   checkProgress(current, total){
@@ -79,6 +81,15 @@ export default class Assessment extends BaseComponent{
     var questionId = (AssessmentStore.currentIndex() != null) ? AssessmentStore.currentIndex() : 0;
     //console.log("assessment:73 suspend question "+(questionId+1));
     XapiActions.sendAssessmentSuspendedStatement({"questionId":questionId});
+  }
+
+  handleWindowBeforeUnload(e){
+	// Warn user before leaving assessment that hasn't been submitted yet
+	if(AssessmentStore.assessmentResult() == null){
+		var confirmationMessage = "You haven't finished submitting your quiz. You still need to click \"Submit Quiz\" to finish turning it in. Do you want to leave this page anyway?";
+		(e || window.event).returnValue = confirmationMessage; //Gecko + IE
+		return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+	}
   }
 
   getStyles(theme){
