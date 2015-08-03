@@ -206,7 +206,7 @@ export default class AssessmentResult extends BaseComponent{
             <h3><strong>Your Quiz Results</strong></h3>
             <div style={styles.yourScoreStyle}>
               <h5 style={styles.center}>Your Score</h5>
-              <h1 style={styles.center}>{Math.trunc(this.state.assessmentResult.score)}%</h1>
+              <h1 style={styles.center}>{Math.floor(this.state.assessmentResult.score)}%</h1>
             </div>
             Time Spent: {this.state.timeSpent.minutes} mins {this.state.timeSpent.seconds} sec
             <br />
@@ -222,7 +222,7 @@ export default class AssessmentResult extends BaseComponent{
     </div>)
   }
   getFormativeContent(styles, outcomeLists){
-    var score = Math.trunc(this.state.assessmentResult.score);
+    var score = Math.floor(this.state.assessmentResult.score);
     var image = "";
     var feedback = "";
     var head = "";
