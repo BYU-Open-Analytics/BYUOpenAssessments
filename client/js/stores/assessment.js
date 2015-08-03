@@ -308,7 +308,7 @@ Dispatcher.register(function(payload) {
 		      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
 	      } else {
 		      //User must have navigated to a different question before check finished, so ignore this
-		      console.log("stores/assessment:313 answer check ignored; different question");
+		      //console.log("stores/assessment:313 answer check ignored; different question");
 	      }
       } else {
 	      // TODO something in case of an error checking question

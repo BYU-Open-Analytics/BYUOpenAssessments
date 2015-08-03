@@ -370,7 +370,7 @@ export default class Item extends BaseComponent{
           </div>
           <div style={formativeStyle}>
             {formativeHeader}
-            <form className="edit_item">
+            <div className="edit_item">
               <div className="full_question" style={styles.fullQuestion}>
                 <div className="inner_question">
                   <div className="question_text" style={styles.questionText}>
@@ -390,7 +390,7 @@ export default class Item extends BaseComponent{
                   {submitButton}
                 </div>
               </div>
-            </form>
+            </div>
             <div className="nav_buttons" style={styles.navButtons}>
               {previousButton}
               {nextButton}

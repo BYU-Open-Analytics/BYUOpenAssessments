@@ -78,7 +78,7 @@ export default {
         settings     : settings
       }
     }
-    console.log("actions/asssessment:81 sending remote check",body);
+    //console.log("actions/asssessment:81 sending remote check",body);
     Api.post(Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED, 'api/check_question', body);
   },
 
