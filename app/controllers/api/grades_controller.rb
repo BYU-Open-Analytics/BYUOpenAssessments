@@ -11,7 +11,7 @@ class Api::GradesController < Api::ApiController
     assessment_id = item_to_grade["assessmentId"]
     outcomes = item_to_grade["outcomes"]
     assessment = Assessment.find(assessment_id)
-    doc = Nokogiri::XML(assessment.assessment_xmls.first.xml)
+    doc = Nokogiri::XML(assessment.assessment_xmls.where(kind: "formative").last.xml)
     doc.remove_namespaces!
     xml_questions = doc.xpath("//item")
 
@@ -26,10 +26,13 @@ class Api::GradesController < Api::ApiController
     # This array is now the subarray ["answer"] since we did that in js frontend
     # answers = item_to_grade["answers"]
     answers = item_to_grade["answers"].collect {|a| a["answer"]}
+    ungraded_questions = []
+    xml_index_list = []
     questions.each_with_index do |question, index|
 
       # make sure we are looking at the right question
       xml_index = get_xml_index(question["id"], xml_questions)
+      xml_index_list.push(xml_index)
       if question["id"] == xml_questions[xml_index].attributes["ident"].value
 
         correct = false;
@@ -105,6 +108,8 @@ class Api::GradesController < Api::ApiController
             )
           end
         end
+      else
+        ungraded_questions.push(question)
       end
       # TODO if the question id's dont match then check the rest of the id's
       # if the Id isn't found then there has been an error and return the error
@@ -151,11 +156,15 @@ class Api::GradesController < Api::ApiController
       correct_list: correct_list,
       feedback_list: feedback_list,
       confidence_level_list: confidence_level_list,
-      submission_status: submission_status
+      submission_status: submission_status,
+      ungraded_questions: ungraded_questions,
+      item_to_grade:item_to_grade,
+      xml_questions: xml_questions,
+      xml_index_list: xml_index_list,
+      questions: questions,
+      doc: doc
     }
 
-    # Ping analytics server
-    # TODO Send xAPI statement
     respond_to do |format|
       format.json { render json: graded_assessment }
     end
