@@ -298,7 +298,7 @@ export default class Item extends BaseComponent{
     }
     else if(index == "loading") {
       result =  <div className="check_answer_result answer_result_loading">
-                  <img src={this.props.settings.images.SpinnerIcon_svg} /><p>Checking...</p>
+                  <img src={this.props.settings.images.spinner_gif} /><p>Checking...</p>
                 </div>;
     }
     else if(index == 0){
@@ -325,7 +325,7 @@ export default class Item extends BaseComponent{
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
     //console.log("item:327 render",this.state);
-    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.SpinnerIcon_svg} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
+    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.spinner_gif} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
     var footer = this.getFooterNav(this.context.theme, styles);
     
     // Get the confidence Level
