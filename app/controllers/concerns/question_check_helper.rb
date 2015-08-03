@@ -22,10 +22,12 @@ module QuestionCheckHelper
       # Set the corresponding feedback (if there is any)
       if choice.xpath("displayfeedback").count > 0 && answer == choice.xpath("conditionvar").xpath("varequal").children.text
 
-        feedback = question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
-        p feedback
+        feedback += question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
+        # p feedback
       end
     end
+
+    feedback += get_general_feedback(question, correct)
 
     return correct, feedback.strip
   end
@@ -42,26 +44,19 @@ module QuestionCheckHelper
             # If this answer matches, set the corresponding feedback (if there is any)
             if answer == possibleAnswer.text
             	if choice.xpath("displayfeedback").count > 0
-            		feedback = question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
+            		feedback += question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
             		# p feedback
             	end
-                    # Now check if it's a correct answer (presence of setvar with value of 100)
-                    if choice.xpath("setvar").count > 0 && choice.xpath("setvar")[0].children.text == "100"
-              	  	correct = true;
-                    end
+                # Now check if it's a correct answer (presence of setvar with value of 100)
+                if choice.xpath("setvar").count > 0 && choice.xpath("setvar")[0].children.text == "100"
+          	  	correct = true;
+                end
             end
         end
     end
-    # Get general incorrect feedback, if not correct
-    if not correct
-	# Check if there is any general incorrect feedback
-	incorrect = question.xpath("itemfeedback[@ident='general_incorrect_fb']")
-	if incorrect.count > 0
-		feedback = incorrect[0].text
-		# p incorrect[0].text
-	end
-    end
-    # debugger
+
+    feedback += get_general_feedback(question, correct)
+
     return correct, feedback.strip
   end
 
@@ -76,11 +71,13 @@ module QuestionCheckHelper
     end
 
     # Check if there is any general feedback
-    general_fb = question.xpath("itemfeedback[@ident='general_fb']")
-    if general_fb.count > 0
-    	feedback = general_fb[0].text
-    end
+    # general_fb = question.xpath("itemfeedback[@ident='general_fb']")
+    # if general_fb.count > 0
+    	# feedback = general_fb[0].text
+    # end
     
+    feedback += get_general_feedback(question, correct)
+
     return correct, feedback.strip
   end
 
@@ -124,6 +121,32 @@ module QuestionCheckHelper
     end
 
     return correct, feedback.strip
+  end
+
+  def get_general_feedback(question, correct)
+    feedback = ""
+    # Get general incorrect/correct feedback
+    if not correct
+	# Check if there is any general incorrect feedback
+	incorrect = question.xpath("itemfeedback[@ident='general_incorrect_fb']")
+	if incorrect.count > 0
+		feedback += "\n#{incorrect[0].text}"
+		# p incorrect[0].text
+	end
+    else
+	# Check if there is any general correct feedback
+	correct = question.xpath("itemfeedack[@ident='correct_fb']")
+	if correct.count > 0
+		feedback += "\n#{correct[0].text}"
+	end
+    end
+
+    # Get general question feedback
+    general = question.xpath("itemfeedback[@ident='general_fb']")
+    if general.count > 0
+      feedback += "\n#{general[0].text}"
+    end
+    return feedback.strip
   end
 
 end
