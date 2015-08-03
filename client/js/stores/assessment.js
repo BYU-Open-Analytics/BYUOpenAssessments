@@ -279,8 +279,9 @@ Dispatcher.register(function(payload) {
     case Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED:
       //console.log("store/assessment:274 question graded",JSON.parse(payload.data.text));
       var result = JSON.parse(payload.data.text);
-      console.log(result.correct,result.feedback);
+      //console.log(result.correct,result.feedback);
       // Ensure that we received a result for the question that we're still displaying
+      console.log("stores/assessment:284 want to ensure question is the same",result,_itemIndex,_items[_itemIndex]);
       if (result.error == null && result.correct != null && result.question_id == _items[_itemIndex].id) {
 	      if(result.correct) {
 		_answerMessageIndex = 1;
