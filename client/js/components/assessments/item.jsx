@@ -30,9 +30,13 @@ export default class Item extends BaseComponent{
   }
 
   confidenceLevelClicked(e, currentIndex){
-    e.preventDefault()
+    e.preventDefault();
     //AssessmentActions.checkAnswer();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
+    this.checkAnswerRemotely();
+  }
+  
+  checkAnswerRemotely() {
     //Store a reference to this function so we can call it in the timeout and get the actual answer that otherwise wouldn't be in here because we're calling it too soon (I think that's why it otherwise doesn't work).
     var studentAnswersFunction = AssessmentStore.studentAnswers;
     var body = [this.props.assessment.id, this.props.assessment.assessmentId, this.props.question, null, this.props.settings];
@@ -40,18 +44,7 @@ export default class Item extends BaseComponent{
 	    //console.log("item.jsx:35 want to send stuff for remote answer checking",studentAnswersFunction()["answer"],body);
 	    AssessmentActions.checkAnswerRemotely(body[0], body[1], body[2], studentAnswersFunction()["answer"], body[4]);
     }, 1);
-    //console.log("item.jsx:34",this.props,e.target.value);
-      //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
-    //XapiActions.sendQuestionAnsweredStatement(this.props);
-    //AssessmentActions.nextQuestion(); 
-    //Following from jul31 lumen merge. Do something with it?
-	    //if(AssessmentStore.selectedAnswerId() && AssessmentStore.selectedAnswerId().length > 0){
-	    //  AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
-	    //  AssessmentActions.nextQuestion();
-	    //  this.setState({showMessage: false});
-	    //} else {
-	    //  this.setState({showMessage: true});
-	    //}
+
   }
 
   submitButtonClicked(e){
@@ -259,7 +252,7 @@ export default class Item extends BaseComponent{
                 </div>
                 );
     } else {
-      return <div className="lower_level"><input type="button" className="btn btn-check-answer" value="Check Answer" onClick={() => { AssessmentActions.checkAnswer()}}/></div>
+      return <div className="lower_level"><input type="button" className="btn btn-check-answer" value="Check Answer" onClick={() => { this.checkAnswerRemotely(); }}/></div>
     }
   }
 

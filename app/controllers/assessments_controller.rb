@@ -21,7 +21,7 @@ class AssessmentsController < ApplicationController
     else
       @embedded = params[:src_url].present? || params[:embed].present? || @is_lti
     end
-    @confidence_levels = params[:confidence_levels] ? true : false
+    @confidence_levels = params[:confidence_levels] ? params[:confidence_levels] : true
     @enable_start = params[:enable_start] ? true : false
     @eid = params[:eid] if params[:eid]
     @keywords = params[:keywords] if params[:keywords]
