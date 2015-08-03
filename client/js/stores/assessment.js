@@ -279,33 +279,37 @@ Dispatcher.register(function(payload) {
     case Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED:
       //console.log("store/assessment:274 question graded",JSON.parse(payload.data.text));
       var result = JSON.parse(payload.data.text);
-      //console.log(result.correct,result.feedback);
-      // Ensure that we received a result for the question that we're still displaying
-      console.log("stores/assessment:284 want to ensure question is the same",result,_itemIndex,_items[_itemIndex]);
-      if (result.error == null && result.correct != null && result.question_id == _items[_itemIndex].id) {
-	      if(result.correct) {
-		_answerMessageIndex = 1;
-		_answerMessageFeedback = result.feedback;
-	      } else {
-		_answerMessageIndex = 0;
-		_answerMessageFeedback = result.feedback;
-	      }
-	      // Send xapi question answered statement here
-	      var statementBody = {"confidenceLevel":result.confidence_level,"questionId":_itemIndex,"correct":result.correct,"questionType":_items[_itemIndex].question_type}
-	      statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
-	      if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
-		statementBody["answerGiven"] = (_studentAnswers[_itemIndex]["answer"] != null) ? _studentAnswers[_itemIndex]["answer"].trim() : "";
-	      } else {
-		statementBody["answerGiven"] = _selectedAnswerIds;
-		for (var i=0; i<_items[_itemIndex].answers.length; i++) {
-			if (_items[_itemIndex].answers[i].id == _selectedAnswerIds) {
-				statementBody["answerGiven"] = _items[_itemIndex].answers[i].material.trim();
-				break;
+      //console.log("stores/assessment:284 want to ensure question is the same",result.question_id,_itemIndex,_items[_itemIndex].id);
+      if (result.error == null && result.correct != null) {
+	      // Ensure that we received a result for the question that we're still displaying
+	      if (result.question_id==_items[_itemIndex].id) {
+		      if(result.correct) {
+			_answerMessageIndex = 1;
+			_answerMessageFeedback = result.feedback;
+		      } else {
+			_answerMessageIndex = 0;
+			_answerMessageFeedback = result.feedback;
+		      }
+		      // Send xapi question answered statement here
+		      var statementBody = {"confidenceLevel":result.confidence_level,"questionId":_itemIndex,"correct":result.correct,"questionType":_items[_itemIndex].question_type}
+		      statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
+		      if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
+			statementBody["answerGiven"] = (_studentAnswers[_itemIndex]["answer"] != null) ? _studentAnswers[_itemIndex]["answer"].trim() : "";
+		      } else {
+			statementBody["answerGiven"] = _selectedAnswerIds;
+			for (var i=0; i<_items[_itemIndex].answers.length; i++) {
+				if (_items[_itemIndex].answers[i].id == _selectedAnswerIds) {
+					statementBody["answerGiven"] = _items[_itemIndex].answers[i].material.trim();
+					break;
+				}
 			}
-		}
+		      }
+		      //console.log("stores/assessment:339 sending question answered",statementBody);
+		      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
+	      } else {
+		      //User must have navigated to a different question before check finished, so ignore this
+		      console.log("stores/assessment:313 answer check ignored; different question");
 	      }
-	      //console.log("stores/assessment:339 sending question answered",statementBody);
-	      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       } else {
 	      // TODO something in case of an error checking question
 	      _answerMessageIndex = "error";
