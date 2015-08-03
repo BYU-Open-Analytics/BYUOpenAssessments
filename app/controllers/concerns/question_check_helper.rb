@@ -23,7 +23,6 @@ module QuestionCheckHelper
       if choice.xpath("displayfeedback").count > 0 && answer == choice.xpath("conditionvar").xpath("varequal").children.text
 
         feedback += question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
-        # p feedback
       end
     end
 
@@ -40,12 +39,10 @@ module QuestionCheckHelper
     choices.each_with_index do |choice, index|
         # Need to go through each varequal, since short answers can have multiple correct answers
         choice.children.xpath("varequal").each do |possibleAnswer|
-            # p "apossibility: #{possibleAnswer.text}"
             # If this answer matches, set the corresponding feedback (if there is any)
             if answer == possibleAnswer.text
             	if choice.xpath("displayfeedback").count > 0
             		feedback += question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
-            		# p feedback
             	end
                 # Now check if it's a correct answer (presence of setvar with value of 100)
                 if choice.xpath("setvar").count > 0 && choice.xpath("setvar")[0].children.text == "100"
@@ -69,19 +66,38 @@ module QuestionCheckHelper
     if answer != nil && answer != ""
 	    correct = true
     end
-
-    # Check if there is any general feedback
-    # general_fb = question.xpath("itemfeedback[@ident='general_fb']")
-    # if general_fb.count > 0
-    	# feedback = general_fb[0].text
-    # end
     
     feedback += get_general_feedback(question, correct)
 
     return correct, feedback.strip
   end
 
+  def get_general_feedback(question, correct)
+    feedback = ""
+    # Get general incorrect/correct feedback
+    if not correct
+	# Check if there is any general incorrect feedback
+	incorrect = question.xpath("itemfeedback[@ident='general_incorrect_fb']")
+	if incorrect.count > 0
+		feedback += "\n#{incorrect[0].text}"
+	end
+    else
+	# Check if there is any general correct feedback
+	correct = question.xpath("itemfeedack[@ident='correct_fb']")
+	if correct.count > 0
+		feedback += "\n#{correct[0].text}"
+	end
+    end
 
+    # Get general question feedback
+    general = question.xpath("itemfeedback[@ident='general_fb']")
+    if general.count > 0
+      feedback += "\n#{general[0].text}"
+    end
+    return feedback.strip
+  end
+
+  # These are unused functions from lumen
   def grade_multiple_answers(question, answers)
     correct = false;
     feedback = ""
@@ -121,32 +137,6 @@ module QuestionCheckHelper
     end
 
     return correct, feedback.strip
-  end
-
-  def get_general_feedback(question, correct)
-    feedback = ""
-    # Get general incorrect/correct feedback
-    if not correct
-	# Check if there is any general incorrect feedback
-	incorrect = question.xpath("itemfeedback[@ident='general_incorrect_fb']")
-	if incorrect.count > 0
-		feedback += "\n#{incorrect[0].text}"
-		# p incorrect[0].text
-	end
-    else
-	# Check if there is any general correct feedback
-	correct = question.xpath("itemfeedack[@ident='correct_fb']")
-	if correct.count > 0
-		feedback += "\n#{correct[0].text}"
-	end
-    end
-
-    # Get general question feedback
-    general = question.xpath("itemfeedback[@ident='general_fb']")
-    if general.count > 0
-      feedback += "\n#{general[0].text}"
-    end
-    return feedback.strip
   end
 
 end
