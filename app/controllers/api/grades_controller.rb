@@ -143,7 +143,7 @@ class Api::GradesController < Api::ApiController
           # or we can also post scores async using activejob in which case we'll want to
           # log any errors and make them visible in the admin ui
           success = res.success?
-	  submission_status = (success) ? "Graded posted successfully" : "There was an error posting the grade: #{res.inspect}"
+	  submission_status = (success) ? "Grade posted via LTI successfully" : "There was an error posting the grade: #{res.inspect}"
           # debugger
       rescue StandardError => bang
            "Some error: #{bang}"
