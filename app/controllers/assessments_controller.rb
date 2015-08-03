@@ -12,9 +12,7 @@ class AssessmentsController < ApplicationController
   respond_to :html
 
   def index
-    if current_user
-      @assessments = @assessments.where(account: current_user.account)
-    end
+    @assessments = @assessments.where(account: current_account, kind: ['formative', 'show_what_you_know'])
   end
 
   def show
@@ -23,7 +21,7 @@ class AssessmentsController < ApplicationController
     else
       @embedded = params[:src_url].present? || params[:embed].present? || @is_lti
     end
-    @confidence_levels = params[:confidence_levels] ? true : false
+    @confidence_levels = params[:confidence_levels] ? params[:confidence_levels] : true
     @enable_start = params[:enable_start] ? true : false
     @eid = params[:eid] if params[:eid]
     @keywords = params[:keywords] if params[:keywords]
@@ -31,25 +29,19 @@ class AssessmentsController < ApplicationController
     @results_end_point = ensure_scheme(params[:results_end_point]) if params[:results_end_point].present?
     @style = params[:style] ? params[:style] :  ""
     @per_sec = params[:per_sec] ? params[:per_sec] : nil
-    if @is_writeback # For now all LTI requests with grade writeback will produce summative assessments. All others will be formative.
-      # @kind = "summative"
-      @kind = "formative"
-    else
-      @kind = "formative"
-    end
-    p @kind
     if params[:id].present? && !['load', 'offline'].include?(params[:id])
-      #todo restrict find to current account and then public quizzes
-      @assessment = Assessment.find(params[:id])
+      @assessment = Assessment.where(id: params[:id], account: current_account).first
       @assessment_id = @assessment ? @assessment.id : params[:assessment_id] || 'null'
       @assessment_settings = params[:asid] ?  AssessmentSetting.find(params[:asid]) : @assessment.default_settings || current_account.default_settings || AssessmentSetting.where(is_default: true).first
       @style ||= @assessment.default_style if @assessment.default_style
+      
       if @assessment_settings.present?
         @style = @style != "" ? @style : @assessment_settings[:style] || ""
         @enable_start = params[:enable_start] ?  @enable_start : @assessment_settings[:enable_start] || false
         @confidence_levels = params[:confidence_levels] ?  @confidence_levels : @assessment_settings[:confidence_levels] || false
         @per_sec = @per_sec ? @per_sec : @assessment_settings[:per_sec] || ""
       end
+      @assessment_kind = @assessment.kind
       if params[:user_id].present?
         @user_assessment = @assessment.user_assessments.where(eid: params[:user_id]).first
         if !@user_assessment.nil?
@@ -68,18 +60,17 @@ class AssessmentsController < ApplicationController
         @src_url = embed_url(@assessment)
       else
         # Show the full page with analtyics and embed code buttons
-        @embed_code = embed_code(@assessment, @confidence_levels, @eid, @enable_start, params[:offline].present?, nil, @style, params[:asid], @per_sec)
+        @embed_code = embed_code(@assessment, @confidence_levels, @eid, @enable_start, params[:offline].present?, nil, @style, params[:asid], @per_sec, @assessment_kind)
       end
     else
       # Get the remote url where we can download the qti
       @src_url = ensure_scheme(URI.decode(params[:src_url])) if params[:src_url].present?
       if params[:load_ui] == 'true'
         # Build an embed code and stats page for an assessment loaded via a url
-        @embed_code = embed_code(nil, @confidence_levels, @eid, @enable_start, params[:offline].present?, params[:src_url], @style, params[:asid], params[:per_sec])
+        @embed_code = embed_code(nil, @confidence_levels, @eid, @enable_start, params[:offline].present?, params[:src_url], @style, params[:asid], params[:per_sec], @assessment_kind)
       end
 
     end
-
 
     if params[:offline].present? && @src_url.present?
       @src_data = open(@src_url).read
@@ -96,6 +87,7 @@ class AssessmentsController < ApplicationController
       end
     end
     @is_lti ||= false
+    @assessment_kind ||= params[:assessment_kind]
     # extract LTI values
     @external_user_id ||= params[:user_id]
 

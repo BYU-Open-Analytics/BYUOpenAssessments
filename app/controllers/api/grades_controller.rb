@@ -1,4 +1,5 @@
 class Api::GradesController < Api::ApiController
+  include QuestionCheckHelper
   
   def create
 
@@ -8,18 +9,23 @@ class Api::GradesController < Api::ApiController
     item_to_grade = body["itemToGrade"]
     questions = item_to_grade["questions"]
     assessment_id = item_to_grade["assessmentId"]
+    outcomes = item_to_grade["outcomes"]
     assessment = Assessment.find(assessment_id)
     doc = Nokogiri::XML(assessment.assessment_xmls.first.xml)
     doc.remove_namespaces!
     xml_questions = doc.xpath("//item")
+
     result = assessment.assessment_results.build
     result.save!
-
     settings = item_to_grade["settings"]
     correct_list = []
+    feedback_list = []
     confidence_level_list = []
-    answers = item_to_grade["answers"]
-    
+    positive_outcome_list = []
+    negative_outcome_list = []
+    # This array is now the subarray ["answer"] since we did that in js frontend
+    # answers = item_to_grade["answers"]
+    answers = item_to_grade["answers"].collect {|a| a["answer"]}
     questions.each_with_index do |question, index|
 
       # make sure we are looking at the right question
@@ -27,20 +33,33 @@ class Api::GradesController < Api::ApiController
       if question["id"] == xml_questions[xml_index].attributes["ident"].value
 
         correct = false;
+        feedback = ""
+        # find the question type
         type = xml_questions[xml_index].children.xpath("qtimetadata").children.xpath("fieldentry").children.text
         
+        # if the question type gets some wierd stuff if means that the assessment has outcomes so we need
+        # to get the question data a little differently
+        if type != "multiple_choice_question" && type != "multiple_answers_question" && type != "matching_question"
+          type = xml_questions[xml_index].children.xpath("qtimetadata").children.xpath("fieldentry").children.first.text
+        end
+
         # grade the question based off of question type
         if type == "multiple_choice_question"
-          correct = grade_multiple_choice(xml_questions[xml_index], answers[index])  
+          correct, feedback = grade_multiple_choice(xml_questions[xml_index], answers[index])  
+        elsif type == "short_answer_question"
+          correct, feedback = grade_short_answer(xml_questions[xml_index], answers[index])  
+        elsif type == "essay_question"
+          correct, feedback = grade_essay(xml_questions[xml_index], answers[index])  
         elsif type == "multiple_answers_question"
-          correct = grade_multiple_answers(xml_questions[xml_index], answers[index])
+          correct, feedback = grade_multiple_answers(xml_questions[xml_index], answers[index])
         elsif type == "matching_question"
-          correct = grade_matching(xml_questions[xml_index], answers[index])
+          correct, feedback = grade_matching(xml_questions[xml_index], answers[index])
         end
         if correct
           answered_correctly += 1
         end
         correct_list[index] = correct
+	feedback_list[index] = feedback
         confidence_level_list[index] = question["confidenceLevel"]
 
         if item = assessment.items.find_by(identifier: question["id"])
@@ -93,98 +112,53 @@ class Api::GradesController < Api::ApiController
     end
 
     score = Float(answered_correctly) / Float(questions.length)
-    canvas_score = score
+    lti_score = score
     score *= Float(100)
+
+    params = {
+      'lis_result_sourcedid'    => settings["lisResultSourceDid"],
+      'lis_outcome_service_url' => settings["lisOutcomeServiceUrl"],
+      'user_id'                 => settings["lisUserId"]
+    }
+    
+    submission_status = "Unknown error"
+    if settings["isLti"]
+      begin
+          provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
+    
+          # post the given score to the TC
+          lti_score = (lti_score != '' ? lti_score.to_s : nil)
+          p lti_score
+          p provider.inspect
+          # debugger
+    
+          res = provider.post_replace_result!(lti_score)
+    
+          # Need to figure out error handling - these will need to be passed to the client
+          # or we can also post scores async using activejob in which case we'll want to
+          # log any errors and make them visible in the admin ui
+          success = res.success?
+	  submission_status = (success) ? "Graded posted successfully" : "There was an error posting the grade: #{res.inspect}"
+          # debugger
+      rescue StandardError => bang
+           "Some error: #{bang}"
+      end
+    end
+
     graded_assessment = { 
       score: score,
       feedback: "Study Harder",
       correct_list: correct_list,
-      confidence_level_list: confidence_level_list
+      feedback_list: feedback_list,
+      confidence_level_list: confidence_level_list,
+      submission_status: submission_status
     }
 
-    params = {
-      'lis_result_sourcedid'    => session[:lis_result_sourcedid]    || settings[:lisResultSourceDid],
-      'lis_outcome_service_url' => session[:lis_outcome_service_url] || settings[:lisOutcomeSourceUrl],
-      'user_id'                 => session[:lis_user_id]             || settings[:lisUserId]
-    }
-    
-    if settings["isLti"]
-      provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-
-      # post the given score to the TC
-      canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
-
-      res = provider.post_replace_result!(canvas_score)
-
-      # Need to figure out error handling - these will need to be passed to the client
-      # or we can also post scores async using activejob in which case we'll want to
-      # log any errors and make them visible in the admin ui
-      success = res.success?
-    end
     # Ping analytics server
+    # TODO Send xAPI statement
     respond_to do |format|
       format.json { render json: graded_assessment }
     end
-  end
-
-  private
-  def get_xml_index(id, xml_questions)
-    xml_questions.each_with_index do |question, index|
-      if question.attributes["ident"].value == id
-        return index
-      end
-    end
-    return -1
-  end
-  def grade_multiple_choice(question, answer) 
-    correct = false;
-    choices = question.children.xpath("respcondition")
-    choices.each_with_index do |choice, index|
-      
-      # if the students response id matches the correct response id for the question the answer is correct
-      if choice.xpath("setvar")[0].children.text == "100" && answer == choice.xpath("conditionvar").xpath("varequal").children.text
-        correct = true;
-      end
-    end
-    correct
-  end
-
-  def grade_multiple_answers(question, answers)
-    correct = false;
-    choices = question.children.xpath("respcondition").children.xpath("and").xpath("varequal")
-    correct_count = 0
-    total_correct = choices.length
-    # if the answers to many or to few then return false
-    if answers.length != total_correct
-      return correct
-    end 
-    choices.each_with_index do |choice, index|
-      if answers.include?(choice.text)
-        correct_count += 1;
-      end
-    end
-    if correct_count == total_correct
-      correct = true
-    end
-
-    correct
-  end
-
-  def grade_matching(question, answers)
-    correct = false;
-    choices = question.children.xpath("respcondition")
-    total_correct = choices.length
-    correct_count = 0
-    choices.each_with_index do |choice, index|
-      if answers[index] && choice.xpath("conditionvar").xpath("varequal").children.text == answers[index]["answerId"]
-        correct_count += 1
-      end
-    end
-    if correct_count == total_correct
-      correct = true
-    end
-
-    correct
   end
   
 end

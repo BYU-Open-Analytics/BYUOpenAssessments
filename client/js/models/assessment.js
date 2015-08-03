@@ -70,6 +70,12 @@ export default class Assessment{
   }
 
   static checkAnswer(item, selectedAnswers){
+    return {
+      feedbacks: "",
+      score: 0,
+      correct: false
+    };
+
     // TODO implement checkAnswer, checkMultipleChoiceAnswer, and all other answer related methods.
     // There's still quite a bit of the ember code left. We'll need to pass values to this 
     // method rather than call things like settings.get. ItemResult.create should be moved to an action and use api.js

@@ -26,7 +26,8 @@ class Api::XapiController < ApplicationController
     
     # render text: '<b>Test xapi request: ' + params.inspect + '</b><br/>Statement: ' + statement + '<br/>Code: ' + response.code + '<br/>Response: ' + response.body + '<br />'
     # render text: '<b>Test UNSENT xapi request: ' + params.inspect + '</b><br/>User info: ' + current_user.inspect + session.inspect + '<br/>Statement: ' + statement.to_json + '<br/>Code: ' + response.code + '<br/>Response: ' + response.body + '<br />'
-    render text: "Test UNSENT xapi statement: \n#{request.body}\n Response: " + response.body
+    # render text: "Test UNSENT xapi statement: \n#{request.body}\n Response: " + response.body
+    render text: response.body
     # respond_to do |format|
       # format.json { render json: @accounts }
     # end

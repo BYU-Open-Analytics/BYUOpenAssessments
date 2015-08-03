@@ -30,14 +30,18 @@ export default {
 
   progressDropdownBoxShadow: "0px 0px 20px 0px rgba(0,0,0,0.2)",
 
-  shouldShowAttempts: true,
-  shouldShowProgressText: false,
-  shouldShowCounter: false,
-  shouldShowNextPrevious: false,
+  shouldShowAttempts: false,
+  shouldShowProgressText: true,
+  shouldShowCounter: true,
+  shouldShowNextPrevious: true,
   shouldShowFooter: false,
 
   correctBackgroundColor: "rgba(113, 184, 137, 0.2)",
   incorrectBackgroundColor: "rgba(207, 0, 0, 0.2)",
   correctBorder: "1px solid rgb(113, 184, 137)",
   incorrectBorder: "1px solid rgb(207, 0, 0)",
+  partialBorder: "1px solid rgb(255, 255, 0)",
+  partialBackgroundColor: "rgba(255, 255, 0, 0.2)",
+  partialColor: "rgb(255, 255, 0)",
+  outcomesBackgroundColor: "rgba(204, 204, 204, .2)",
 }

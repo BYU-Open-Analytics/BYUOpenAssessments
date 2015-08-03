@@ -1,4 +1,4 @@
 #!/bin/bash
-cd client && webpack --config webpack.release.js --progress --colors
-bundle exec rake assets:precompile
+cd client && time webpack --config webpack.release.js --progress --colors
+time bundle exec rake assets:precompile
 rails s

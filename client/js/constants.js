@@ -18,6 +18,8 @@ export default {
   ASSESSMENT_PREVIOUS_QUESTION: "assessment_previous_question",
   ASSESSMENT_START: "assessment_start",
   ASSESSMENT_CHECK_ANSWER: "assessment_check_answer",
+  ASSESSMENT_CHECK_ANSWER_REMOTELY: "assessment_check_answer_remotely",
+  ASSESSMENT_ANSWER_REMOTELY_CHECKED: "assessment_answer_remotely_checked",
   ASSESSMENT_VIEWED: "assessment_viewed",
   ASSESSMENT_SUBMITTED: "assessment_submitted",
   ANSWER_SELECTED: "answer_selected",
@@ -27,6 +29,7 @@ export default {
   EDX_LOAD_ITEM: "edx_load_item",
   EDX_LOAD_ASSESSMENT: "edx_load_assessment",
   QUESTION_SELECTED: "question_selected",
+  RETAKE_ASSESSMENT: "retake_assessment",
 
   ADD_MESSAGE: "add_message",
   REMOVE_MESSAGE: "remove_message",

@@ -15,7 +15,7 @@ export default class RadioButton extends React.Component{
     return {
       btnQuestion:{
         whiteSpace: theme.btnQuestionWhiteSpace,
-        background: props.isDisabled? "transparent" : theme.btnQuestionBackground,
+        background: "transparent",//props.isDisabled? "transparent" : theme.btnQuestionBackground,
         color: theme.btnQuestionColor,
         textAlign: theme.btnQuestionTextAlign,
         padding: theme.btnQuestionPadding,
@@ -40,10 +40,21 @@ export default class RadioButton extends React.Component{
     }
   }
   render(){
+    //console.log("radio)button:45 not setting checked properly this, assessmentstore",this,AssessmentStore,AssessmentStore.allStudentAnswers());
     var styles = this.getStyles(this.props, this.context.theme)
-    var checked = (this.props.item.id == AssessmentStore.studentAnswers()["answer"]) ? "true" : null;
-    console.log(this.props.isDisabled);
-    var radio = !this.props.isDisabled ? <input type="radio" defaultChecked={checked} name={this.props.name} onClick={()=>{ this.answerSelected() }}/> : <input type="radio" disabled="true" defaultChecked={checked} name={this.props.name} onClick={()=>{ this.answerSelected() }}/>;
+    var checked = null;
+    if (this.props.question.question_index != null) {
+	    //This is for assessment result screen, where just getting the current question's answer won't work (unless this happens to be the last question the user answered), so we need to manually pass in the question index to look up the answer
+	    //console.log("radio:48 we have question id "+this.props.question.question_index,AssessmentStore.allStudentAnswers());
+            checked = (this.props.item.id == AssessmentStore.allStudentAnswers()[this.props.question.question_index]["answer"]) ? "true" : null;
+    } else {
+	    checked = (this.props.item.id == AssessmentStore.studentAnswers()["answer"]) ? "true" : null;
+    }
+    //console.log("checked: ",checked);
+    var radio = !this.props.isDisabled ? <input type="radio" defaultChecked={checked} name={this.props.name} onClick={()=>{ this.answerSelected() }}/> : <b></b>;//<input type="radio" disabled="true" defaultChecked={checked} name={this.props.name} onClick={()=>{ this.answerSelected() }}/>;
+    if (checked && this.props.isDisabled) {
+	    styles.btnQuestion.border = "solid gray 1px";
+    }
     return (
       
       <div className="btn btn-block btn-question" style={styles.btnQuestion}>

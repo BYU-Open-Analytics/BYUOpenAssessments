@@ -20,12 +20,13 @@ const STARTED = 4;
 var _assessment = null;
 var _assessmentXml = null;
 var _items = [];
+var _outcomes = [];
 var _assessmentResult = null;
 var _assessmentState = NOT_LOADED;
 var _startedAt;
-var _finishedAt
+var _finishedAt;
 var _selectedConfidenceLevel = 0;
-var _selectedAnswerIds = [];
+var _selectedAnswerIds = "";
 var _answerMessageIndex = -1;
 var _answerMessageFeedback = "";
 var _sectionIndex = 0;
@@ -59,13 +60,25 @@ function selectAnswer(item){
   } else if (_items[_itemIndex].question_type == "short_answer_question") {
 	  //Put the value passed in from the textbox (item) as our only answer choice in the question (_items[_itemIndex]), and set selected answer id to 0 so we'll check if what they typed matches the correct answer.
 	  _items[_itemIndex].answers = [{"material":item}];
-	  _selectedAnswerIds = 0;
+	  //_selectedAnswerIds = 0;
+	  _selectedAnswerIds = item;
 	  //console.log("stores/assessment.js 61");
   } else if (_items[_itemIndex].question_type == "essay_question") {
 	  _items[_itemIndex].answers = [{"material":item}];
-	  _selectedAnswerIds = 0;
-	  //console.log("stores/assessment.js 66",item);
+	  //_selectedAnswerIds = 0;
+	  //console.log("stores/assessment.js:69 textarea answer selected",item);
+	  _selectedAnswerIds = item;
   }
+}
+
+function loadOutcomes(assessment){
+  var outcomes = assessment.sections.map((section)=>{
+    if(section.outcome != "root section"){
+      return section.outcome;
+    }
+  });
+  outcomes = _.drop(outcomes);
+  return outcomes;
 }
 
 function updateMatchingAnswer(item){
@@ -87,22 +100,6 @@ function setUpStudentAnswers(numOfQuestions){
   }
 }
 
-function clearStore(){
-  _assessment = null;
-  _assessmentXml = null;
-  _items = [];
-  _assessmentResult = null;
-  _assessmentState = NO_LOADED;
-  _startedAt;
-  _selectedConfidenceLevel = 0;
-  _selectedAnswerIds = [];
-  _answerMessageIndex = -1;
-  _answerMessageFeedback = "";
-  _sectionIndex = 0;
-  _itemIndex = 0;
-  _studentAnswers = [];
-}
-
 function calculateTime(start, end){
   return end - start;
 };
@@ -120,6 +117,20 @@ function getItems(sections, perSec){
     }
   }
   return items;
+}
+
+function checkCompletion(){
+  var questionsNotAnswered = [];
+  for (var i = 0; i < _studentAnswers.length; i++) {
+    if(_studentAnswers[i]["answer"] == null || _studentAnswers[i]["answer"].length == 0){
+      
+      questionsNotAnswered.push(i+1);
+    }
+  };
+  if(questionsNotAnswered.length > 0){
+    return questionsNotAnswered;
+  }
+  return true;
 }
 
 // Extend User Store with EventEmitter to add eventing capabilities
@@ -189,6 +200,10 @@ var AssessmentStore = assign({}, StoreCommon, {
     return _startedAt;
   },
 
+  outcomes(){
+    return _outcomes;
+  },
+
   timeSpent(){
     var time = _finishedAt - _startedAt;
     var minutes = Math.floor(time/1000/60);
@@ -228,6 +243,7 @@ Dispatcher.register(function(payload) {
             } else {
               _items = _assessment.sections[_sectionIndex].items
             }
+            _outcomes = loadOutcomes(_assessment);
             setUpStudentAnswers(_items.length)
           }
           _assessmentState = LOADED;
@@ -243,6 +259,7 @@ Dispatcher.register(function(payload) {
       break;
 
     case Constants.ASSESSMENT_CHECK_ANSWER:
+      //console.log("store/assessment:248 checking answer");
       var answer = checkAnswer();
       if(answer != null && answer.correct) {
         _answerMessageIndex = 1;
@@ -250,6 +267,52 @@ Dispatcher.register(function(payload) {
       } else if (answer != null && !answer.correct) {
         _answerMessageIndex = 0;
 	_answerMessageFeedback = answer.feedbacks;
+      }
+      break;
+    
+    case Constants.ASSESSMENT_CHECK_ANSWER_REMOTELY:
+      _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
+      // show spinner
+      _answerMessageIndex = "loading";
+      break;
+
+    case Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED:
+      //console.log("store/assessment:274 question graded",JSON.parse(payload.data.text));
+      var result = JSON.parse(payload.data.text);
+      //console.log("stores/assessment:284 want to ensure question is the same",result.question_id,_itemIndex,_items[_itemIndex].id);
+      if (result.error == null && result.correct != null) {
+	      // Ensure that we received a result for the question that we're still displaying
+	      if (result.question_id==_items[_itemIndex].id) {
+		      if(result.correct) {
+			_answerMessageIndex = 1;
+			_answerMessageFeedback = result.feedback;
+		      } else {
+			_answerMessageIndex = 0;
+			_answerMessageFeedback = result.feedback;
+		      }
+		      // Send xapi question answered statement here
+		      var statementBody = {"confidenceLevel":result.confidence_level,"questionId":_itemIndex,"correct":result.correct,"questionType":_items[_itemIndex].question_type}
+		      statementBody["duration"] = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _items[_itemIndex].startTime) / 10) );
+		      if (_items[_itemIndex].question_type == "essay_question" || _items[_itemIndex].question_type == "short_answer_question") {
+			statementBody["answerGiven"] = (_studentAnswers[_itemIndex]["answer"] != null) ? _studentAnswers[_itemIndex]["answer"].trim() : "";
+		      } else {
+			statementBody["answerGiven"] = _selectedAnswerIds;
+			for (var i=0; i<_items[_itemIndex].answers.length; i++) {
+				if (_items[_itemIndex].answers[i].id == _selectedAnswerIds) {
+					statementBody["answerGiven"] = _items[_itemIndex].answers[i].material.trim();
+					break;
+				}
+			}
+		      }
+		      //console.log("stores/assessment:339 sending question answered",statementBody);
+		      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
+	      } else {
+		      //User must have navigated to a different question before check finished, so ignore this
+		      //console.log("stores/assessment:313 answer check ignored; different question");
+	      }
+      } else {
+	      // TODO something in case of an error checking question
+	      _answerMessageIndex = "error";
       }
       break;
 
@@ -310,15 +373,30 @@ Dispatcher.register(function(payload) {
 
     case Constants.ASSESSMENT_GRADED:
       parseAssessmentResult(payload.data.text);
+      //console.log("stores/assessment:316 assessment graded");
+      var correct_list = _assessmentResult.correct_list;
+      var numCorrect = 0;
+      var numTotal = correct_list.length;
+      var complete = checkCompletion();
+      for (var i=0; i<numTotal; i++) {
+	      if (correct_list[i] == true) {
+		      numCorrect++;
+	      }
+      }
+      var statementBody = {};
+      statementBody.duration = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - _startedAt) /10 ));
+      statementBody.scaledScore = numCorrect / numTotal;
+      statementBody.questionsTotal = numTotal;
+      statementBody.questionsAnswered = (complete == true) ? numTotal : numTotal - complete.length;
+      statementBody.questionsCorrect = numCorrect;
+      //console.log("store/assessment:345 statement body",statementBody);
+      setTimeout(function() { XapiActions.sendAssessmentCompletedStatement(statementBody); }, 1);
       break;
     case Constants.ASSESSMENT_SUBMITTED:
       _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime());
       _finishedAt = Utils.currentTime(); 
       break;
-
-    case Constants.CLEAR_STORE:
-      clearStore();
-      break;
+      
     case Constants.LEVEL_SELECTED:
       _items[_itemIndex].confidenceLevel = payload.level;
       // if(payload.index ==  _items.length - 1){
@@ -346,7 +424,7 @@ Dispatcher.register(function(payload) {
 	}
       }
       //console.log("stores/assessment:339 sending question answered",statementBody);
-      setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
+      //setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       break;
     case Constants.QUESTION_SELECTED:
         _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
@@ -356,6 +434,16 @@ Dispatcher.register(function(payload) {
         _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
         _answerMessageIndex = -1;
 	_answerMessageFeedback  = "";
+      break;
+    case Constants.RETAKE_ASSESSMENT:
+      _assessmentResult = null;
+      _studentAnswers = [];
+      _itemIndex = 0;
+      _sectionIndex = 0;
+      _selectedAnswerIds = [];
+      for(var i=0; i<_items.length; i++){
+        _items[i].confidenceLevel = null;
+      }
       break;
     default:
       return true;

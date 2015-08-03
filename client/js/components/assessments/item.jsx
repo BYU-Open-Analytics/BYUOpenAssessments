@@ -19,34 +19,48 @@ export default class Item extends BaseComponent{
     this.setState({unAnsweredQuestions: null})
     XapiActions.sendNextStatement(this.props);
     AssessmentActions.nextQuestion();
+    this.setState({showMessage: false});
   }
 
   previousButtonClicked(){
     this.setState({unAnsweredQuestions: null})
     XapiActions.sendPreviousStatement(this.props);
     AssessmentActions.previousQuestion();
+    this.setState({showMessage: false});
   }
 
   confidenceLevelClicked(e, currentIndex){
-    e.preventDefault()
-    AssessmentActions.checkAnswer();
+    e.preventDefault();
+    //AssessmentActions.checkAnswer();
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
-    //console.log("item.jsx:34",this.props,e.target.value);
-      //We have to send the statement in stores/assessment.js:335 instead of here on the confidence button click handler because this statement needs to know the result of checkAnswer. The confidence button does call that, but it sends a dispatch, which won't necessarily be finished in time.
-    //XapiActions.sendQuestionAnsweredStatement(this.props);
-    //AssessmentActions.nextQuestion(); 
+    this.checkAnswerRemotely();
+  }
+  
+  checkAnswerRemotely() {
+    //Store a reference to this function so we can call it in the timeout and get the actual answer that otherwise wouldn't be in here because we're calling it too soon (I think that's why it otherwise doesn't work).
+    var studentAnswersFunction = AssessmentStore.studentAnswers;
+    var body = [this.props.assessment.id, this.props.assessment.assessmentId, this.props.question, null, this.props.settings];
+    setTimeout( function() {
+	    //console.log("item.jsx:35 want to send stuff for remote answer checking",studentAnswersFunction()["answer"],body);
+	    AssessmentActions.checkAnswerRemotely(body[0], body[1], body[2], studentAnswersFunction()["answer"], body[4]);
+    }, 1);
+
   }
 
   submitButtonClicked(e){
     //This will save the answer of the current question so it can be correctly marked as complete
-    AssessmentActions.nextQuestion(); 
-    AssessmentActions.checkAnswer();
-    if (this.props.currentIndex < this.props.questionCount - 1) {
+    if (this.props.currentIndex > 0) {
+	    AssessmentActions.previousQuestion(); 
+	    AssessmentActions.checkAnswer();
+	    AssessmentActions.nextQuestion();
+    } else {
+	    AssessmentActions.nextQuestion();
+	    AssessmentActions.checkAnswer();
 	    AssessmentActions.previousQuestion();
     }
+
     e.preventDefault()
 
-    //console.log("components/assessments/item:42",this);
     var numTotal = this.props.questionCount;
     var numCorrect = 0;
     for (var i = 0; i < this.props.studentAnswers.length; i++) {
@@ -54,18 +68,12 @@ export default class Item extends BaseComponent{
 		numCorrect += 1;
 	}
     }
-    //TODO this doesn't take into account answers that were entered but never checked (by clicking confidence button). Don't necessarily want to check all answers for them, since we'll be logging (via xAPI) all answer checks. So maybe put a flag for checkAnswer, or a different action constant?
-    console.log("components/assessments/item:43 got " + numCorrect + " correct out of " + numTotal + " total questions. Score of " + this.props.score*100 + "%.");
+    //console.log("components/assessments/item:43 got " + numCorrect + " correct out of " + numTotal + " total questions. Score of " + this.props.score*100 + "%.");
     var complete = this.checkCompletion();
     var confirmMessage = (complete == true) ? "You have answered all questions. Submit the quiz?" : "You left the following questions blank: " + this.formatUnansweredString(complete) + ". Submit the quiz anyway?";
     if (confirm(confirmMessage)) {
-      this.props.score = numCorrect / numTotal;
-      this.props.questionsCorrect = numCorrect;
-      this.props.questionsAnswered = (complete == true) ? numTotal : numTotal - complete.length;
-      this.props.timeSpent = Utils.centisecsToISODuration(Math.round( (Utils.currentTime() - this.props.startTime) /10 ));
-      this.props.timestamp = new Date().toISOString();
+      this.setState({loading: true});
       AssessmentActions.submitAssessment(this.props.assessment.id, this.props.assessment.assessmentId, this.props.allQuestions, this.props.studentAnswers, this.props.settings);
-      XapiActions.sendCompletionStatement(this.props);
     } else if (complete != true) {
       this.setState({unAnsweredQuestions: complete});
     }
@@ -103,7 +111,7 @@ export default class Item extends BaseComponent{
       navMargin = "-75px 20px 0 0";
     return {
       assessmentContainer:{
-        marginTop: "70px",
+        marginTop: this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE" ?  "20px" : "100px",
         boxShadow: theme.assessmentContainerBoxShadow, 
         borderRadius: theme.assessmentContainerBorderRadius
       },
@@ -111,7 +119,8 @@ export default class Item extends BaseComponent{
         backgroundColor: theme.headerBackgroundColor
       },
       fullQuestion:{
-        backgroundColor: theme.fullQuestionBackgroundColor
+        backgroundColor: this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE" ? theme.outcomesBackgroundColor : theme.fullQuestionBackgroundColor,
+        paddingBottom: "20px",
       },
       questionText: {
         fontSize: theme.questionTextFontSize,
@@ -186,7 +195,25 @@ export default class Item extends BaseComponent{
         height: theme.footerHeight,
         width: "100px",
         float: "right"
-      }
+      },
+      icon: {
+        height: "62px",
+        width: "62px",
+        fontColor: theme.probablyBackgroundColor
+      },
+      data: {
+        marginTop: "-5px"
+      },
+      selfCheck: {
+        fontSize: "140%"
+      },
+      checkDiv: {
+        backgroundColor: theme.probablyBackgroundColor,
+        margin: "20px 0px 0px 0px"
+      },
+      h4: {
+        color: "white"
+      },
     }
   }
   getFooterNav(theme, styles){
@@ -219,13 +246,13 @@ export default class Item extends BaseComponent{
       var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to save and check your answer.</b></div>;
       return    (<div className="confidence_wrapper" style={styles.confidenceWrapper}>
                   {levelMessage}
-                  <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e) }}/>
+                  <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e, this.props.currentIndex) }}/>
                   <input type="button" style={{...styles.margin, ...styles.probablyButton}} className="btn btn-check-answer" value="Pretty Sure" onClick={(e) => { this.confidenceLevelClicked(e, this.props.currentIndex) }}/>
                   <input type="button" style={{...styles.margin, ...styles.definitelyButton}} className="btn btn-check-answer" value="Very Sure" onClick={(e) => { this.confidenceLevelClicked(e, this.props.currentIndex) }}/>
                 </div>
                 );
     } else {
-      return <div className="lower_level"><input type="button" className="btn btn-check-answer" value="Check Answer" onClick={() => { AssessmentActions.checkAnswer()}}/></div>
+      return <div className="lower_level"><input type="button" className="btn btn-check-answer" value="Check Answer" onClick={() => { this.checkAnswerRemotely(); }}/></div>
     }
   }
 
@@ -262,6 +289,11 @@ export default class Item extends BaseComponent{
                   <p></p>
                 </div>;
     }
+    else if(index == "loading") {
+      result =  <div className="check_answer_result answer_result_loading">
+                  <img src={this.props.settings.images.spinner_gif} /><p>Checking...</p>
+                </div>;
+    }
     else if(index == 0){
       result =  <div className="check_answer_result answer_result_incorrect">
                   <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
@@ -280,11 +312,13 @@ export default class Item extends BaseComponent{
   render() {
     var styles = this.getStyles(this.context.theme);
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
-    var result = this.getResult(this.props.messageIndex,this.props.messageFeedback);
+    var result = this.getResult(this.props.messageIndex, this.props.messageFeedback);
+    var message = this.state && this.state.showMessage ? <div style={styles.warning}>You must select an answer before continuing.</div> : "";
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
-    var submitButton = <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
+    //console.log("item:327 render",this.state);
+    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.spinner_gif} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
     var footer = this.getFooterNav(this.context.theme, styles);
     
     // Get the confidence Level
@@ -298,7 +332,35 @@ export default class Item extends BaseComponent{
     if(this.context.theme.shouldShowCounter){
       counter = <span className="counter">{this.props.currentIndex + 1} of {this.props.questionCount}</span>
     }
-
+    var formativeHeader = ""
+    if(this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE"){
+      formativeHeader =             
+          <div>
+            <div className="row">
+              <div className="col-md-1"><img style={styles.icon} src={this.props.settings.images.QuizIcon_svg} /></div>
+              <div className="col-md-10" style={styles.data}>
+                <div>PRIMARY OUTCOME TITLE</div>
+                <div style={styles.selfCheck}><b>Self-Check</b></div>
+                <div>{"this.props.primaryOutcome.longOutcome"}</div>
+              </div>
+            </div>
+            <hr />
+            <div className="row">
+              <div className="col-md-12">
+                <h5 style={{color: this.context.theme.definitelyBackgroundColor}}>INTRODUCTION</h5>
+                <div>Click "Check Your Understanding" to start</div>
+              </div>
+            </div>
+            <div className="row" style={styles.checkDiv}>
+              <div className="col-md-10">
+                <h4 style={styles.h4}>{this.props.assessment.title}</h4>
+              </div>
+              <div className="col-md-2">
+              </div>
+            </div>
+          </div>
+    }
+    var formativeStyle = this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE" ? {padding: "20px"} : {};
     return (
       <div className="assessment_container" style={styles.assessmentContainer}>
         <div className="question">
@@ -306,32 +368,36 @@ export default class Item extends BaseComponent{
             {counter}
             <p>{this.props.question.title}</p>
           </div>
-          <form className="edit_item">
-            <div className="full_question" style={styles.fullQuestion}>
-              <div className="inner_question">
-                <div className="question_text" style={styles.questionText}>
-                  <div
-                    dangerouslySetInnerHTML={{
-                  __html: this.props.question.material
-                  }}>
+          <div style={formativeStyle}>
+            {formativeHeader}
+            <div className="edit_item">
+              <div className="full_question" style={styles.fullQuestion}>
+                <div className="inner_question">
+                  <div className="question_text" style={styles.questionText}>
+                    <div
+                      dangerouslySetInnerHTML={{
+                    __html: this.props.question.material
+                    }}>
+                    </div>
                   </div>
+                  <UniversalInput item={this.props.question} isResult={false}/>
                 </div>
-                <UniversalInput item={this.props.question} isResult={false}/>
-              </div>
-              {result}
-              {buttons}
-              {unAnsweredWarning}
-              <div style={styles.submitButtonDiv}>
-                {submitButton}
+                {result}
+                {buttons}
+                {unAnsweredWarning}
+                {message}
+                <div style={styles.submitButtonDiv}>
+                  {submitButton}
+                </div>
               </div>
             </div>
-          </form>
-          <div className="nav_buttons" style={styles.navButtons}>
-            {previousButton}
-            {nextButton}
+            <div className="nav_buttons" style={styles.navButtons}>
+              {previousButton}
+              {nextButton}
+            </div>
           </div>
+          {footer}
         </div>
-        {footer}
       </div>
     );
   }
@@ -344,7 +410,8 @@ Item.propTypes = {
   questionCount    : React.PropTypes.number.isRequired,
   messageIndex     : React.PropTypes.number.isRequired,
   messageFeedback  : React.PropTypes.string.isRequired,
-  confidenceLevels : React.PropTypes.bool.isRequired
+  confidenceLevels : React.PropTypes.bool.isRequired,
+  outcomes         : React.PropTypes.object
 };
 
 Item.contextTypes = {

@@ -67,20 +67,35 @@ export default {
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_CHECK_ANSWER });
   },
 
+  checkAnswerRemotely(identifier, assessmentId, question, answer, settings,){
+    Dispatcher.dispatch({ action: Constants.ASSESSMENT_CHECK_ANSWER_REMOTELY });
+    var body = {
+      itemToGrade: {
+	question     : question,
+        answer       : answer,
+        assessmentId : assessmentId,
+        identifier   : identifier,
+        settings     : settings
+      }
+    }
+    //console.log("actions/asssessment:81 sending remote check",body);
+    Api.post(Constants.ASSESSMENT_ANSWER_REMOTELY_CHECKED, 'api/check_question', body);
+  },
+
   selectConfidenceLevel(level, index){
     Dispatcher.dispatch({action: Constants.LEVEL_SELECTED, level: level, index: index});
   },
   
-  submitAssessment(identifier, assessmentId, questions, studentAnswers, settings){
+  submitAssessment(identifier, assessmentId, questions, studentAnswers, settings, outcomes){
     Dispatcher.dispatch({action: Constants.ASSESSMENT_SUBMITTED})
-    //TODO extract ["answer"] out of studentAnswers, since that schema was changed to allow for local grading.
     var body = {
       itemToGrade: {
         questions    : questions,
         answers      : studentAnswers,
         assessmentId : assessmentId,
         identifier   : identifier,
-        settings     : settings
+        settings     : settings,
+        outcomes     : outcomes
       }
     }
     Api.post(Constants.ASSESSMENT_GRADED,'api/grades', body);
@@ -92,6 +107,10 @@ export default {
 
   previousQuestion(){
     Dispatcher.dispatch({ action: Constants.ASSESSMENT_PREVIOUS_QUESTION });
+  },
+
+  retakeAssessment(){
+    Dispatcher.dispatch({action: Constants.RETAKE_ASSESSMENT})
   },
   
   assessmentViewed(settings, assessment){

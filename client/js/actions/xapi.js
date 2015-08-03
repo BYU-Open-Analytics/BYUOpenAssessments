@@ -30,17 +30,17 @@ export default {
 	//Api.post(Constants.SEND_ASSESSMENT_LAUNCHED_STATEMENT, "api/xapi", body);
   },
 
-  sendCompletionStatement(item) {
+  sendAssessmentCompletedStatement(item) {
 	var body = {
 		statementName        : "assessmentCompleted",
-		duration             : item.timeSpent,
-		scaledScore          : item.score,
-		questionsTotal       : item.questionCount,
+		duration             : item.duration,
+		scaledScore          : item.scaledScore,
+		questionsTotal       : item.questionsTotal,
 		questionsAnswered    : item.questionsAnswered,
 		questionsCorrect     : item.questionsCorrect
 	};
 	body = this.addStandardStatementBody(body);
-	//console.log("actions/xapi:22 sending completion",item,body);
+	//console.log("actions/xapi:43 sending completed",item,body);
 	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
 	//Dispatcher.dispatch({ action: Constants.SEND_COMPLETION_STATEMENT, statement: body})
 	//Api.post(Constants.SEND_COMPLETION_STATEMENT, "api/xapi", body);
@@ -95,7 +95,7 @@ export default {
   },
 	
   sendQuestionAnsweredStatement(item) {
-	//console.log("actions/xapi:78 sending question answered statement",item);
+	//console.log("actions/xapi:98 sending question answered statement",item);
 	var confidenceLevel = {"Just A Guess":"low","Pretty Sure":"medium","Very Sure":"high"}[item.confidenceLevel];
 
 	var body = {

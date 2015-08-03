@@ -9,10 +9,10 @@ export default class CheckUnderstanding extends React.Component{
     AssessmentActions.start(eid, assessmentId);
   }
 
-  getStyles(theme){
+  getStyles(props, theme){
     return {
       assessmentContainer:{
-        marginTop: "70px",
+        marginTop: "30px",
         boxShadow: theme.assessmentContainerBoxShadow, 
         borderRadius: theme.assessmentContainerBorderRadius
       },
@@ -20,15 +20,19 @@ export default class CheckUnderstanding extends React.Component{
         backgroundColor: theme.headerBackgroundColor
       },
       startButton: {
-        margin: "",
+        margin: "3px 5px 0px -5px",
         width: theme.definitelyWidth,
         backgroundColor: theme.definitelyBackgroundColor
       },
+      checkUnderstandingButton: {
+        backgroundColor: theme.maybeBackgroundColor
+      },
       fullQuestion:{
-        backgroundColor: theme.fullQuestionBackgroundColor
+        backgroundColor: theme.fullQuestionBackgroundColor,
+        padding: "20px"
       },
       buttonWrapper: {
-        textAlign: "center"
+        textAlign: props.assessmentKind.toUpperCase() != "SUMMATIVE" ? "left" : "center"
       },
       attempts:{
         margin: "20px auto",
@@ -45,8 +49,39 @@ export default class CheckUnderstanding extends React.Component{
       },
       attemptsContainer: {
         textAlign: "center"
+      },
+      swyk: {
+        // posistion: "absolute",
+        // top: "20px",
+        // left: "20px"
+        marginBottom: "25px",
+        marginTop: "-25px"
+      },
+      icon: {
+        height: "62px",
+        width: "62px",
+        fontColor: theme.probablyBackgroundColor
+      },
+      formative: {
+        padding: "0px 30px 20px 30px",
+        marginTop: "-20px"
+      },
+      data: {
+        marginTop: "-5px"
+      },
+      checkDiv: {
+        backgroundColor: theme.probablyBackgroundColor,
+        margin: "20px 0px 0px 0px"
+      },
+      selfCheck: {
+        fontSize: "140%"
+      },
+      h4: {
+        color: "white"
+      },
+      images: {
+        greenQuizIcon: "greenQuizIcon",
       }
-
     }
   }
 
@@ -84,14 +119,62 @@ export default class CheckUnderstanding extends React.Component{
       </div>)
   }
 
+  getSWYK(styles){
+    return  <div style={styles.swyk}>
+              <h2>Show What You Know</h2>
+              <div>This pre-test can help you decide where to focus your studying and is purely for your< /div>
+              <div>information. You will not receive a grade.</div>
+            </div>
+  }
+
+  getFormative(styles){
+
+    return <div style={styles.formative}>
+            <div className="row">
+              <div className="col-md-1"><img style={styles.icon} src={this.props.icon} /></div>
+              <div className="col-md-10" style={styles.data}>
+                <div>PRIMARY OUTCOME TITLE</div>
+                <div style={styles.selfCheck}><b>Self-Check</b></div>
+                <div>{this.props.primaryOutcome.longOutcome}</div>
+              </div>
+            </div>
+            <hr />
+            <div className="row">
+              <div className="col-md-12">
+                <h5 style={{color: this.context.theme.definitelyBackgroundColor}}>INTRODUCTION</h5>
+                <div>Click "Check Your Understanding" to start</div>
+              </div>
+            </div>
+            <div className="row" style={styles.checkDiv}>
+              <div className="col-md-10">
+                <h4 style={styles.h4}>{this.props.title}</h4>
+              </div>
+              <div className="col-md-2">
+                <button style={{...styles.startButton, ...styles.checkUnderstandingButton}} className="btn btn-info" onClick={()=>{this.start(this.props.eid, this.props.assessmentId)}}>Start Quiz</button>
+              </div>
+            </div>
+           </div>
+  }
+
   render() {
-    var styles = this.getStyles(this.context.theme);
-    var attempts = this.getAttempts(this.context.theme, styles, this.props);
+    var styles = this.getStyles(this.props, this.context.theme);
+
+    var content = "There has been an error, contact your system administrator.";
+    if(this.props.assessmentKind.toUpperCase() == "SUMMATIVE"){
+      content = this.getAttempts(this.context.theme, styles, this.props);
+    } else if(this.props.assessmentKind.toUpperCase() == "SHOW_WHAT_YOU_KNOW"){
+      content = this.getSWYK(styles);
+    } else if(this.props.assessmentKind.toUpperCase() == "FORMATIVE"){
+      content = this.getFormative(styles);
+    }
     var startButton = (
       <div style={styles.buttonWrapper}>
         <button style={styles.startButton} className="btn btn-info" onClick={()=>{this.start(this.props.eid, this.props.assessmentId)}}>Start Quiz</button>
       </div>)
-    if (this.props.userAttempts == this.props.maxAttempts){
+    if (this.props.userAttempts == this.props.maxAttempts && this.props.assessmentKind.toUpperCase() == "SUMMATIVE"){
+      startButton = "";
+    }
+    if (this.props.assessmentKind.toUpperCase() == "FORMATIVE"){
       startButton = "";
     }
     return (
@@ -101,7 +184,7 @@ export default class CheckUnderstanding extends React.Component{
             <p>{this.props.name}</p>
           </div>
           <div className="full_question" style={styles.fullQuestion}>
-            {attempts}
+            {content}
             {startButton}
           </div>
         </div>

@@ -66,6 +66,7 @@ Rails.application.routes.draw do
     resources :assessment_results
     resources :item_results
     resources :grades
+    resources :check_question
     resources :assessment_settings
   end
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150723150919) do
+ActiveRecord::Schema.define(version: 20150730045024) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "name"
@@ -98,7 +98,7 @@ ActiveRecord::Schema.define(version: 20150723150919) do
     t.string   "license"
     t.string   "keywords"
     t.integer  "account_id"
-    t.string   "kind",               default: "sumative"
+    t.string   "kind",               default: "formative"
   end
 
   add_index "assessments", ["account_id"], name: "index_assessments_on_account_id", using: :btree

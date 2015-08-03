@@ -31,7 +31,7 @@ export default class UniversalInput extends React.Component{
       panel: {
         position: theme.panelPosition,
         marginBottom: theme.panelMarginBottom,
-        backgroundColor: props.isResult ? "transparent" : theme.panelBackgroundColor,
+        backgroundColor: "transparent",//props.isResult ? "transparent" : theme.panelBackgroundColor,
         border: theme.panelBorder,
         borderRadius: theme.panelBorderRadius,
         boxShadow: theme.panelBoxShadow,
@@ -43,10 +43,11 @@ export default class UniversalInput extends React.Component{
         borderTopRightRadius: theme.panelHeadingBorderTopRightRadius,
         borderTopLeftRadius: theme.panelHeadingBorderTopLeftRadius,
         textAlign: theme.panelHeadingTextAlign,
-        backgroundColor: props.isResult ? "transparent" : theme.panelHeadingBackgroundColor,
+        backgroundColor: "transparent" //props.isResult ? "transparent" : theme.panelHeadingBackgroundColor,
       },
       panelBody: {
-        padding: theme.panelBodyPadding
+        padding: theme.panelBodyPadding,
+        marginTop: "-20px",
       }
     }
   }
@@ -84,7 +85,8 @@ export default class UniversalInput extends React.Component{
       case "multiple_choice_question":
       case "true_false_question":
         items = item.answers.map((answer) => {
-          return <RadioButton isDisabled={this.props.isResult} key={item.id + "_" + answer.id} item={answer} name="answer-radio"/>;
+          //console.log("universal_input:87 want result radio selected",answer,item);
+          return <RadioButton isDisabled={this.props.isResult} key={item.id + "_" + answer.id} question={item} item={answer} name="answer-radio"/>;
         });
         break;
       case "edx_dropdown":
@@ -97,11 +99,11 @@ export default class UniversalInput extends React.Component{
         break;
       case "short_answer_question":
       	//console.log("universal_input:99 render short answer question",item);
-        items = <TextField key={item.id} item={item} name="answer-text"/>;
+        items = <TextField isDisabled={this.props.isResult} key={item.id} item={item} name="answer-text"/>;
         break;
       case "essay_question":
       	//console.log("universal_input:103 render essay question",item);
-        items = <TextArea key={item.id} item={item} name="answer-essay"/>;
+        items = <TextArea isDisabled={this.props.isResult} key={item.id} item={item} name="answer-essay"/>;
       	break;
       case "edx_numerical_input":
       case "edx_text_input":

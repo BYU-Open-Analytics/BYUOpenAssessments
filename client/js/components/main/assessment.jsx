@@ -41,6 +41,7 @@ export default class Assessment extends BaseComponent{
       messageFeedback      : AssessmentStore.answerMessageFeedback(),
       studentAnswers       : AssessmentStore.allStudentAnswers(),
       allQuestions         : AssessmentStore.allQuestions(),
+      outcomes             : AssessmentStore.outcomes()
     }
   }
 
@@ -51,17 +52,19 @@ export default class Assessment extends BaseComponent{
       AssessmentActions.assessmentViewed(this.state.settings, this.state.assessment);  
     }
     // Send assessment launched statement
-    console.log("assessment:52 launched statement?");
+    //console.log("assessment:52 launched statement?");
     XapiActions.sendAssessmentLaunchedStatement({});
     //Code taken from https://facebook.github.io/react/tips/dom-event-listeners.html
     window.addEventListener("focus", this.handleWindowFocus);
     window.addEventListener("blur", this.handleWindowBlur);
+    window.addEventListener("beforeunload", this.handleWindowBeforeUnload);
   }
 
   componentWillUnmount(){
       super.componentWillUnmount();
       window.removeEventListener("focus", this.handleWindowFocus);
       window.removeEventListener("blur", this.handleWindowBlur);
+      window.removeEventListener("beforeunload", this.handleWindowBeforeUnload);
   }
 
   checkProgress(current, total){
@@ -70,14 +73,23 @@ export default class Assessment extends BaseComponent{
 
   handleWindowFocus(e){
     var questionId = (AssessmentStore.currentIndex() != null) ? AssessmentStore.currentIndex() : 0;
-    console.log("assessment:73 resume question "+questionId);
+    //console.log("assessment:73 resume question "+(questionId+1));
     XapiActions.sendAssessmentResumedStatement({"questionId":questionId});
   }
 
   handleWindowBlur(e){
     var questionId = (AssessmentStore.currentIndex() != null) ? AssessmentStore.currentIndex() : 0;
-    console.log("assessment:73 suspend question "+questionId);
+    //console.log("assessment:73 suspend question "+(questionId+1));
     XapiActions.sendAssessmentSuspendedStatement({"questionId":questionId});
+  }
+
+  handleWindowBeforeUnload(e){
+	// Warn user before leaving assessment that hasn't been submitted yet
+	if(AssessmentStore.assessmentResult() == null){
+		var confirmationMessage = "You haven't finished submitting your quiz. You still need to click \"Submit Quiz\" to finish turning it in. Do you want to leave this page anyway?";
+		(e || window.event).returnValue = confirmationMessage; //Gecko + IE
+		return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+	}
   }
 
   getStyles(theme){
@@ -93,29 +105,47 @@ export default class Assessment extends BaseComponent{
         padding: theme.assessmentPadding,
         backgroundColor: theme.assessmentBackground,
       },
-      titleBar: {
+      progressContainer: {
         padding: "10px 20px 10px 20px",
         position: "absolute",
         left: "0px",
-        top: "0px",
+        top: "44px",
         width: "100%",
         backgroundColor: theme.titleBarBackgroundColor,
       },
+      titleBar: {
+        position: "absolute",
+        top: "0px",
+        left: "0px",
+        width: "100%",
+        padding: "10px 20px 10px 20px",
+        backgroundColor: theme.probablyBackgroundColor,
+        color: "white",
+        fontSize: "130%",
+        //fontWeight: "bold"
+      }
     }
   }
 
   render(){
     var styles = this.getStyles(this.context.theme)
     var content;
+    var progressBar;
+    var titleBar;
     if(!this.state.isLoaded){
       content = <Loading />;  
     } else if(this.state.showStart){
-      content = <CheckUnderstanding 
-        name={this.state.question.name}
-        maxAttempts={this.state.settings.allowedAttempts} 
-        userAttempts={this.state.settings.userAttempts} 
-        eid={this.state.settings.lisUserId}
-        assessmentId={this.state.assessment.assessmentId}/>;
+        content         = <CheckUnderstanding
+        title           = {this.state.assessment.title} 
+        name            = {this.state.question.name}
+        maxAttempts     = {this.state.settings.allowedAttempts} 
+        userAttempts    = {this.state.settings.userAttempts} 
+        eid             = {this.state.settings.lisUserId}
+        assessmentId    = {this.state.assessment.assessmentId}
+        assessmentKind  = {this.state.settings.assessmentKind} 
+        primaryOutcome  = {this.state.outcomes[0]}
+        icon            = {this.state.settings.images.QuizIcon_svg}/>;
+        progressBar = "";
         
     } else {
       content = <Item 
@@ -130,26 +160,27 @@ export default class Assessment extends BaseComponent{
         allQuestions     = {this.state.allQuestions}
 	startTime        = {this.state.startTime}
         studentAnswers   = {this.state.studentAnswers} 
-        confidenceLevels = {this.state.settings.confidenceLevels}/>;
+        confidenceLevels = {this.state.settings.confidenceLevels}
+        outcomes         = {this.state.outcomes}/>;
+        progressBar = <div style={styles.progressContainer}>
+                        {progressText}                                                                                                        
+                        <ProgressDropdown questions={this.state.allQuestions} currentQuestion={this.state.currentIndex + 1} questionCount={this.state.questionCount} />
+                      </div>;
       // TODO figure out when to mark an item as viewed. assessmentResult must be valid before this call is made.
       // AssessmentActions.itemViewed(this.state.settings, this.state.assessment, this.state.assessmentResult);
     }
     
     var percentCompleted = this.checkProgress(this.state.currentIndex, this.state.questionCount);
     var progressStyle = {width:percentCompleted+"%"};
-
     var progressText = "";
-    
+    var titleBar = this.state.settings.assessmentKind.toUpperCase() === "FORMATIVE" ?  "" : <div style={styles.titleBar}>{this.state.assessment ? this.state.assessment.title : ""}</div>;
     if(this.state.assessment){
       progressText = this.context.theme.shouldShowProgressText ? <div><b>{this.state.assessment.title + " Progress"}</b>{" - You are on question " + (this.state.currentIndex + 1) + " of " + this.state.questionCount}</div> : ""; 
     }
-
+    progressBar = this.state.settings.assessmentKind.toUpperCase() === "FORMATIVE" ? "" : progressBar;
     return <div className="assessment" style={styles.assessment}>
-      <div style={styles.titleBar}>
-      {progressText}
-        
-        <ProgressDropdown questions={this.state.allQuestions} currentQuestion={this.state.currentIndex + 1} questionCount={this.state.questionCount} />
-      </div>
+      {titleBar}
+      {progressBar}
       <div className="section_list">
         <div className="section_container">
           {content}
