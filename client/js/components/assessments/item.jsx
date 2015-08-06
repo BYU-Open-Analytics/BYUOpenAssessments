@@ -83,7 +83,6 @@ export default class Item extends BaseComponent{
     var questionsNotAnswered = [];
     for (var i = 0; i < this.props.studentAnswers.length; i++) {
       if(this.props.studentAnswers[i]["answer"] == null || this.props.studentAnswers[i]["answer"].length == 0){
-        
         questionsNotAnswered.push(i+1);
       }
     };
@@ -112,7 +111,7 @@ export default class Item extends BaseComponent{
     return {
       assessmentContainer:{
         marginTop: this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE" ?  "20px" : "100px",
-        boxShadow: theme.assessmentContainerBoxShadow, 
+        boxShadow: theme.assessmentContainerBoxShadow,
         borderRadius: theme.assessmentContainerBorderRadius
       },
       header: {
@@ -148,6 +147,11 @@ export default class Item extends BaseComponent{
         backgroundColor: theme.definitelyBackgroundColor,
         color: theme.definitelyColor,
       },
+      submitButton: {
+        width: theme.definitelyWidth,
+        backgroundColor: (this.checkCompletion() == true) ? theme.submitBackgroundColor : "#bbb",
+        color: theme.definitelyColor,
+      },
       confidenceWrapper: {
 
         border: theme.confidenceWrapperBorder,
@@ -165,7 +169,8 @@ export default class Item extends BaseComponent{
         margin: navMargin
       },
       submitButtonDiv: {
-        marginLeft: theme.confidenceWrapperMargin
+        marginLeft: "40px",
+        marginTop: "16px"
       },
       warning: {
         margin: theme.confidenceWrapperMargin,
@@ -214,6 +219,11 @@ export default class Item extends BaseComponent{
       h4: {
         color: "white"
       },
+      chooseText: {
+        color: "grey",
+        fontSize: "90%",
+        paddingBottom: "20px"
+      }
     }
   }
   getFooterNav(theme, styles){
@@ -235,7 +245,7 @@ export default class Item extends BaseComponent{
 
   getWarning(state, questionCount, questionIndex, styles){
     if(state && state.unAnsweredQuestions && state.unAnsweredQuestions.length > 0 && questionIndex + 1 == questionCount){
-      return <div style={styles.warning}>You left questions ({state.unAnsweredQuestions.join()}) blank. Please answer all questions then come back and submit.</div>
+      return <div style={styles.warning}>You left question(s) {state.unAnsweredQuestions.join()} blank. Use the "Progress" drop-down menu at the top to go back and answer the question(s), then come back and submit.</div>
     }
 
     return "";
@@ -243,7 +253,7 @@ export default class Item extends BaseComponent{
 
   getConfidenceLevels(level, styles){
     if(level){
-      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to save and check your answer.</b></div>;
+      var levelMessage = <div style={{marginBottom: "10px"}}><b>How sure are you of your answer? Click below to save and check your answer.</b></div>;
       return    (<div className="confidence_wrapper" style={styles.confidenceWrapper}>
                   {levelMessage}
                   <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e, this.props.currentIndex) }}/>
@@ -275,7 +285,7 @@ export default class Item extends BaseComponent{
       return previousButton;
     }
     previousButton =(<button className={prevButtonClassName} style={styles.previousButton} onClick={() => { this.previousButtonClicked() }}>
-                    <i className="glyphicon glyphicon-chevron-left"></i><span>Previous</span> 
+                    <i className="glyphicon glyphicon-chevron-left"></i><span>Previous</span>
                   </button>);
     return previousButton;
   }
@@ -318,11 +328,13 @@ export default class Item extends BaseComponent{
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
     //console.log("item:327 render",this.state);
-    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.spinner_gif} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
+    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.spinner_gif} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.submitButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
+    // From aug6merge for only showing button on last question.
+    // var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.submitButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit</button> : "";
     var footer = this.getFooterNav(this.context.theme, styles);
-    
+
     // Get the confidence Level
-    
+
     var nextButton = this.getNextButton(styles);
     var previousButton = this.getPreviousButton(styles);
 
@@ -334,22 +346,9 @@ export default class Item extends BaseComponent{
     }
     var formativeHeader = ""
     if(this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE"){
-      formativeHeader =             
+      formativeHeader =
           <div>
             <div className="row">
-              <div className="col-md-1"><img style={styles.icon} src={this.props.settings.images.QuizIcon_svg} /></div>
-              <div className="col-md-10" style={styles.data}>
-                <div>PRIMARY OUTCOME TITLE</div>
-                <div style={styles.selfCheck}><b>Self-Check</b></div>
-                <div>{"this.props.primaryOutcome.longOutcome"}</div>
-              </div>
-            </div>
-            <hr />
-            <div className="row">
-              <div className="col-md-12">
-                <h5 style={{color: this.context.theme.definitelyBackgroundColor}}>INTRODUCTION</h5>
-                <div>Click "Check Your Understanding" to start</div>
-              </div>
             </div>
             <div className="row" style={styles.checkDiv}>
               <div className="col-md-10">
@@ -360,7 +359,7 @@ export default class Item extends BaseComponent{
             </div>
           </div>
     }
-    var formativeStyle = this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE" ? {padding: "20px"} : {};
+    var formativeStyle = this.props.settings.assessmentKind.toUpperCase() == "FORMATIVE" ? {padding: "0px 20px 20px 20px"} : {};
     return (
       <div className="assessment_container" style={styles.assessmentContainer}>
         <div className="question">
@@ -382,12 +381,13 @@ export default class Item extends BaseComponent{
                   </div>
                   <UniversalInput item={this.props.question} isResult={false}/>
                 </div>
-                {result}
-                {buttons}
-                {unAnsweredWarning}
-                {message}
-                <div style={styles.submitButtonDiv}>
-                  {submitButton}
+                <div className="row">
+                  <div className="col-md-6">
+                    {result}
+                    {buttons}
+                    {unAnsweredWarning}
+                    {message}
+                  </div>
                 </div>
               </div>
             </div>
@@ -395,6 +395,9 @@ export default class Item extends BaseComponent{
               {previousButton}
               {nextButton}
             </div>
+	    <div style={styles.submitButtonDiv}>
+	      {submitButton}
+	    </div>
           </div>
           {footer}
         </div>
@@ -404,7 +407,7 @@ export default class Item extends BaseComponent{
 
 }
 
-Item.propTypes = { 
+Item.propTypes = {
   question         : React.PropTypes.object.isRequired,
   currentIndex     : React.PropTypes.number.isRequired,
   questionCount    : React.PropTypes.number.isRequired,

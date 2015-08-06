@@ -1,6 +1,8 @@
 class Api::GradesController < Api::ApiController
   include QuestionCheckHelper
   
+  skip_before_action :validate_token, only: [:create]
+  
   def create
 
     # store lis stuff in session
@@ -12,10 +14,12 @@ class Api::GradesController < Api::ApiController
     outcomes = item_to_grade["outcomes"]
     assessment = Assessment.find(assessment_id)
     doc = Nokogiri::XML(assessment.assessment_xmls.where(kind: "formative").last.xml)
+    previous_result = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).first : nil
     doc.remove_namespaces!
     xml_questions = doc.xpath("//item")
-
+    errors = []
     result = assessment.assessment_results.build
+    result.user = current_user
     result.save!
     settings = item_to_grade["settings"]
     correct_list = []
@@ -28,6 +32,7 @@ class Api::GradesController < Api::ApiController
     answers = item_to_grade["answers"].collect {|a| a["answer"]}
     ungraded_questions = []
     xml_index_list = []
+    
     questions.each_with_index do |question, index|
 
       # make sure we are looking at the right question
@@ -117,38 +122,64 @@ class Api::GradesController < Api::ApiController
     end
 
     score = Float(answered_correctly) / Float(questions.length)
-    lti_score = score
+    canvas_score = score
     score *= Float(100)
 
+    #save the assessment result incase lti writeback failed.
+    result.score = score
+    result.external_user_id = params["external_user_id"]
+    result.save!
     params = {
       'lis_result_sourcedid'    => settings["lisResultSourceDid"],
       'lis_outcome_service_url' => settings["lisOutcomeServiceUrl"],
       'user_id'                 => settings["lisUserId"]
     }
-    
+
+    success = false;
     submission_status = "Unknown error"
-    if settings["isLti"]
+
+    higher_grade = true
+
+    if previous_result.present? && previous_result.score > score
+      higher_grade = false
+    end
+    # TODO find out a better way to do this. This will work just fine as long as there is a max of 2 attempts.
+    if settings["isLti"] # && settings["assessmentKind"].upcase == "SUMMATIVE" && higher_grade
       begin
-          provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-    
-          # post the given score to the TC
-          lti_score = (lti_score != '' ? lti_score.to_s : nil)
-          p lti_score
-          p provider.inspect
-          # debugger
-    
-          res = provider.post_replace_result!(lti_score)
-    
-          # Need to figure out error handling - these will need to be passed to the client
-          # or we can also post scores async using activejob in which case we'll want to
-          # log any errors and make them visible in the admin ui
-          success = res.success?
-	  submission_status = (success) ? "Grade posted via LTI successfully" : "There was an error posting the grade: #{res.inspect}"
-          # debugger
-      rescue StandardError => bang
-           "Some error: #{bang}"
+      provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
+      # post the given score to the TC
+      canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
+
+      res = provider.post_replace_result!(canvas_score)
+
+      # Need to figure out error handling - these will need to be passed to the client
+      # or we can also post scores async using activejob in which case we'll want to
+      # log any errors and make them visible in the admin ui
+      success = res.success?
+      rescue => e
+        begin
+        provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
+
+        # post the given score to the TC
+        canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
+
+        res = provider.post_replace_result!(canvas_score)
+
+        # Need to figure out error handling - these will need to be passed to the client
+        # or we can also post scores async using activejob in which case we'll want to
+        # log any errors and make them visible in the admin ui
+        success = res.success?
+        rescue => e
+          errors.push(e.message)
+        end
+      end
+
+      submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.code_major}."
+      if !success
+        errors.push("Grade writeback failed.")
       end
     end
+
 
     graded_assessment = { 
       score: score,
@@ -162,9 +193,10 @@ class Api::GradesController < Api::ApiController
       xml_questions: xml_questions,
       xml_index_list: xml_index_list,
       questions: questions,
-      doc: doc
+      doc: doc,
+      lti_params: params,
+      errors: errors
     }
-
     respond_to do |format|
       format.json { render json: graded_assessment }
     end

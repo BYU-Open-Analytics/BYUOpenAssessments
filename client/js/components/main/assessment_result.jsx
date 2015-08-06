@@ -6,9 +6,10 @@ import SettingsStore      from "../../stores/settings";
 import BaseComponent      from "../base_component";
 import AssessmentActions  from "../../actions/assessment";
 import ItemResult         from "./item_result";
+import $                  from "jquery";
 
 export default class AssessmentResult extends BaseComponent{
- 
+
   constructor(props, context){
     super(props, context);
     this._bind("getItemResults", "getStyles", "getOutcomeLists", "getContent", "getFormativeContent", "retake");
@@ -17,20 +18,27 @@ export default class AssessmentResult extends BaseComponent{
   }
 
   getState(props, context){
-    
+
     return {
       assessmentResult : AssessmentStore.assessmentResult(),
       timeSpent        : AssessmentStore.timeSpent(),
       questions        : AssessmentStore.allQuestions(),
       outcomes         : AssessmentStore.outcomes(),
       settings         : SettingsStore.current(),
-      assessment       : AssessmentStore.current(),  
+      assessment       : AssessmentStore.current(),
     }
   }
 
   retake(){
     AssessmentActions.retakeAssessment();
     this.context.router.transitionTo("assessment");
+  }
+
+  jump(e){
+    e.preventDefault();
+    $('iframe, html, body').animate({
+    scrollTop: $(document.getElementById("questionsStart")).offset().top
+    }, 500);
   }
 
   getStyles(theme){
@@ -51,7 +59,7 @@ export default class AssessmentResult extends BaseComponent{
         color: "#fff",
         borderRadius: "25px",
         textAlign: "center",
-        padding: "2%"
+        padding: "10px 20px 20px 20px"
       },
       improveScoreStyle:{
         color: "#f00"
@@ -83,7 +91,7 @@ export default class AssessmentResult extends BaseComponent{
         fontSize: "140%"
       },
       outcomes: {
-        backgroundColor: "rgba(204, 204, 204, .2)", 
+        backgroundColor: "rgba(204, 204, 204, .2)",
       },
       row: {
         padding: "15px"
@@ -118,7 +126,13 @@ export default class AssessmentResult extends BaseComponent{
         width: theme.definitelyWidth,
         backgroundColor: theme.definitelyBackgroundColor,
         color: theme.definitelyColor,
-      },      
+      },
+      jumpButton: {
+        marginTop: "10px",
+        width: theme.definitelyWidth,
+        backgroundColor: theme.submitBackgroundColor,
+        color: theme.definitelyColor,
+      },
         exitButton: {
         width: theme.definitelyWidth,
         backgroundColor: theme.probablyBackgroundColor,
@@ -128,6 +142,27 @@ export default class AssessmentResult extends BaseComponent{
       buttonsDiv: {
         marginTop: "20px",
         marginBottom: "50px"
+      },
+      titleBar: {
+        position: "absolute",
+        top: "0px",
+        left: "0px",
+        width: "100%",
+        padding: "10px 20px 10px 20px",
+        backgroundColor: theme.probablyBackgroundColor,
+        color: "white",
+        fontSize: "130%",
+        //fontWeight: "bold"
+      },
+      warningStyle: {
+        width: "100%",
+        padding:  "20px",
+        backgroundColor: theme.maybeBackgroundColor,
+        borderRadius: "4px",
+        marginTop: "30px",
+        color: "white",
+        fontWeight: "bold",
+        fontSize: "130%"
       }
     }
   }
@@ -197,26 +232,51 @@ export default class AssessmentResult extends BaseComponent{
     };
   }
 
-  getContent(styles, itemResults, outcomeLists){
+  // for sumative and swyk assessments
+  getContent(styles, itemResults, outcomeLists, contentData){
+
+    var errors = "";
+
+    if(this.state.assessmentResult.errors && this.state.assessmentResult.errors.length > 0){
+      errors =  <div className="row">
+                  <div className="col-md-12">
+                    <div style={styles.warningStyle}>
+                      This quiz was not setup correctly. Contact your instructor.
+                    </div>
+                  </div>
+                </div>
+    }
+
     return (<div style={styles.assessment}>
       <div style={styles.assessmentContainer}>
+        <div style={styles.titleBar}>{this.state.assessment ? this.state.assessment.title : ""}</div>
+        {errors}
         <div className="row" style={styles.wrapperStyle}>
 
           <div className="col-md-4" >
-            <h3><strong>Your Quiz Results</strong></h3>
+            <h3><strong>Your Score</strong></h3>
             <div style={styles.yourScoreStyle}>
-              <h5 style={styles.center}>Your Score</h5>
               <h1 style={styles.center}>{Math.floor(this.state.assessmentResult.score)}%</h1>
             </div>
+          </div>
+
+          <div className="col-md-4" >
+	    <h3>&nbsp;</h3>
             Time Spent: {this.state.timeSpent.minutes} mins {this.state.timeSpent.seconds} sec
             <br />
 	    {this.state.assessmentResult.submission_status}
 	    <br />
             You can review your answers below.
+            <div style={{clear: 'both'}}></div>
           </div>
+
+          <div className="col-md-4" >
+            {outcomeLists.negativeList}
+          </div>
+
         </div>
         <hr />
-        <div style={styles.resultsStyle}>
+        <div id="questionsStart" style={styles.resultsStyle}>
           {itemResults}
         </div>
 
@@ -253,59 +313,71 @@ export default class AssessmentResult extends BaseComponent{
       } else {
         confidenceColor = this.context.theme.definitelyBackgroundColor;
       }
-      return <div key={"result-"+index}>            
+      return <div key={"result-"+index}>
               <div style={styles.resultList}>
                 <div><div style={{color: color, float: "left", overflow: "auto"}}>Question {index+1} -- {message}</div><div style={{color: confidenceColor, float: "right", overflow: "auto"}}>{this.state.assessmentResult.confidence_level_list[index]}</div></div>
               </div>
-              <div style={{...styles.resultList, ...styles.resultOutcome}}>       
+              <div style={{...styles.resultList, ...styles.resultOutcome}}>
                 <div style={{width: "70%"}}>{this.state.questions[index].outcomes.longOutcome}</div>
               </div>
             </div>
-    })
+    });
+
     return <div style={styles.assessment}>
-        <div style={styles.assessmentContainer}>
-          <div style={styles.formative}>
-            <div className="row">
-              <div className="col-md-1"><img style={styles.icon} src={this.state.settings.images.QuizIcon_svg} /></div>
-              <div className="col-md-10" style={styles.data}>
-                <div>PRIMARY OUTCOME TITLE</div>
-                <div style={styles.selfCheck}><b>Self-Check</b></div>
-                <div>{this.state.outcomes[0].longOutcome}</div>
-              </div>
-            </div>
-            <hr />
-            <div className="row" style={styles.row}>
-              <div className="col-md-12" style={styles.outcomes}>
-                <div style={styles.header}>2.1 Excersize 2</div>
-                <div style={styles.outcomeContainer}>
-                  {image}
-                  {head}
-                  <div>{feedback}</div>
-                  <div>{results}</div>
-                  <div style={styles.buttonsDiv}>
-                    <button className="btn btn-check-answer" style={styles.retakeButton}  onClick={(e)=>{this.retake()}}>Retake</button>
-                    <button className="btn btn-check-answer" style={styles.exitButton}  onClick={(e)=>{this.retake()}}>Exit</button>
+            <div style={styles.assessmentContainer}>
+              <div style={styles.formative}>
+                <div className="row" style={styles.row}>
+                  <div className="col-md-12" style={styles.outcomes}>
+                    <div style={styles.header}>2.1 Excersize 2</div>
+                    <div style={styles.outcomeContainer}>
+                      {image}
+                      {head}
+                      <div>{feedback}</div>
+                      <div>{results}</div>
+                      <div style={styles.buttonsDiv}>
+                        <button className="btn btn-check-answer" style={styles.retakeButton}  onClick={(e)=>{this.retake()}}>Retake</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
   }
 
   render(){
-    var styles = this.getStyles(this.context.theme); 
+    var styles = this.getStyles(this.context.theme);
+    var content = "There has been an error, contact your system administrator.";
+    var contentData = {
+          goodWork:"Good Work on These Concepts",
+          moreToLearn:"There is Still More to Learn",
+          focusStudy:"Review these concepts before your last quiz attempt or to prepare for your next performance assessment."
+        }
+
+    if(this.state.settings.assessmentKind.toUpperCase() == "SHOW_WHAT_YOU_KNOW"){
+      contentData = {
+        goodWork: "What You Already Know",
+        moreToLearn: "What You Need to Learn",
+        focusStudy: "Focus enough study time on these concepts to learn them well."
+      }
+    }
+
+    if(this.state.assessmentResult == null){
+      return <div />
+    }
+
     var itemResults = this.getItemResults();
     var outcomeLists = this.getOutcomeLists(styles);
-    var content = <div />;
+    var content = <div/>;
+
     if(this.state.settings.assessmentKind.toUpperCase() == "FORMATIVE"){
       content = this.getFormativeContent(styles, outcomeLists);
     } else {
-      content = this.getContent(styles, itemResults, outcomeLists);
+      content = this.getContent(styles, itemResults, outcomeLists, contentData);
     }
-    return content;
-
+    return  <div>
+              {content}
+            </div>
   }
 }
 
@@ -313,3 +385,4 @@ AssessmentResult.contextTypes = {
   theme: React.PropTypes.object,
   router: React.PropTypes.func
 }
+
