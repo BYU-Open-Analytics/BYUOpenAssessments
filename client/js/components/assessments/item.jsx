@@ -151,7 +151,6 @@ export default class Item extends BaseComponent{
         width: theme.definitelyWidth,
         backgroundColor: theme.submitBackgroundColor,
         color: theme.definitelyColor,
-
       },
       confidenceWrapper: {
 
@@ -254,11 +253,7 @@ export default class Item extends BaseComponent{
 
   getConfidenceLevels(level, styles){
     if(level){
-<<<<<<< HEAD
-      var levelMessage = <div style={{marginBottom: "10px"}}><b>Choose your confidence level to save and check your answer.</b></div>;
-=======
-      var levelMessage = <div style={{marginBottom: "10px"}}><b>How sure are you of your answer? Click below to move forward.</b></div>;
->>>>>>> lumen/master
+      var levelMessage = <div style={{marginBottom: "10px"}}><b>How sure are you of your answer? Click below to save and check your answer.</b></div>;
       return    (<div className="confidence_wrapper" style={styles.confidenceWrapper}>
                   {levelMessage}
                   <input type="button" style={styles.maybeButton}className="btn btn-check-answer" value="Just A Guess" onClick={(e) => { this.confidenceLevelClicked(e, this.props.currentIndex) }}/>
@@ -330,14 +325,12 @@ export default class Item extends BaseComponent{
     var result = this.getResult(this.props.messageIndex, this.props.messageFeedback);
     var message = this.state && this.state.showMessage ? <div style={styles.warning}>You must select an answer before continuing.</div> : "";
     var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
-<<<<<<< HEAD
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
     //console.log("item:327 render",this.state);
-    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.spinner_gif} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
-=======
-    var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.submitButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit</button> : "";
->>>>>>> lumen/master
+    var submitButton = (this.state && this.state.loading == true) ? <span><img src={this.props.settings.images.spinner_gif} />&nbsp;&nbsp;&nbsp;Grading...</span> : <button className="btn btn-check-answer" style={styles.submitButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button>;
+    // From aug6merge for only showing button on last question.
+    // var submitButton = (this.props.currentIndex == this.props.questionCount - 1 && this.props.question.confidenceLevel) ? <button className="btn btn-check-answer" style={styles.submitButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit</button> : "";
     var footer = this.getFooterNav(this.context.theme, styles);
 
     // Get the confidence Level
@@ -396,11 +389,6 @@ export default class Item extends BaseComponent{
                     {unAnsweredWarning}
                     {message}
                   </div>
-                  <div className="col-md-6">
-                    <div style={styles.submitButtonDiv}>
-                      {submitButton}
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -408,6 +396,9 @@ export default class Item extends BaseComponent{
               {previousButton}
               {nextButton}
             </div>
+	    <div style={styles.submitButtonDiv}>
+	      {submitButton}
+	    </div>
           </div>
           {footer}
         </div>

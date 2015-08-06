@@ -147,7 +147,7 @@ class Api::GradesController < Api::ApiController
     if settings["isLti"] # && settings["assessmentKind"].upcase == "SUMMATIVE" && higher_grade
       begin
       provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-
+	debugger
       # post the given score to the TC
       canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
 
@@ -199,8 +199,6 @@ class Api::GradesController < Api::ApiController
       lti_params: params,
       errors: errors
     }
-    # Ping analytics server
->>>>>>> lumen/master
     respond_to do |format|
       format.json { render json: graded_assessment }
     end

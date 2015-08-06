@@ -39,8 +39,8 @@ export default class ItemResult extends React.Component{
         backgroundColor: theme.confidenceWrapperBackgroundColor,
       },
       answerResult: {
-        marginTop: "20px"
-        backgroundColor: theme.confidenceWrapperBackgroundColor,
+        marginTop: "20px",
+        backgroundColor: theme.confidenceWrapperBackgroundColor
       },
       correctLabel: {
         backgroundColor: labelColor,

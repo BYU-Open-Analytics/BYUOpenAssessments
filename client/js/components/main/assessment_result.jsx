@@ -258,24 +258,18 @@ export default class AssessmentResult extends BaseComponent{
             <div style={styles.yourScoreStyle}>
               <h1 style={styles.center}>{Math.floor(this.state.assessmentResult.score)}%</h1>
             </div>
+          </div>
+
+          <div className="col-md-4" >
             Time Spent: {this.state.timeSpent.minutes} mins {this.state.timeSpent.seconds} sec
             <br />
 	    {this.state.assessmentResult.submission_status}
 	    <br />
             You can review your answers below.
-            <button className="btn btn-check-answer" style={styles.jumpButton}  onClick={(e)=>{this.jump(e)}}>Jump To Questions</button>
-          </div>
-
-          <div className="col-md-4" >
-            <h3><strong>{contentData.goodWork}</strong></h3>
-            <p>You answered questions that covered these concepts correctly.</p>
-            {outcomeLists.positiveList}
             <div style={{clear: 'both'}}></div>
           </div>
 
           <div className="col-md-4" >
-            <h3 style={styles.improveScoreStyle}><strong>{contentData.moreToLearn}<i styleclassName="glyphicon glyphicon-warning-sign" ></i></strong></h3>
-            <p>{contentData.focusStudy}</p>
             {outcomeLists.negativeList}
           </div>
 
