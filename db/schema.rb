@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150730045024) do
+ActiveRecord::Schema.define(version: 20150804155730) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "name"
@@ -57,6 +57,7 @@ ActiveRecord::Schema.define(version: 20150730045024) do
     t.string   "keywords",           limit: 512
     t.string   "external_user_id"
     t.string   "objectives",         limit: 1024
+    t.float    "score"
   end
 
   add_index "assessment_results", ["assessment_id"], name: "index_assessment_results_on_assessment_id", using: :btree
