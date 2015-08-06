@@ -140,9 +140,9 @@ class Api::GradesController < Api::ApiController
 
     higher_grade = true
 
-    if previous_result.present? && previous_result.score > score
-      higher_grade = false
-    end
+    # if previous_result.present? && previous_result.score > score
+      # higher_grade = false
+    # end
     # TODO find out a better way to do this. This will work just fine as long as there is a max of 2 attempts.
     if settings["isLti"] # && settings["assessmentKind"].upcase == "SUMMATIVE" && higher_grade
       begin
