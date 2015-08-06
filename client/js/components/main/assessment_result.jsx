@@ -261,6 +261,7 @@ export default class AssessmentResult extends BaseComponent{
           </div>
 
           <div className="col-md-4" >
+	    <h3>&nbsp;</h3>
             Time Spent: {this.state.timeSpent.minutes} mins {this.state.timeSpent.seconds} sec
             <br />
 	    {this.state.assessmentResult.submission_status}

@@ -149,7 +149,7 @@ export default class Item extends BaseComponent{
       },
       submitButton: {
         width: theme.definitelyWidth,
-        backgroundColor: theme.submitBackgroundColor,
+        backgroundColor: (this.checkCompletion() == true) ? theme.submitBackgroundColor : "#bbb",
         color: theme.definitelyColor,
       },
       confidenceWrapper: {
@@ -170,7 +170,7 @@ export default class Item extends BaseComponent{
       },
       submitButtonDiv: {
         marginLeft: "40px",
-        marginTop: "86px"
+        marginTop: "16px"
       },
       warning: {
         margin: theme.confidenceWrapperMargin,
@@ -373,7 +373,6 @@ export default class Item extends BaseComponent{
               <div className="full_question" style={styles.fullQuestion}>
                 <div className="inner_question">
                   <div className="question_text" style={styles.questionText}>
-                    <div style={styles.chooseText}>Choose <b>ALL</b> that apply.</div>
                     <div
                       dangerouslySetInnerHTML={{
                     __html: this.props.question.material

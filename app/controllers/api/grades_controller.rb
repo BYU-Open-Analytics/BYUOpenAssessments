@@ -147,7 +147,6 @@ class Api::GradesController < Api::ApiController
     if settings["isLti"] # && settings["assessmentKind"].upcase == "SUMMATIVE" && higher_grade
       begin
       provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-	debugger
       # post the given score to the TC
       canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
 
@@ -171,12 +170,11 @@ class Api::GradesController < Api::ApiController
         # log any errors and make them visible in the admin ui
         success = res.success?
         rescue => e
-          
           errors.push(e.message)
         end
       end
 
-      submission_status = (success) ? "Grade posted via LTI successfully" : "There was an error posting the grade: #{res.inspect}"
+      submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.code_major}."
       if !success
         errors.push("Grade writeback failed.")
       end
