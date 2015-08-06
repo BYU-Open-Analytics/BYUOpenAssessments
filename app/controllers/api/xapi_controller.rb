@@ -10,18 +10,20 @@ class Api::XapiController < ApplicationController
   
     processed_statements = process_statement_queue(params["statements"])
     
-    uri = URI.parse("https://ec2-52-26-250-81.us-west-2.compute.amazonaws.com/lrs/data/xAPI/statements")
+    uri = URI.parse("#{Rails.application.secrets.lrs_endpoint}data/xAPI/statements")
     # uri = URI.parse("http://validate.jsontest.com")
 
     http = Net::HTTP.new(uri.host,uri.port)
-    http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    if uri.scheme == "https"
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    end
 
     request = Net::HTTP::Post.new(uri.request_uri)
     request["X-Experience-API-Version"] = "1.0.0"
     request["Content-Type"] = "application/json"
     request.body = processed_statements.to_json
-    request.basic_auth("2c74146ac94ceb9d7807fa3080e49bb98f53b1c9","4bd0bf1a080be1a1919e11398edbfcb6c20b692e")
+    request.basic_auth(Rails.application.secrets.lrs_username, Rails.application.secrets.lrs_password)
     response = http.request(request)
     
     # render text: '<b>Test xapi request: ' + params.inspect + '</b><br/>Statement: ' + statement + '<br/>Code: ' + response.code + '<br/>Response: ' + response.body + '<br />'
