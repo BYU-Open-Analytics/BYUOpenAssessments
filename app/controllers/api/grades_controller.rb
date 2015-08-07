@@ -14,7 +14,6 @@ class Api::GradesController < Api::ApiController
     outcomes = item_to_grade["outcomes"]
     assessment = Assessment.find(assessment_id)
     doc = Nokogiri::XML(assessment.assessment_xmls.where(kind: "formative").last.xml)
-    previous_result = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).first : nil
     doc.remove_namespaces!
     xml_questions = doc.xpath("//item")
     errors = []
@@ -140,11 +139,12 @@ class Api::GradesController < Api::ApiController
 
     higher_grade = true
 
-    # if previous_result.present? && previous_result.score > score
-      # higher_grade = false
-    # end
-    # TODO find out a better way to do this. This will work just fine as long as there is a max of 2 attempts.
-    if settings["isLti"] # && settings["assessmentKind"].upcase == "SUMMATIVE" && higher_grade
+    # If we have a higher score from any previous attempts, don't post this score back to LTI.
+    previous_results = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).where("score > ?", score).order(score: :desc) : nil
+    if previous_results != nil and previous_results.count > 0
+      higher_grade = false
+    end
+    if settings["isLti"] && higher_grade
       begin
       provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
       # post the given score to the TC
@@ -179,7 +179,6 @@ class Api::GradesController < Api::ApiController
         errors.push("Grade writeback failed.")
       end
     end
-
 
     graded_assessment = { 
       score: score,
