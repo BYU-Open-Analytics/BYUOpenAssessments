@@ -143,6 +143,7 @@ class Api::GradesController < Api::ApiController
     previous_results = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).where("score > ?", score).order(score: :desc) : nil
     if previous_results != nil and previous_results.count > 0
       higher_grade = false
+      submission_status = "Your higher score of #{previous_results.first.score}% was kept, and this score was not submitted."
     end
     if settings["isLti"] && higher_grade
       begin
@@ -151,6 +152,7 @@ class Api::GradesController < Api::ApiController
       canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
 
       res = provider.post_replace_result!(canvas_score)
+      debugger
 
       # Need to figure out error handling - these will need to be passed to the client
       # or we can also post scores async using activejob in which case we'll want to
@@ -174,7 +176,7 @@ class Api::GradesController < Api::ApiController
         end
       end
 
-      submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.code_major}."
+      submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.inspect}."
       if !success
         errors.push("Grade writeback failed.")
       end
