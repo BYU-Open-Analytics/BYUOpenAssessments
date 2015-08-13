@@ -139,29 +139,17 @@ class Api::GradesController < Api::ApiController
 
     higher_grade = true
 
-    # If we have a higher score from any previous attempts, don't post this score back to LTI.
-    previous_results = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).where("score > ?", score).order(score: :desc) : nil
-    if previous_results != nil and previous_results.count > 0
-      higher_grade = false
-      submission_status = "Your higher score of #{'%.2f' % previous_results.first.score}% was kept, and this score was not submitted."
-    end
-    if settings["isLti"] && !params['lis_outcome_service_url'].blank? && higher_grade
-      submission_status = "Unknown error"
-      begin
-      provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-      # post the given score to the TC
-      canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
-
-      res = provider.post_replace_result!(canvas_score)
-
-      # Need to figure out error handling - these will need to be passed to the client
-      # or we can also post scores async using activejob in which case we'll want to
-      # log any errors and make them visible in the admin ui
-      success = res.success?
-      rescue => e
+    if settings["isLti"] && !params['lis_outcome_service_url'].blank?
+      # If we have a higher score from any previous attempts, don't post this score back to LTI.
+      previous_results = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).where("score > ?", score).order(score: :desc) : nil
+      if previous_results != nil and previous_results.count > 0
+        higher_grade = false
+        submission_status = "Your higher score of #{'%.2f' % previous_results.first.score}% was kept, and this score was not submitted."
+      end
+      if higher_grade == true
+        submission_status = "Unknown error"
         begin
         provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
-
         # post the given score to the TC
         canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
 
@@ -172,13 +160,27 @@ class Api::GradesController < Api::ApiController
         # log any errors and make them visible in the admin ui
         success = res.success?
         rescue => e
-          errors.push(e.message)
-        end
-      end
+          begin
+          provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
 
-      submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.code_major}."
-      if !success
-        errors.push("Grade writeback failed.")
+          # post the given score to the TC
+          canvas_score = (canvas_score != '' ? canvas_score.to_s : nil)
+
+          res = provider.post_replace_result!(canvas_score)
+
+          # Need to figure out error handling - these will need to be passed to the client
+          # or we can also post scores async using activejob in which case we'll want to
+          # log any errors and make them visible in the admin ui
+          success = res.success?
+          rescue => e
+            errors.push(e.message)
+          end
+        end
+
+        submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.code_major}."
+        if !success
+          errors.push("Grade writeback failed.")
+        end
       end
     end
 
