@@ -135,6 +135,7 @@ class Api::GradesController < Api::ApiController
     }
 
     success = false;
+    submission_status = "For practice only. Grade not posted."
 
     higher_grade = true
 
@@ -179,8 +180,6 @@ class Api::GradesController < Api::ApiController
       if !success
         errors.push("Grade writeback failed.")
       end
-    else
-      submission_status = "For practice only. Grade not posted."
     end
 
 
