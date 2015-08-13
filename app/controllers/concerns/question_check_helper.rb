@@ -39,8 +39,8 @@ module QuestionCheckHelper
     choices.each_with_index do |choice, index|
         # Need to go through each varequal, since short answers can have multiple correct answers
         choice.children.xpath("varequal").each do |possibleAnswer|
-            # If this answer matches, set the corresponding feedback (if there is any)
-            if answer == possibleAnswer.text
+            # If this answer matches (case insensitive), set the corresponding feedback (if there is any)
+            if answer.casecmp(possibleAnswer.text) == 0
             	if choice.xpath("displayfeedback").count > 0
             		feedback += question.xpath("itemfeedback[@ident='#{choice.xpath("displayfeedback")[0]["linkrefid"]}']").text || ""
             	end
