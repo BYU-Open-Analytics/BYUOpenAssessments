@@ -135,7 +135,6 @@ class Api::GradesController < Api::ApiController
     }
 
     success = false;
-    submission_status = "Unknown error"
 
     higher_grade = true
 
@@ -145,7 +144,8 @@ class Api::GradesController < Api::ApiController
       higher_grade = false
       submission_status = "Your higher score of #{'%.2f' % previous_results.first.score}% was kept, and this score was not submitted."
     end
-    if settings["isLti"] && higher_grade
+    if settings["isLti"] && !params['lis_outcome_service_url'].blank? && higher_grade
+      submission_status = "Unknown error"
       begin
       provider = IMS::LTI::ToolProvider.new(current_account.lti_key, current_account.lti_secret, params)
       # post the given score to the TC
@@ -179,7 +179,10 @@ class Api::GradesController < Api::ApiController
       if !success
         errors.push("Grade writeback failed.")
       end
+    else
+      submission_status = "For practice only. Grade not posted."
     end
+
 
     graded_assessment = { 
       score: score,
