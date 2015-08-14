@@ -18,7 +18,7 @@ else
   accounts = [{
     code: 'byuopenassessmentsdev',
     name: 'BYU Open Assessments Dev',
-    domain: 'http://quizapp.local:8080',
+    domain: 'http://quizapp.site:8080',
     lti_key: 'byuopenassessments',
     lti_secret: 'd9d728a27969baea23d57811f83efa9d6a7dbc98bff1b4c0ba8ae6de35a95c5fdce88c69361526a1e0841842d632f27e430457e8b1592b39fa1b5db8039c1f9b',
     canvas_uri: 'https://canvas.instructure.com'
