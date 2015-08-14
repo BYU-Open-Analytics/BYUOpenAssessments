@@ -68,6 +68,7 @@ Rails.application.routes.draw do
     resources :grades
     resources :check_question
     resources :assessment_settings
+    resources :question_text
   end
 
   match '/proxy' => 'default#proxy', via: [:get, :post]
