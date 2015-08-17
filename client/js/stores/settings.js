@@ -65,6 +65,7 @@ function loadSettings(defaultSettings){
     csrfToken          : defaultSettings.csrfToken || null,
     allowedAttempts    : defaultSettings.allowed_attempts,
     userAttempts       : bestValue("user_attempts","userAttempts", 0),
+    questionFocus      : bestValue('question_focus', 'question_focus', 1),
     lisUserId          : defaultSettings.lis_user_id,
     lisResultSourceDid : defaultSettings.lis_result_sourcedid,
     lisOutcomeServiceUrl: defaultSettings.lis_outcome_service_url,

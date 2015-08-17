@@ -29,6 +29,7 @@ class AssessmentsController < ApplicationController
     @results_end_point = ensure_scheme(params[:results_end_point]) if params[:results_end_point].present?
     @style = params[:style] ? params[:style] :  ""
     @per_sec = params[:per_sec] ? params[:per_sec] : nil
+    @question_focus = params[:question_focus] ? params[:question_focus] : 0
     if params[:id].present? && !['load', 'offline'].include?(params[:id])
       @assessment = Assessment.where(id: params[:id], account: current_account).first
       @assessment_id = @assessment ? @assessment.id : params[:assessment_id] || 'null'

@@ -71,6 +71,17 @@ function selectAnswer(item){
   }
 }
 
+function selectQuestion(index) {
+    console.log("stores/assessment:75 selecting question "+index, _items, _itemIndex);
+    _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
+    _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
+    _itemIndex = index;
+    _items[_itemIndex].startTime = Utils.currentTime();
+    _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
+    _answerMessageIndex = -1;
+    _answerMessageFeedback  = "";
+}
+
 function loadOutcomes(assessment){
   var outcomes = assessment.sections.map((section)=>{
     if(section.outcome != "root section"){
@@ -264,6 +275,10 @@ Dispatcher.register(function(payload) {
             _items[0].startTime = Utils.currentTime()
             _startedAt = Utils.currentTime();
           }
+	  // Go to focus question for visualization launches
+	  //console.log("stores/assessment:278 selecting focus question", SettingsStore.current());
+	  // Minus 1 since human-normal question number is passed in
+	  selectQuestion(SettingsStore.current().questionFocus - 1);
         }
       }
       break;
@@ -437,13 +452,7 @@ Dispatcher.register(function(payload) {
       //setTimeout(function() { XapiActions.sendQuestionAnsweredStatement(statementBody); }, 1);
       break;
     case Constants.QUESTION_SELECTED:
-        _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
-        _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
-        _itemIndex = payload.index;
-        _items[_itemIndex].startTime = Utils.currentTime();
-        _selectedAnswerIds = _studentAnswers[_itemIndex]["answer"];
-        _answerMessageIndex = -1;
-	_answerMessageFeedback  = "";
+    	selectQuestion(payload.index);
       break;
     case Constants.RETAKE_ASSESSMENT:
       _assessmentResult = null;
