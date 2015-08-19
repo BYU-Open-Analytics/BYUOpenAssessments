@@ -87,6 +87,7 @@ class AssessmentsController < ApplicationController
         end
       end
     end
+    @referrer = request.referrer || "none"
     @is_lti ||= false
     @assessment_kind ||= params[:assessment_kind]
     # extract LTI values

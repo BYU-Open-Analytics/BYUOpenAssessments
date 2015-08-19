@@ -15,6 +15,7 @@ export default {
 	body["externalUserId"]       = SettingsStore.current()["externalUserId"];
 	body["resultsEndPoint"]      = SettingsStore.current()["resultsEndPoint"];
 	body["assessmentUrl"]        = SettingsStore.current()["srcUrl"];
+	body["referrer"]             = SettingsStore.current()["referrer"];
 	body["timestamp"]            = new Date().toISOString();
 	return body;
   },

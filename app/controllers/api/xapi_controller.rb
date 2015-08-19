@@ -187,6 +187,10 @@ class Api::XapiController < ApplicationController
 	    verb["id"] = verbAuthority + verbName
 	    verb["display"] = {"en-US"=>verbName.capitalize}
 
+	    # Include LTI launch referrer in all statements
+	    (context["extensions"] ||= {}).merge!("#{extensionAuthority}launch_referrer" => statement_params["referrer"])
+
+		p context
 	    # Include timestamp in all statements
 	    timestamp = statement_params["timestamp"] || Time.now.utc.iso8601
 
