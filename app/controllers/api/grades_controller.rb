@@ -179,7 +179,6 @@ class Api::GradesController < Api::ApiController
           end
         end
 
-	debugger
         submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.code_major}."
         if !success
           errors.push("Grade writeback failed.")
