@@ -133,6 +133,8 @@ class Api::GradesController < Api::ApiController
       'lis_outcome_service_url' => settings["lisOutcomeServiceUrl"],
       'user_id'                 => settings["lisUserId"]
     }
+    # Ampersand will get encoded weird in html output, which then gets passed through weird. This is just a stopgap fix.
+    params['lis_outcome_service_url'].gsub! '&amp;', '&'
 
     success = false;
     submission_status = "For practice only. Grade not posted."
@@ -177,6 +179,7 @@ class Api::GradesController < Api::ApiController
           end
         end
 
+	debugger
         submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.code_major}."
         if !success
           errors.push("Grade writeback failed.")
