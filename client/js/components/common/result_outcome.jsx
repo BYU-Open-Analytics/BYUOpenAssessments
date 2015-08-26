@@ -39,7 +39,7 @@ export default class ResultOutcome extends React.Component{
   render() {
     var styles = this.getStyles(this.props, this.context.theme)
     var text = this.props.correct === true ? "Covers this concept:" : "Review this concept:";
-    console.log(this.props.outcomes)
+    //console.log(this.props.outcomes)
     return (<div></div>);
     /* return (
       <div>

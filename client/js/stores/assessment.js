@@ -72,7 +72,7 @@ function selectAnswer(item){
 }
 
 function selectQuestion(index) {
-    console.log("stores/assessment:75 selecting question "+index, _items, _itemIndex);
+    //console.log("stores/assessment:75 selecting question "+index, _items, _itemIndex);
     _items[_itemIndex].timeSpent += calculateTime(_items[_itemIndex].startTime, Utils.currentTime()); 
     _studentAnswers[_itemIndex] = {"answer":_selectedAnswerIds,"correct":checkAnswer().correct};
     _itemIndex = index;

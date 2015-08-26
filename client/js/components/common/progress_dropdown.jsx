@@ -24,18 +24,18 @@ export default class ProgressDropdown extends BaseComponent{
   }
 
   selectQuestion(e,index){
-    console.log(index);
+    //console.log(index);
   }
 
   mouseOver(e){
     e.preventDefault()
-    console.log(e)
+    //console.log(e)
     e.target.style.backgroundColor = "grey";
     e.target.style.color = "white";
   }
 
   mouseOut(e){
-    console.log(e)
+    //console.log(e)
     e.target.style.backgroundColor = "white";
     e.target.style.color = "black";
   }
