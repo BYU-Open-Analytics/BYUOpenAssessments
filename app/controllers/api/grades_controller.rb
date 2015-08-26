@@ -141,7 +141,11 @@ class Api::GradesController < Api::ApiController
 
     higher_grade = true
 
-    if settings["isLti"] && !params['lis_outcome_service_url'].blank?
+    # TODO CHANGE THIS TO TRUE WHEN LEARNING SUITE LTI GRADE PASSBACK IS WORKING
+    attempt_lti = false
+    submission_status = ""
+
+    if attempt_lti && settings["isLti"] && !params['lis_outcome_service_url'].blank?
       # If we have a higher score from any previous attempts, don't post this score back to LTI.
       previous_results = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).where("score > ?", score).order(score: :desc) : nil
       if previous_results != nil and previous_results.count > 0
