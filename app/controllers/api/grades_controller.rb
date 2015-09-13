@@ -142,7 +142,7 @@ class Api::GradesController < Api::ApiController
     higher_grade = true
 
     # TODO CHANGE THIS TO TRUE WHEN LEARNING SUITE LTI GRADE PASSBACK IS WORKING
-    attempt_lti = false
+    attempt_lti = (assessment.id == 21)
     submission_status = ""
 
     if attempt_lti && settings["isLti"] && !params['lis_outcome_service_url'].blank?
