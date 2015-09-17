@@ -35,6 +35,7 @@ class Api::XapiController < ApplicationController
     # end
   end
 
+  # TODO remove these vestigial functions from the controller this one was based off of
   def create
     if @account.save
       respond_to do |format|
@@ -133,6 +134,27 @@ class Api::XapiController < ApplicationController
 			"extensions"		=> {"#{extensionAuthority}navigation_method" => statement_params["navigationMethod"]}
 		}
 
+	    when "questionAnswerShown"
+		# "showed-answer" and "showed-hint" aren't actual adlnet verbs, but it's too late to switch to a different verb authority now
+		verbName = "showed-answer"
+		object = {
+			"id"		=> "#{statement_params["assessmentUrl"]}##{statement_params["questionId"]}",
+			"definition"	=> {"name" => {"en-US" => "Question ##{statement_params["questionId"]} of assessment #{statement_params["assessmentId"]}"} }
+		}
+		context = {
+			"contextActivities"	=> {"parent" => { "id" => statement_params["assessmentUrl"]} }
+		}
+
+	    when "questionHintShown"
+		verbName = "showed-hint"
+		object = {
+			"id"		=> "#{statement_params["assessmentUrl"]}##{statement_params["questionId"]}",
+			"definition"	=> {"name" => {"en-US" => "Question ##{statement_params["questionId"]} of assessment #{statement_params["assessmentId"]}"} }
+		}
+		context = {
+			"contextActivities"	=> {"parent" => { "id" => statement_params["assessmentUrl"]} }
+		}
+
 	    when "assessmentSuspended"
 		verbName = "suspended"
 		object = {
@@ -162,7 +184,7 @@ class Api::XapiController < ApplicationController
 		context = {
 			"contextActivities" => {"parent" => {"id" => "http://example.com/course_uri_here"} }
 		}
-		# TODO implement completion, success, and raw/min/max (see xapi statement document)
+		# Include completion, success, and raw/min/max (see xapi statement document)
 		result = {
 			"completion"	=> (statement_params["questionsAnswered"] == statement_params["questionsTotal"]),
 			"success"	=> (statement_params["scaledScore"] > 0.5),
