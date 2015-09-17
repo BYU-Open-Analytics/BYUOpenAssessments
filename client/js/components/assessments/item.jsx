@@ -38,10 +38,12 @@ export default class Item extends BaseComponent{
 
   hintButtonClicked() {
     console.log("components/item:40 hint button clicked");
+    XapiActions.sendQuestionHintShownStatement(this.props);
   }
   
   answerButtonClicked() {
     console.log("components/item:44 answer button clicked");
+    XapiActions.sendQuestionAnswerShownStatement(this.props);
   }
 
   checkAnswerRemotely() {
@@ -156,14 +158,19 @@ export default class Item extends BaseComponent{
         color: theme.definitelyColor,
       },
       hintButton: {
-        width: theme.maybeWidth,
-        backgroundColor: theme.maybeBackgroundColor,
+        width: "100px",
+        backgroundColor: "#bbb",
         color: theme.maybeColor,
+	borderBottomRightRadius: "0px",
+	borderTopRightRadius: "0px",
+	borderRightColor: "white",
       },
       answerButton: {
-        width: theme.maybeWidth,
-        backgroundColor: theme.maybeBackgroundColor,
+        width: "100px",
+        backgroundColor: "#bbb",
         color: theme.maybeColor,
+	borderBottomLeftRadius: "0px",
+	borderTopLeftRadius: "0px",
       },
       submitButton: {
         width: theme.definitelyWidth,
@@ -355,8 +362,8 @@ export default class Item extends BaseComponent{
     var result = this.getResult(this.props.messageIndex, this.props.messageFeedback);
     var message = this.state && this.state.showMessage ? <div style={styles.warning}>You must select an answer before continuing.</div> : "";
     var confidenceButtons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
-    var hintButton = this.getHintButton();
-    var answerButton = this.getAnswerButton();
+    var hintButton = this.getHintButton(styles);
+    var answerButton = this.getAnswerButton(styles);
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
     //console.log("item:327 render",this.state);

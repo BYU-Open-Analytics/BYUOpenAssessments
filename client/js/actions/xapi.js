@@ -115,6 +115,32 @@ export default {
 	//Api.post(Constants.SEND_QUESTION_ANSWERED_STATEMENT, "api/xapi", body);
   },
 
+  sendQuestionAnswerShownStatement(item) {
+	console.log("actions/xapi:110 sending answer shown statement",item);
+	var body = {
+		statementName        : "questionAnswerShown",
+		questionId           : item.currentIndex
+	};
+	body = this.addStandardStatementBody(body);
+	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
+	//Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
+  },
+
+  sendQuestionHintShownStatement(item) {
+	console.log("actions/xapi:132 sending hint shown statement",item);
+	var body = {
+		statementName        : "questionHintShown",
+		questionId           : item.currentIndex
+	};
+	body = this.addStandardStatementBody(body);
+	//console.log(body);
+	Dispatcher.dispatch({ action: Constants.ENQUEUE_STATEMENT, statement: body });
+	//Dispatcher.dispatch({ action: Constants.SEND_PREVIOUS_STATEMENT})
+	//Api.post(Constants.SEND_PREVIOUS_STATEMENT, "api/xapi", body);
+  },
+
   sendAssessmentSuspendedStatement(item) {
 	var body = {
 		statementName        : "assessmentSuspended",
