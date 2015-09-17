@@ -35,7 +35,15 @@ export default class Item extends BaseComponent{
     AssessmentActions.selectConfidenceLevel(e.target.value, currentIndex);
     this.checkAnswerRemotely();
   }
+
+  hintButtonClicked() {
+    console.log("components/item:40 hint button clicked");
+  }
   
+  answerButtonClicked() {
+    console.log("components/item:44 answer button clicked");
+  }
+
   checkAnswerRemotely() {
     //Store a reference to this function so we can call it in the timeout and get the actual answer that otherwise wouldn't be in here because we're calling it too soon (I think that's why it otherwise doesn't work).
     var studentAnswersFunction = AssessmentStore.studentAnswers;
@@ -146,6 +154,16 @@ export default class Item extends BaseComponent{
         width: theme.definitelyWidth,
         backgroundColor: theme.definitelyBackgroundColor,
         color: theme.definitelyColor,
+      },
+      hintButton: {
+        width: theme.maybeWidth,
+        backgroundColor: theme.maybeBackgroundColor,
+        color: theme.maybeColor,
+      },
+      answerButton: {
+        width: theme.maybeWidth,
+        backgroundColor: theme.maybeBackgroundColor,
+        color: theme.maybeColor,
       },
       submitButton: {
         width: theme.definitelyWidth,
@@ -266,6 +284,18 @@ export default class Item extends BaseComponent{
     }
   }
 
+  getHintButton(styles) {
+	  return (<button className="btn btn-hint" style={styles.hintButton} onClick={() => { this.hintButtonClicked() }}>
+			<span>Show Hint</span>
+		  </button>);
+  }
+
+  getAnswerButton(styles) {
+	  return (<button className="btn btn-hint" style={styles.answerButton} onClick={() => { this.answerButtonClicked() }}>
+			<span>Show Answer</span>
+		  </button>);
+  }
+
   getNextButton(styles){
     var nextButton = "";
     var nextButtonClassName = "btn btn-next-item " + ((this.props.currentIndex < this.props.questionCount - 1) ? "" : "disabled");
@@ -324,7 +354,9 @@ export default class Item extends BaseComponent{
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
     var result = this.getResult(this.props.messageIndex, this.props.messageFeedback);
     var message = this.state && this.state.showMessage ? <div style={styles.warning}>You must select an answer before continuing.</div> : "";
-    var buttons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
+    var confidenceButtons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
+    var hintButton = this.getHintButton();
+    var answerButton = this.getAnswerButton();
     //var submitButton = (this.props.currentIndex == this.props.questionCount - 1) ? <button className="btn btn-check-answer" style={styles.definitelyButton}  onClick={(e)=>{this.submitButtonClicked(e)}}>Submit Quiz</button> : "";
     //TODO change the appearance of this button when all questions have been answered, like canvas
     //console.log("item:327 render",this.state);
@@ -384,7 +416,9 @@ export default class Item extends BaseComponent{
                 <div className="row">
                   <div className="col-md-6">
                     {result}
-                    {buttons}
+                    {confidenceButtons}
+		    {hintButton}
+		    {answerButton}
                     {unAnsweredWarning}
                     {message}
                   </div>
