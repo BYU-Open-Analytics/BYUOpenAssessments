@@ -39,11 +39,14 @@ export default class Item extends BaseComponent{
   hintButtonClicked() {
     console.log("components/item:40 hint button clicked");
     XapiActions.sendQuestionHintShownStatement(this.props);
+    this.setState({showHint: true});
   }
   
   answerButtonClicked() {
     console.log("components/item:44 answer button clicked");
     XapiActions.sendQuestionAnswerShownStatement(this.props);
+    // TODO set this and showHint to false wherever state is setup / reset
+    this.setState({showCorrectAnswers: true});
   }
 
   checkAnswerRemotely() {
@@ -328,7 +331,7 @@ export default class Item extends BaseComponent{
   }
 
 
-  getResult(index,feedback){
+  getResult(state, index, feedback){
     var result;
 
     if(index == -1){
@@ -341,14 +344,24 @@ export default class Item extends BaseComponent{
                   <img src={this.props.settings.images.spinner_gif} /><p>Checking...</p>
                 </div>;
     }
-    else if(index == 0){
-      result =  <div className="check_answer_result answer_result_incorrect">
-                  <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
-                </div>;
-    }
     else {
-      result =  <div className="check_answer_result answer_result_correct">
-                  <p>Correct</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
+      var correct = (index != 0);
+      var resultClassName = correct ? "check_answer_result answer_result_correct" : "check_answer_result answer_result_incorrect";
+      var resultText = correct ? "Correct" : "Incorrect";
+      var hint = (this.state && this.state.showHint) ? <div className="result_hint" dangerouslySetInnerHTML={{__html: feedback.hint}}></div> : "";
+      var correctAnswers = "";
+      if (this.state && this.state.showCorrectAnswers) {
+       correctAnswers = <div className="result_correct_answers"><b>Correct Answer(s)</b><ul> {
+			feedback.correct_answers.map(function(answer) {
+				return <li>{answer}</li>
+			})
+		  } </ul></div>;
+      }
+      result =  <div className={resultClassName}>
+                  <p>{resultText}</p>
+		  <div className="result_feedback" dangerouslySetInnerHTML={{__html: feedback.feedback}}></div>
+		  {hint}
+      		  {correctAnswers}
                 </div>;
     }
 
@@ -359,7 +372,7 @@ export default class Item extends BaseComponent{
   render() {
     var styles = this.getStyles(this.context.theme);
     var unAnsweredWarning = this.getWarning(this.state,  this.props.questionCount, this.props.currentIndex, styles);
-    var result = this.getResult(this.props.messageIndex, this.props.messageFeedback);
+    var result = this.getResult(this.state, this.props.messageIndex, this.props.messageFeedback);
     var message = this.state && this.state.showMessage ? <div style={styles.warning}>You must select an answer before continuing.</div> : "";
     var confidenceButtons = this.getConfidenceLevels(this.props.confidenceLevels, styles);
     var hintButton = this.getHintButton(styles);
