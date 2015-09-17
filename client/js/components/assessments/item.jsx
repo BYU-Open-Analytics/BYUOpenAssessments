@@ -37,16 +37,24 @@ export default class Item extends BaseComponent{
   }
 
   hintButtonClicked() {
-    console.log("components/item:40 hint button clicked");
-    XapiActions.sendQuestionHintShownStatement(this.props);
-    this.setState({showHint: true});
+    //console.log("components/item:40 hint button clicked");
+    if (this.props.messageIndex > -1) {
+	    XapiActions.sendQuestionHintShownStatement(this.props);
+	    this.setState({showHint: true});
+    } else {
+	    alert("Please attempt the question at least once before using a hint.");
+    }
   }
   
   answerButtonClicked() {
-    console.log("components/item:44 answer button clicked");
-    XapiActions.sendQuestionAnswerShownStatement(this.props);
-    // TODO set this and showHint to false wherever state is setup / reset
-    this.setState({showCorrectAnswers: true});
+    //console.log("components/item:44 answer button clicked");
+    if (this.props.messageIndex > -1) {
+	    XapiActions.sendQuestionAnswerShownStatement(this.props);
+	    // TODO set this and showHint to false wherever state is setup / reset
+	    this.setState({showCorrectAnswers: true});
+    } else {
+	    alert("Please attempt the question at least once before viewing the correct answers.");
+    }
   }
 
   checkAnswerRemotely() {
@@ -162,7 +170,7 @@ export default class Item extends BaseComponent{
       },
       hintButton: {
         width: "100px",
-        backgroundColor: "#bbb",
+        backgroundColor: (this.props.messageIndex > -1) ? theme.nextButtonBackgroundColor : "#bbb",
         color: theme.maybeColor,
 	borderBottomRightRadius: "0px",
 	borderTopRightRadius: "0px",
@@ -170,7 +178,7 @@ export default class Item extends BaseComponent{
       },
       answerButton: {
         width: "100px",
-        backgroundColor: "#bbb",
+        backgroundColor: (this.props.messageIndex > -1) ? theme.nextButtonBackgroundColor : "#bbb",
         color: theme.maybeColor,
 	borderBottomLeftRadius: "0px",
 	borderTopLeftRadius: "0px",
@@ -348,7 +356,7 @@ export default class Item extends BaseComponent{
       var correct = (index != 0);
       var resultClassName = correct ? "check_answer_result answer_result_correct" : "check_answer_result answer_result_incorrect";
       var resultText = correct ? "Correct" : "Incorrect";
-      var hint = (this.state && this.state.showHint) ? <div className="result_hint" dangerouslySetInnerHTML={{__html: feedback.hint}}></div> : "";
+      var hint = (this.state && this.state.showHint) ? <div className="result_hint"><b>Hint: </b><span dangerouslySetInnerHTML={{__html: feedback.hint}}></span></div> : "";
       var correctAnswers = "";
       if (this.state && this.state.showCorrectAnswers) {
        correctAnswers = <div className="result_correct_answers"><b>Correct Answer(s)</b><ul> {
