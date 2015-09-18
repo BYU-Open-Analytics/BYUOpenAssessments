@@ -177,6 +177,7 @@ export default class Item extends BaseComponent{
 	borderBottomRightRadius: "0px",
 	borderTopRightRadius: "0px",
 	borderRightColor: "white",
+	marginLeft: "20px",
       },
       answerButton: {
         width: "100px",
