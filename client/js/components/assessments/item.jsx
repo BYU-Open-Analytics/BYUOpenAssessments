@@ -303,13 +303,21 @@ export default class Item extends BaseComponent{
   }
 
   getHintButton(styles) {
-	  return (<button className="btn btn-hint" style={styles.hintButton} onClick={() => { this.hintButtonClicked() }}>
-			<span>Show Hint</span>
-		  </button>);
+	  if (this.props.messageIndex > -1) {
+		  return (<button className="btn btn-hint btn-active" style={styles.hintButton} onClick={() => { this.hintButtonClicked() }}>
+				<span>Show Hint</span>
+			  </button>);
+	  } else {
+		  return (<button className="btn btn-hint" style={styles.hintButton} onClick={() => { this.hintButtonClicked() }}>
+				<span>Show Hint</span>
+			  </button>);
+	  }
+
   }
 
   getAnswerButton(styles) {
-	  return (<button className="btn btn-hint" style={styles.answerButton} onClick={() => { this.answerButtonClicked() }}>
+	  var className = (this.props.messageIndex > -1) ? "btn btn-answer btn-active" : "btn btn-answer";
+	  return (<button className={className} style={styles.answerButton} onClick={() => { this.answerButtonClicked() }}>
 			<span>Show Answer</span>
 		  </button>);
   }
