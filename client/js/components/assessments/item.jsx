@@ -41,6 +41,7 @@ export default class Item extends BaseComponent{
     if (this.props.messageIndex > -1) {
 	    XapiActions.sendQuestionHintShownStatement(this.props);
 	    this.setState({showHint: true});
+	    this.props.messageFeedback.showHint = true;
     } else {
 	    alert("Please attempt the question at least once before using a hint.");
     }
@@ -52,6 +53,7 @@ export default class Item extends BaseComponent{
 	    XapiActions.sendQuestionAnswerShownStatement(this.props);
 	    // TODO set this and showHint to false wherever state is setup / reset
 	    this.setState({showCorrectAnswers: true});
+	    this.props.messageFeedback.showCorrectAnswers = true;
     } else {
 	    alert("Please attempt the question at least once before viewing the correct answers.");
     }
@@ -364,12 +366,12 @@ export default class Item extends BaseComponent{
       var correct = (index != 0);
       var resultClassName = correct ? "check_answer_result answer_result_correct" : "check_answer_result answer_result_incorrect";
       var resultText = correct ? "Correct" : "Incorrect";
-      var hint = (this.state && this.state.showHint) ? <div className="result_hint"><b>Hint: </b><span dangerouslySetInnerHTML={{__html: feedback.hint}}></span></div> : "";
+      var hint = (feedback.showHint == true) ? <div className="result_hint"><b>Hint: </b><span dangerouslySetInnerHTML={{__html: feedback.hint}}></span></div> : "";
       var correctAnswers = "";
-      if (this.state && this.state.showCorrectAnswers) {
+      if (feedback.showCorrectAnswers == true) {
        correctAnswers = <div className="result_correct_answers"><b>Correct Answer(s)</b><ul> {
 			feedback.correct_answers.map(function(answer) {
-				return <li>{answer}</li>
+				return <li dangerouslySetInnerHTML={{__html: answer}}></li>
 			})
 		  } </ul></div>;
       }
