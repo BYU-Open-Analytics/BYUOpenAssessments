@@ -141,7 +141,7 @@ class Api::GradesController < Api::ApiController
 
     higher_grade = true
 
-    # TODO CHANGE THIS TO TRUE WHEN LEARNING SUITE LTI GRADE PASSBACK IS WORKING
+    # TODO CHANGE THIS TO TRUE WHEN LEARNING SUITE LTI GRADE PASSBACK IS WORKING, AND REMOVE RES.INSPECT WHICH WILL LEAK KEY AND SECRET
     attempt_lti = (assessment.id == 21)
     submission_status = ""
 
