@@ -56,12 +56,12 @@ export default class ItemResult extends React.Component{
 
     if(correct == true) {
       result =  <div className="check_answer_result answer_result_correct" style={styles.answerResult}>
-                  <p>Correct</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
+                  <p>Correct</p><div dangerouslySetInnerHTML={{__html: feedback.feedback}}></div>
                 </div>;
     }
     else {
       result =  <div className="check_answer_result answer_result_incorrect" style={styles.answerResult}>
-                  <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback}}></div>
+                  <p>Incorrect</p><div dangerouslySetInnerHTML={{__html: feedback.feedback}}></div>
                 </div>;
     }
 
