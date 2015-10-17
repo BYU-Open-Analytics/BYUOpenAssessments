@@ -119,7 +119,7 @@ export default {
 	console.log("actions/xapi:110 sending answer shown statement",item);
 	var body = {
 		statementName        : "questionAnswerShown",
-		questionId           : item.currentIndex
+		questionId           : item.currentIndex + 1
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
@@ -132,7 +132,7 @@ export default {
 	console.log("actions/xapi:132 sending hint shown statement",item);
 	var body = {
 		statementName        : "questionHintShown",
-		questionId           : item.currentIndex
+		questionId           : item.currentIndex + 1
 	};
 	body = this.addStandardStatementBody(body);
 	//console.log(body);
