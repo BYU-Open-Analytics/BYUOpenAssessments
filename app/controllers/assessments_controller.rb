@@ -30,6 +30,7 @@ class AssessmentsController < ApplicationController
     @style = params[:style] ? params[:style] :  ""
     @per_sec = params[:per_sec] ? params[:per_sec] : nil
     @question_focus = params[:question_focus] ? params[:question_focus] : 0
+	@grade_passback = params[:grade_passback] ? params[:grade_passback] : false
     if params[:id].present? && !['load', 'offline'].include?(params[:id])
       @assessment = Assessment.where(id: params[:id], account: current_account).first
       @assessment_id = @assessment ? @assessment.id : params[:assessment_id] || 'null'

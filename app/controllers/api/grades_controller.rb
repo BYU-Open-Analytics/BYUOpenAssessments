@@ -120,14 +120,6 @@ class Api::GradesController < Api::ApiController
     
     end
 
-    score = Float(answered_correctly) / Float(questions.length)
-    canvas_score = score
-    score *= Float(100)
-
-    #save the assessment result incase lti writeback failed.
-    result.score = score
-    result.external_user_id = params["external_user_id"]
-    result.save!
     params = {
       'lis_result_sourcedid'    => settings["lisResultSourceDid"],
       'lis_outcome_service_url' => settings["lisOutcomeServiceUrl"],
@@ -136,16 +128,26 @@ class Api::GradesController < Api::ApiController
     # Ampersand will get encoded weird in html output, which then gets passed through weird. This is just a stopgap fix.
     params['lis_outcome_service_url'].gsub! '&amp;', '&'
 
-    success = false;
+    # Calculate score
+    score = Float(answered_correctly) / Float(questions.length)
+    canvas_score = score
+    score *= Float(100)
+
+	# Determine if we're attemping LTI grade passback, based on URL grade_passback parameter
+	attempt_lti = settings["gradePassback"] ? (settings["gradePassback"] == true || settings["gradePassback"] == "true") : false
+	# Default result status to practice only
     submission_status = "For practice only. Grade not posted."
 
-    higher_grade = true
-
-    # TODO CHANGE THIS TO TRUE WHEN LEARNING SUITE LTI GRADE PASSBACK IS WORKING, AND REMOVE RES.INSPECT WHICH WILL LEAK KEY AND SECRET
-    attempt_lti = (assessment.id == 21)
-    submission_status = ""
-
+	# If we're attemping passback and there's a passback URL
     if attempt_lti && settings["isLti"] && !params['lis_outcome_service_url'].blank?
+      # Save the assessment result incase LTI grade passback fails
+      result.score = score
+      result.external_user_id = params["external_user_id"]
+      result.save!
+
+      higher_grade = true
+      success = false;
+
       # If we have a higher score from any previous attempts, don't post this score back to LTI.
       previous_results = current_user.present? ? current_user.assessment_results.where(assessment_id: assessment.id).where("score > ?", score).order(score: :desc) : nil
       if previous_results != nil and previous_results.count > 0
@@ -183,7 +185,7 @@ class Api::GradesController < Api::ApiController
           end
         end
 
-        submission_status = (success) ? "Grade posted via LTI successfully. #{res.inspect}" : "There was an error posting the grade: #{res.code_major}. #{res.inspect}"
+        submission_status = (success) ? "Grade posted via LTI successfully." : "There was an error posting the grade: #{res.inspect} #{res.code_major}."
         if !success
           errors.push("Grade writeback failed.")
         end
@@ -213,3 +215,4 @@ class Api::GradesController < Api::ApiController
   end
   
 end
+

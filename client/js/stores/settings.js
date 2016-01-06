@@ -66,6 +66,7 @@ function loadSettings(defaultSettings){
     allowedAttempts    : defaultSettings.allowed_attempts,
     userAttempts       : bestValue("user_attempts","userAttempts", 0),
     questionFocus      : bestValue('question_focus', 'question_focus', 1),
+	gradePassback      : bestValue('grade_passback', 'grade_passback', false),
     referrer           : bestValue('referrer', 'referrer', "none"),
     lisUserId          : defaultSettings.lis_user_id,
     lisResultSourceDid : defaultSettings.lis_result_sourcedid,
