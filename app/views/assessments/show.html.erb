@@ -30,6 +30,7 @@
   <div id="assessment-container"></div>
   <%= webpack_manifest_script %> 
   <%= webpack_bundle_tag 'app' %>
+  <h5 style="padding-left: 30px; padding-bottom: 6px;"><%= raw @footer_message %>
 <% end -%>
 
 <%= javascript_include_tag "open_comm.js" %>

@@ -31,6 +31,7 @@ class AssessmentsController < ApplicationController
     @per_sec = params[:per_sec] ? params[:per_sec] : nil
     @question_focus = params[:question_focus] ? params[:question_focus] : 0
 	@grade_passback = params[:grade_passback] ? params[:grade_passback] : false
+	@footer_message = Rails.application.secrets.footer_message ? Rails.application.secrets.footer_message : "Default footer message."
     if params[:id].present? && !['load', 'offline'].include?(params[:id])
       @assessment = Assessment.where(id: params[:id], account: current_account).first
       @assessment_id = @assessment ? @assessment.id : params[:assessment_id] || 'null'
