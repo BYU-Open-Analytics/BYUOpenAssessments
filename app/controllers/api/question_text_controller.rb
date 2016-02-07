@@ -1,7 +1,7 @@
 class Api::QuestionTextController < Api::ApiController
-  
+
   skip_before_action :validate_token, only: [:create]
-  
+
   def create
 
     # store lis stuff in session
@@ -14,12 +14,13 @@ class Api::QuestionTextController < Api::ApiController
         p id
 	begin
           assessment = Assessment.find(id)
-	  question_texts[id] = []
+	  question_texts[id] = [][]
           doc = Nokogiri::XML(assessment.assessment_xmls.where(kind: "formative").last.xml)
           doc.remove_namespaces!
           xml_questions = doc.xpath("//item")
 	  xml_questions.each_with_index do |question, index|
-	      question_texts[id] << question.css('presentation/material/mattext').last.text
+
+	      question_texts[id] << question.css('title').last.text << question.css('presentation/material/mattext').last.text
 	  end
 	  p question_texts[id]
 	rescue => e
@@ -31,5 +32,5 @@ class Api::QuestionTextController < Api::ApiController
       format.json { render json: question_texts }
     end
   end
-  
+
 end
